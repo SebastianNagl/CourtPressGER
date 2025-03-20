@@ -2,10 +2,29 @@
 notes.md
 cleaned_data
 
-# Jupyter Notebook Checkpoints
+# Jupyter Notebook
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
 
-*.egg
-*.egg-info
+# Jupyter Notebook metadata
+**/*.ipynb
+!**/*.ipynb
+**/*.ipynb filter=clean-ipynb
+
+# Python
+*.py[cod]
 __pycache__/
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+bin/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
