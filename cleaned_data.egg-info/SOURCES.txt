@@ -1,0 +1,5 @@
+pyproject.toml
+cleaned_data.egg-info/PKG-INFO
+cleaned_data.egg-info/SOURCES.txt
+cleaned_data.egg-info/dependency_links.txt
+cleaned_data.egg-info/top_level.txt
