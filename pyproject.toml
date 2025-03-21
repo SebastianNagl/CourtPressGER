@@ -14,8 +14,9 @@ dependencies = [
     "pandas>=1.3.0",
     "matplotlib>=3.4.0",
     "numpy>=1.20.0",
-    "re>=2.2.1",
     "pathlib",
+    "datasets>=3.4.0",
+    "transformers>=4.49.0",
 ]
 
 [project.optional-dependencies]
