@@ -1,5 +1,6 @@
 .venv
 notes.md
+data
 cleaned_data
 
 # Jupyter Notebook
@@ -28,3 +29,5 @@ develop-eggs/
 .installed.cfg
 lib/
 lib64/
+data
+cleaned_data
