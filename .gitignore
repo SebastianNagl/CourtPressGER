@@ -27,6 +27,7 @@ bin/
 var/
 sdist/
 develop-eggs/
+*.egg-info
 .installed.cfg
 lib/
 lib64/
