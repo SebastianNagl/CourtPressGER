@@ -83,32 +83,111 @@ Das Paket enthält folgende Bereinigungsansätze:
 
 Für Best Performance wird die Verwendung eines GPU-Servers mit CUDA 12.x und den [RAPIDS](https://rapids.ai)-Bibliotheken empfohlen.
 
+### Generierung von synthetischen Prompts
+
+Das Projekt ermöglicht die Generierung von synthetischen Prompts auf Basis von Gerichtsurteilen und zugehörigen Pressemitteilungen mittels der Anthropic Claude API.
+
+#### 1. Verwendung über die Kommandozeile
+
+```bash
+# Synthetische Prompts generieren
+courtpressger-prompts --input data/cleaned.csv --output data/processed/court_press_with_synthetic_prompts_final.csv --checkpoint-dir checkpoints --batch-size 5
+
+# Test-Modus für einen einzelnen Eintrag
+courtpressger-prompts --input data/cleaned.csv --output test_output.csv --test-single --test-idx 10
+```
+
+Wichtige Parameter:
+
+- `--input, -i`: Pfad zur Eingabe-CSV mit Gerichtsurteilen (`judgement`) und Pressemitteilungen (`summary`)
+- `--output, -o`: Pfad für die Ausgabe-CSV-Datei mit hinzugefügten synthetischen Prompts
+- `--checkpoint-dir, -c`: Verzeichnis für Checkpoints zur Fortsetzung bei Unterbrechungen
+- `--model, -m`: Zu verwendendes Claude-Modell (Standard: `claude-3-7-sonnet-20250219`)
+- `--batch-size, -b`: Anzahl der Elemente pro Batch (Standard: 5)
+- `--start-idx, -s`: Startindex für die Verarbeitung (Standard: 0)
+- `--save-interval`: Speicherintervall für Checkpoints (Standard: 5)
+- `--fix-errors`: Fehlerhafte Einträge erneut verarbeiten
+- `--api-key`: Anthropic API-Schlüssel (alternativ über ANTHROPIC_API_KEY Umgebungsvariable)
+- `--env-file`: Pfad zur .env-Datei mit ANTHROPIC_API_KEY
+
+#### 2. Verwendung im Code
+
+```python
+from courtpressger.synthetic_prompts.generator import generate_synthetic_prompt, process_batch
+import pandas as pd
+import anthropic
+
+# Initialisiere Client
+client = anthropic.Anthropic(api_key="YOUR_API_KEY")
+
+# Lade Datensatz
+df = pd.read_csv("data/cleaned.csv")
+
+# Einzelnen Prompt generieren
+synthetic_prompt = generate_synthetic_prompt(
+    court_ruling=df.iloc[0]['judgement'],
+    press_release=df.iloc[0]['summary'],
+    client=client
+)
+
+# Batch-Verarbeitung
+results_df = process_batch(
+    df,
+    batch_size=5,
+    start_idx=0,
+    save_interval=5,
+    checkpoint_dir="checkpoints",
+    output_prefix="synthetic_prompts",
+    client=client
+)
+```
+
 ## Projekt-Struktur
 
 ```
 .
-├── courtpressger/               # Hauptpaket
-│   ├── __init__.py              # Package-Initialisierung
-│   ├── dataset.py               # Funktionen zum Laden des Datensatzes
-│   ├── main.py                  # CLI-Funktionalität
-│   └── data_cleaning/           # Module zur Datenbereinigung
+├── courtpressger/                # Hauptpaket
+│   ├── __init__.py               # Package-Initialisierung
+│   ├── dataset.py                # Funktionen zum Laden des Datensatzes
+│   ├── main.py                   # CLI-Funktionalität
+│   ├── data_cleaning/            # Module zur Datenbereinigung
+│   │   ├── __init__.py
+│   │   ├── cli.py                # CLI für Bereinigungsmodule
+│   │   ├── utils.py              # Hilfsfunktionen
+│   │   ├── rule_based.py         # Regelbasierte Filter
+│   │   ├── semantic_similarity.py # Semantische Ähnlichkeitsanalyse
+│   │   ├── ml_classifier.py      # ML-Klassifikation 
+│   │   ├── clustering.py         # Clustering-Methoden
+│   │   └── combined_pipeline.py  # Kombinierte Pipeline
+│   └── synthetic_prompts/        # Module zur Generierung synthetischer Prompts
 │       ├── __init__.py
-│       ├── utils.py             # Hilfsfunktionen
-│       ├── rule_based.py        # Regelbasierte Filter
-│       ├── semantic_similarity.py # Semantische Ähnlichkeitsanalyse
-│       ├── ml_classifier.py     # ML-Klassifikation 
-│       ├── clustering.py        # Clustering-Methoden
-│       ├── combined_pipeline.py # Kombinierte Pipeline
-│       └── cli.py               # CLI für Bereinigungsmodule
-├── data/                        # Datenverzeichnis
-├── notebooks/                   # Jupyter Notebooks
-│   └── bereinigung_notebook.ipynb # Notebook zur Datenbereinigung
-├── reports/                     # Visualisierungen und Berichte
-├── tests/                       # Testverzeichnis
+│       ├── cli.py                # CLI für Prompt-Generierung
+│       ├── generator.py          # Kernfunktionalität zur Generierung
+│       └── rate_limiter.py       # Ratenbegrenzung für API-Anfragen
+├── data/                         # Datenverzeichnis
+│   ├── interim/                  # Zwischenergebnisse
+│   │   ├── cleaned.csv           # Bereinigter Datensatz
+│   │   └── removed.csv           # Entfernte Einträge
+│   ├── processed/                # Aufbereitete Datensätze
+│   │   ├── court_press_with_synthetic_prompts_essential.csv
+│   │   └── court_press_with_synthetic_prompts_final.csv
+│   └── raw/                      # Rohdaten
+│       └── german_courts.csv     # Ausgangsdatensatz
+├── models/                       # Gespeicherte Modelle
+├── notebooks/                    # Jupyter Notebooks
+│   ├── bereinigung.ipynb         # Notebook zur Datenbereinigung
+│   ├── deskriptiv.ipynb          # Deskriptive Analysen
+│   ├── synthetic_prompts.ipynb   # Notebook zur Prompt-Generierung
+│   └── checkpoints/              # Notebook-Checkpoints
+├── checkpoints/                  # Checkpoints für Prompt-Generierung
+├── reports/                      # Visualisierungen und Berichte
+│   └── data_cleaning/            # Berichte zur Datenbereinigung
+├── tests/                        # Testverzeichnis
 ├── LICENSE
 ├── README.md
-├── pyproject.toml               # Projektmetadaten und Abhängigkeiten
-└── Makefile                     # Build-Skripte
+├── pyproject.toml                # Projektmetadaten und Abhängigkeiten
+├── uv.lock                       # Dependency lock file
+└── Makefile                      # Build-Skripte
 ```
 
 ## Datenquellen
