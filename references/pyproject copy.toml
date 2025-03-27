@@ -33,8 +33,25 @@ dependencies = [
     "mypy>=1.5.1",
     "pytest>=7.4.0",
     "black>=23.9.1",
-    "anthropic>=0.49.0",
-    "python-dotenv>=1.1.0",
+]
+
+[project.optional-dependencies]
+
+gpu = [
+    "torch>=2.0.0; platform_system != 'Darwin'",
+    "transformers>=4.35.0",
+    "accelerate>=0.21.0",
+    "scikit-learn>=1.3.0",
+    "nvidia-ml-py>=11.525.84",
+    "cudf-cu12>=24.2.0; platform_system == 'Linux'",
+    "cuml-cu12>=24.2.0; platform_system == 'Linux'",
+    "cupy-cuda12x>=12.0.0; platform_system == 'Linux'",
+    "rmm-cu12>=24.2.0; platform_system == 'Linux'",
+    "spacy-cuda-runtime>=6.4.0; platform_system == 'Linux'",
+    "spacy-cuda>=0.3.0; platform_system == 'Linux'",
+    "matplotlib-venn>=0.11.9",
+    "wordcloud>=1.9.0",
+    "joblib>=1.3.0",
 ]
 
 
@@ -58,4 +75,3 @@ disallow_incomplete_defs = true
 [project.scripts]
 courtpressger = "courtpressger.main:main"
 courtpressger-clean = "courtpressger.data_cleaning.cli:main"
-courtpressger-prompt = "courtpressger.synthetic_prompts.cli:main"
