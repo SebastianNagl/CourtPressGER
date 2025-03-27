@@ -109,4 +109,10 @@ packages = []
 include-package-data = false
 
 [tool.setuptools.exclude-package-data]
-"*" = ["data/*", "cleaned_data/*"]
+"*" = ["data/raw/*", "data/processed/*", "data/interim/*"]
+
+[project.scripts]
+courtpress-analyze = "courtpress.scripts.run_analysis:main"
+courtpress-clean = "courtpress.scripts.run_cleaning:main"
+courtpress-prompts = "courtpress.scripts.generate_prompts:main"
+courtpress-combined = "courtpress.scripts.run_combined_analysis:main"

@@ -1,8 +1,16 @@
+# Project directories
 .venv
-.venv_local
-notes.md
-data
-cleaned_data
+data/raw/*
+data/processed/*
+data/interim/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/interim/.gitkeep
+figures/
+analysis_results/
+checkpoints/
+generated_prompts/
+synthetic_prompts/
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -14,22 +22,62 @@ cleaned_data
 **/*.ipynb filter=clean-ipynb
 
 # Python
-*.py[cod]
 __pycache__/
+*.py[cod]
+*$py.class
 *.so
-*.egg
-*.egg-info/
-dist/
+.Python
 build/
-eggs/
-parts/
-bin/
-var/
-sdist/
 develop-eggs/
-*.egg-info
-.installed.cfg
+dist/
+downloads/
+eggs/
+.eggs/
 lib/
 lib64/
-data
-cleaned_data
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+.env
+env/
+venv/
+ENV/
+
+# Data and models
+models/
+*.pkl
+*.h5
+*.pt
+*.bin
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# uv specific
+.uv/
+.venv-uv/
+__pypackages__/
+requirements.lock
+requirements-dev.lock
+requirements-gpu.lock
+.python-version
+
+# Personal notes
+notes.md

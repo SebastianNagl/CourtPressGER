@@ -1,0 +1,2 @@
+# This file ensures the processed data directory is tracked by git
+# even though its contents are gitignored 
