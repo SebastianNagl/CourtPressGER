@@ -38,29 +38,28 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# CPU-spezifische Abhängigkeiten für MacOS (und andere Systeme ohne CUDA)
+# CPU-spezifische Abhängigkeiten für MacOS und Systeme ohne CUDA
+# PyTorch wird automatisch in der CPU-Version installiert
 cpu = [
     "torch>=2.0.0",
     "transformers>=4.35.0",
     "accelerate>=0.21.0",
 ]
 
-# GPU-spezifische Abhängigkeiten für Linux-Systeme mit CUDA
+# GPU-spezifische Abhängigkeiten für Linux-Systeme mit CUDA 11.8
+# PyTorch wird manuell über den CUDA-spezifischen Index installiert
 gpu = [
-    # PyTorch wird manuell über den CUDA-spezifischen Index installiert
     "transformers>=4.35.0",
     "accelerate>=0.21.0",
-    "scikit-learn>=1.3.0",
+    # NVIDIA CUDA Toolkit 11.8 spezifische Pakete
     "nvidia-ml-py>=11.525.84; platform_system == 'Linux'",
     "cudf-cu12>=24.2.0; platform_system == 'Linux'",
     "cuml-cu12>=24.2.0; platform_system == 'Linux'",
     "cupy-cuda12x>=12.0.0; platform_system == 'Linux'",
     "rmm-cu12>=24.2.0; platform_system == 'Linux'",
+    # CUDA-optimierte spaCy
     "spacy-cuda-runtime>=6.4.0; platform_system == 'Linux'",
     "spacy-cuda>=0.3.0; platform_system == 'Linux'",
-    "matplotlib-venn>=0.11.9",
-    "wordcloud>=1.9.0",
-    "joblib>=1.3.0",
 ]
 
 [tool.setuptools]

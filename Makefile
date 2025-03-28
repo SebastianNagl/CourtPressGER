@@ -18,27 +18,6 @@ PYTHON = $(VENV_NAME)/bin/python
 requirements:
 	uv sync
 
-## Set up Python interpreter environment
-.PHONY: create_environment
-create_environment:
-	uv venv --python 3.12 $(VENV_NAME)
-	@echo ">>> New uv virtual environment created. Activate with:"
-	@echo ">>> Windows: .\$(VENV_NAME)\Scripts\activate"
-	@echo ">>> Unix/macOS: source ./$(VENV_NAME)/bin/activate"
-
-## Install standard CPU version (for MacOS and standard systems)
-.PHONY: install-cpu
-install-cpu: create_environment
-	source $(VENV_ACTIVATE) && uv pip install -e ".[cpu]"
-	@echo ">>> CPU-Version installiert. Geeignet für MacOS und Systeme ohne CUDA."
-
-## Install GPU version with CUDA support (for Linux servers with NVIDIA GPUs)
-.PHONY: install-gpu
-install-gpu: create_environment
-	source $(VENV_ACTIVATE) && uv pip install torch --index-url https://download.pytorch.org/whl/cu118
-	source $(VENV_ACTIVATE) && uv pip install -e ".[gpu]"
-	@echo ">>> GPU-Version mit CUDA-Unterstützung installiert. Für Linux-Server mit NVIDIA-GPU."
-
 ## Lint using ruff (use `make format` to do formatting)
 .PHONY: lint
 lint:
@@ -92,6 +71,38 @@ clean:
 	find . -type d -name ".pytest_cache" -exec rm -rf {} +
 	find . -type d -name ".mypy_cache" -exec rm -rf {} +
 	find . -type d -name ".ruff_cache" -exec rm -rf {} +
+
+# Virtuelle Umgebungen
+.PHONY: venv venv-cpu venv-gpu clean-venv
+
+# Erstellt eine CPU-spezifische virtuelle Umgebung
+venv-cpu:
+	@echo "Erstelle CPU-spezifische virtuelle Umgebung..."
+	@uv venv --python $(PYTHON_VERSION) .venv-cpu
+	@. .venv-cpu/bin/activate && \
+		uv pip install --upgrade pip && \
+		uv pip install -e ".[cpu]"
+	@echo ">>> CPU-Umgebung erstellt. Aktivieren mit:"
+	@echo ">>> source .venv-cpu/bin/activate"
+
+# Erstellt eine GPU-spezifische virtuelle Umgebung
+venv-gpu:
+	@echo "Erstelle GPU-spezifische virtuelle Umgebung..."
+	@uv venv --python $(PYTHON_VERSION) .venv-gpu
+	@. .venv-gpu/bin/activate && \
+		uv pip install --upgrade pip && \
+		uv pip install torch --index-url https://download.pytorch.org/whl/cu118 && \
+		uv pip install -e ".[gpu]"
+	@echo ">>> GPU-Umgebung erstellt. Aktivieren mit:"
+	@echo ">>> source .venv-gpu/bin/activate"
+
+# Standard-Target für venv (CPU als Standard)
+venv: venv-cpu
+
+# Löscht alle virtuellen Umgebungen
+clean-venv:
+	@echo "Lösche virtuelle Umgebungen..."
+	@rm -rf .venv-cpu .venv-gpu
 
 #################################################################################
 # Self Documenting Commands                                                     #

@@ -3,11 +3,59 @@
 Sammlung und Verarbeitung von Gerichtsurteilen und zugehörigen Pressemitteilungen.
 
 ## Installation
-#todo Ich mag die Lösung über uv pip install nicht; würde das gern noch umziehen auf pures uv add.
 
+Das Projekt unterstützt zwei verschiedene Installationen, abhängig von Ihrem System:
+
+### CPU-Installation (für MacOS und Systeme ohne CUDA)
+
+```bash
+# Erstelle eine CPU-spezifische virtuelle Umgebung
+make venv-cpu
+
+# Aktiviere die Umgebung
+source .venv-cpu/bin/activate
 ```
-uv pip install -e .               # Reguläre Installation
-uv pip install -e ".[gpu]"        # Mit GPU-optimierten Abhängigkeiten
+
+### GPU-Installation (für Linux-Systeme mit CUDA 11.8)
+
+```bash
+# Erstelle eine GPU-spezifische virtuelle Umgebung
+make venv-gpu
+
+# Aktiviere die Umgebung
+source .venv-gpu/bin/activate
+```
+
+### Systemanforderungen
+
+- **CPU-Version**:
+  - Python 3.12 oder höher
+  - MacOS oder Linux ohne CUDA
+  - Mindestens 16GB RAM empfohlen
+
+- **GPU-Version**:
+  - Python 3.12 oder höher
+  - Linux mit NVIDIA GPU
+  - CUDA 11.8 Toolkit
+  - Mindestens 16GB RAM empfohlen
+  - Mindestens 8GB GPU-Speicher empfohlen
+
+### Entwicklungsumgebung einrichten
+
+Für Entwickler, die am Projekt mitarbeiten möchten:
+
+```bash
+# Virtuelle Umgebung erstellen (CPU oder GPU)
+make venv-cpu  # oder make venv-gpu
+
+# Abhängigkeiten synchronisieren
+make sync
+
+# Code formatieren
+make format
+
+# Tests ausführen
+make test
 ```
 
 ## Verwendung
