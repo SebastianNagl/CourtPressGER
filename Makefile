@@ -18,6 +18,26 @@ PYTHON = $(VENV_NAME)/bin/python
 requirements:
 	uv sync
 
+## Set up Python interpreter environment
+.PHONY: create_environment
+create_environment:
+	uv venv --python 3.12 $(VENV_NAME)
+	@echo ">>> New uv virtual environment created. Activate with:"
+	@echo ">>> Windows: .\$(VENV_NAME)\Scripts\activate"
+	@echo ">>> Unix/macOS: source ./$(VENV_NAME)/bin/activate"
+
+## Install standard CPU version (for MacOS and standard systems)
+.PHONY: install-cpu
+install-cpu: create_environment
+	source $(VENV_ACTIVATE) && uv pip install -e ".[cpu]"
+	@echo ">>> CPU-Version installiert. Geeignet für MacOS und Systeme ohne CUDA."
+
+## Install GPU version with CUDA support (for Linux servers with NVIDIA GPUs)
+.PHONY: install-gpu
+install-gpu: create_environment
+	source $(VENV_ACTIVATE) && uv pip install torch --index-url https://download.pytorch.org/whl/cu118
+	source $(VENV_ACTIVATE) && uv pip install -e ".[gpu]"
+	@echo ">>> GPU-Version mit CUDA-Unterstützung installiert. Für Linux-Server mit NVIDIA-GPU."
 
 ## Lint using ruff (use `make format` to do formatting)
 .PHONY: lint
@@ -35,14 +55,6 @@ format:
 test:
 	source $(VENV_ACTIVATE) && pytest -v tests/
 
-## Set up Python interpreter environment
-.PHONY: create_environment
-create_environment:
-	uv venv --python 3.12 $(VENV_NAME)
-	@echo ">>> New uv virtual environment created. Activate with:"
-	@echo ">>> Windows: .\$(VENV_NAME)\Scripts\activate"
-	@echo ">>> Unix/macOS: source ./$(VENV_NAME)/bin/activate"
-
 ## Run data cleaning pipeline
 .PHONY: clean_data
 clean_data: requirements
@@ -57,14 +69,6 @@ descriptive: requirements
 .PHONY: synthetic
 synthetic: requirements
 	$(PYTHON_INTERPRETER) notebooks/synthetic_prompts.ipynb
-
-## Install GPU dependencies with CUDA support
-.PHONY: install-gpu
-install-gpu: create_environment
-	source $(VENV_ACTIVATE) && uv add setuptools wheel
-	source $(VENV_ACTIVATE) && uv pip install torch --index-url https://download.pytorch.org/whl/cu118
-	source $(VENV_ACTIVATE) && uv pip install -e ".[gpu]"
-
 
 ## Synchronize the environment with dependencies
 .PHONY: sync
