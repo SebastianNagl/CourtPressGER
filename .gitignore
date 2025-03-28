@@ -34,8 +34,6 @@ wheels/
 checkpoints/
 
 # Data and model files
-data/
-models/
 *.csv
 *.json
 *.pkl
