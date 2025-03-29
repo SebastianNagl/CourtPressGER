@@ -162,36 +162,72 @@ def batch_preprocess_texts(texts: pd.Series, nlp: Any, batch_size: int = 32) -> 
 def load_dataset(file_path: str) -> pd.DataFrame:
     """
     Lädt den Datensatz und führt grundlegende Validierung durch.
+    Unterstützt sowohl einzelne CSV-Dateien als auch das neue Format mit cleaned/removed.
 
     Args:
-        file_path: Pfad zur CSV-Datei
+        file_path: Pfad zur CSV-Datei oder zum Verzeichnis mit cleaned/removed
 
     Returns:
         Geladener DataFrame
     """
     try:
-        df = pd.read_csv(file_path)
-        print(f"Daten geladen: {len(df)} Einträge")
-        return df
+        if Path(file_path).is_dir():
+            # Neues Format: Verzeichnis mit cleaned/removed
+            cleaned_path = Path(file_path) / "cleaned.csv"
+            removed_path = Path(file_path) / "removed.csv"
+            
+            if not cleaned_path.exists() or not removed_path.exists():
+                raise FileNotFoundError("Verzeichnis muss cleaned.csv und removed.csv enthalten")
+            
+            df_cleaned = pd.read_csv(cleaned_path)
+            df_removed = pd.read_csv(removed_path)
+            
+            # Füge Status-Spalte hinzu
+            df_cleaned['status'] = 'cleaned'
+            df_removed['status'] = 'removed'
+            
+            # Kombiniere die DataFrames
+            df = pd.concat([df_cleaned, df_removed], ignore_index=True)
+            print(f"Daten geladen: {len(df)} Einträge ({len(df_cleaned)} bereinigt, {len(df_removed)} entfernt)")
+            return df
+        else:
+            # Altes Format: Einzelne CSV-Datei
+            df = pd.read_csv(file_path)
+            print(f"Daten geladen: {len(df)} Einträge")
+            return df
     except Exception as e:
         print(f"Fehler beim Laden der Daten: {e}")
         raise
 
 
-def save_results(df: pd.DataFrame, output_dir: str, filename: str) -> None:
+def save_results(df: pd.DataFrame, output_dir: str, filename: str = None) -> None:
     """
-    Speichert Ergebnisse in die angegebene Ausgabedatei.
+    Speichert die Ergebnisse im neuen Format (cleaned/removed) oder als einzelne Datei.
 
     Args:
-        df: DataFrame mit Ergebnissen
+        df: DataFrame mit den Ergebnissen
         output_dir: Ausgabeverzeichnis
-        filename: Name der Ausgabedatei
+        filename: Optionaler Dateiname für das alte Format
     """
-    # Erstelle Ausgabeverzeichnis, falls es nicht existiert
     output_path = Path(output_dir)
     output_path.mkdir(exist_ok=True, parents=True)
-
-    # Speichere DataFrame
-    output_file = output_path / filename
-    df.to_csv(output_file, index=False)
-    print(f"Ergebnisse gespeichert unter: {output_file}")
+    
+    if 'status' in df.columns:
+        # Neues Format: Speichere als cleaned/removed
+        df_cleaned = df[df['status'] == 'cleaned'].copy()
+        df_removed = df[df['status'] == 'removed'].copy()
+        
+        # Entferne Status-Spalte
+        df_cleaned = df_cleaned.drop('status', axis=1)
+        df_removed = df_removed.drop('status', axis=1)
+        
+        # Speichere getrennte Dateien
+        df_cleaned.to_csv(output_path / "cleaned.csv", index=False)
+        df_removed.to_csv(output_path / "removed.csv", index=False)
+        print(f"Ergebnisse gespeichert in {output_path}")
+    else:
+        # Altes Format: Speichere als einzelne Datei
+        if filename is None:
+            filename = "results.csv"
+        df.to_csv(output_path / filename, index=False)
+        print(f"Ergebnisse gespeichert in {output_path / filename}")

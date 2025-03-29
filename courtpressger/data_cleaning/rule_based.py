@@ -1,225 +1,192 @@
 """
-Regelbasierte Filter für die Bereinigung des Datensatzes.
+Regelbasierte Filterung für die Datensatzbereinigung.
 
-Implementiert verschiedene regelbasierte Ansätze zur Erkennung von Ankündigungen 
-und nicht urteilsbezogenen Mitteilungen.
+Identifiziert Ankündigungen und nicht-urteilsbezogene Mitteilungen
+anhand vordefinierter Regeln und Keyword-Mustern.
 """
 
-import re
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import re
 from pathlib import Path
 import argparse
-from typing import Dict, Any, List
+from collections import Counter
+from typing import Tuple, List, Dict, Any, Optional
 
 from courtpressger.data_cleaning.utils import load_dataset, save_results
 
 
-def is_announcement_rule_based(row: pd.Series) -> bool:
+def is_announcement_rule_based(row) -> Tuple[bool, Optional[str]]:
     """
     Erkennt Ankündigungen und nicht urteilsbezogene Mitteilungen anhand von Keywords und Mustern.
-
+    
     Args:
-        row: Zeile des DataFrames mit 'summary' Spalte
-
+        row: Zeile des DataFrames mit den zu prüfenden Daten
+    
     Returns:
-        True, wenn es sich vermutlich um eine Ankündigung handelt, sonst False
+        Tuple mit (is_announcement, matching_criteria_str)
     """
     if pd.isna(row['summary']):
-        return False
-
+        return False, None
+    
     summary = str(row['summary']).lower()
-
+    
     # 1. Keywords, die auf Ankündigungen hindeuten
     future_indicators = [
         'ankündigung', 'terminankündigung', 'terminhinweis', 'hinweis auf termin',
         'wird verhandelt', 'wird verhandeln', 'wird.*stattfinden', 'findet statt',
         'einladung', 'pressetermin', 'pressekonferenz', 'veranstaltung',
         'wochenvorschau', 'jahrespressekonferenz', 'pressegespräch', 'rundgang',
-        'beginnt am', 'laden ein', 'lädt ein', 'sitzung vom'
+        'beginnt am', 'laden ein', 'lädt ein', 'sitzung vom', 
     ]
-
+    
     # 2. Regex-Muster für Datumsangaben in der Zukunft (relativ zum Erstelldatum)
     date_patterns = [
-        r'am\s+\d{1,2}\.\s*\d{1,2}\.\s*\d{4}',  # "am 15.05.2023"
-        r'vom\s+\d{1,2}\.\s*\d{1,2}\.',         # "vom 15.05."
-        r'terminiert auf den \d{1,2}',           # "terminiert auf den 15"
-        r'in der kommenden woche',               # zukünftige Verweise
-        r'in der nächsten woche',
-        r'demnächst'
+        r'am\s+(\d{1,2})\.(\d{1,2})\.(\d{4})',  # "am 15.05.2023"
+        r'am\s+(\d{1,2})\.(\d{1,2})\.',         # "am 15.05."
+        r'vom\s+(\d{1,2})\.(\d{1,2})\.(\d{4})?', # "vom 15.05.2023" oder "vom 15.05."
+        r'terminiert auf den (\d{1,2})\.(\d{1,2})\.(\d{4})?',  # "terminiert auf den 15.05.2023"
+        r'findet\s+am\s+(\d{1,2})\.(\d{1,2})\.(\d{4})?\s+statt', # "findet am 15.05.2023 statt"
+        r'verhandelt\s+am\s+(\d{1,2})\.(\d{1,2})\.(\d{4})?', # "verhandelt am 15.05.2023"
     ]
-
+    
     # 3. Überschriften/Anfänge, die auf Ankündigungen hindeuten
     headline_indicators = [
         'presseinformation', 'information für die presse',
-        'medieninformation', 'zur information',
+        'medieninformation', 'zur information', 
         'terminvorschau', 'jahresbericht', 'geschäftsbericht', 'tätigkeitsbericht',
-        'stellenausschreibung', 'personelle veränderungen', 'neuer präsident'
+        'stellenausschreibung', 'personelle veränderungen', 'neuer präsident', 
+        'akkreditierung','sehr geehrt'
     ]
-
+    
     # 4. Prüfen auf Keywords am Anfang des Textes (größeres Gewicht)
-    summary_start = summary[:100]
-    headline_match = any(
-        indicator in summary_start for indicator in headline_indicators)
-
-    # 5. Prüfen auf allgemeine Ankündigungskeywords im gesamten Text
-    keyword_match = any(re.search(r'\b' + re.escape(indicator) + r'\b', summary, re.IGNORECASE)
-                        for indicator in future_indicators)
-
-    # 6. Prüfen auf Datumsmuster
-    date_match = any(re.search(pattern, summary, re.IGNORECASE)
-                     for pattern in date_patterns)
-
-    # Kombinierte Entscheidung mit unterschiedlicher Gewichtung
-    if headline_match:
-        return True  # Überschriften/Anfänge sind starke Indikatoren
-    elif keyword_match and date_match:
-        return True  # Kombination aus Keyword und Datumsmuster
-    elif keyword_match and ('mündliche verhandlung' in summary or 'termin' in summary):
-        return True  # Spezifische Kombinationen
-
-    return False  # Default: keine Ankündigung
-
-
-def analyze_rule_based_filters(text: str) -> Dict[str, Any]:
-    """
-    Analysiert einen Text mit verschiedenen regelbasierten Filtern und gibt deren einzelne Ergebnisse zurück.
-
-    Args:
-        text: Zu analysierender Text
-
-    Returns:
-        Dictionary mit Ergebnissen der einzelnen Filterkriterien
-    """
-    if pd.isna(text):
-        return {
-            'future_indicators': False,
-            'date_patterns': False,
-            'headline_indicators': False,
-            'headline_date': False,
-            'future_indicators_score': 0.0,
-            'date_patterns_score': 0.0,
-            'headline_indicators_score': 0.0,
-            'combined_rule_score': 0.0
-        }
-
-    text = str(text).lower()
-    results = {}
-
-    # 1. Keywords, die auf Ankündigungen hindeuten
-    future_indicators = [
-        'ankündigung', 'terminankündigung', 'terminhinweis', 'hinweis auf termin',
-        'wird verhandelt', 'wird verhandeln', 'wird.*stattfinden', 'findet statt',
-        'einladung', 'pressetermin', 'pressekonferenz', 'veranstaltung',
-        'wochenvorschau', 'jahrespressekonferenz', 'pressegespräch', 'rundgang',
-        'beginnt am', 'laden ein', 'lädt ein', 'sitzung vom'
-    ]
-
-    # Zähle, wie viele der Future Indicators gefunden wurden
-    future_matches = sum(1 for indicator in future_indicators if re.search(
-        r'\b' + re.escape(indicator) + r'\b', text, re.IGNORECASE))
-    future_indicators_score = min(
-        1.0, future_matches / len(future_indicators) * 3)  # Skaliert, max 1.0
-    results['future_indicators'] = future_matches > 0
-    results['future_indicators_score'] = future_indicators_score
-
-    # 2. Datumsmuster
-    date_patterns = [
-        r'am\s+\d{1,2}\.\s*\d{1,2}\.\s*\d{4}',  # "am 15.05.2023"
-        r'vom\s+\d{1,2}\.\s*\d{1,2}\.',         # "vom 15.05."
-        r'terminiert auf den \d{1,2}',           # "terminiert auf den 15"
-        r'in der kommenden woche',               # zukünftige Verweise
+    summary_start = summary[:500]
+    
+    # Speichere die gefundenen Kriterien
+    matching_criteria = []
+    
+    # Headline Prüfung mit genauen Matches
+    for indicator in headline_indicators:
+        if indicator in summary_start:
+            matching_criteria.append(f"Headline: {indicator}")
+    
+    # Keyword Prüfung
+    for indicator in future_indicators:
+        if re.search(r'\b' + re.escape(indicator) + r'\b', summary, re.IGNORECASE):
+            matching_criteria.append(f"Keyword: {indicator}")
+    
+    # Prüfen, ob die Pressemitteilung ein Datum enthält
+    # Wir extrahieren hier das Datum und vergleichen es mit dem Veröffentlichungsdatum
+    future_date_found = False
+    current_date = None
+    
+    # Versuchen, das Veröffentlichungsdatum zu parsen
+    try:
+        if 'date' in row and pd.notna(row['date']):
+            current_date = pd.to_datetime(row['date'], errors='coerce')
+    except:
+        current_date = None
+    
+    # Wenn kein Veröffentlichungsdatum vorhanden ist, können wir keine zeitliche Prüfung machen
+    if current_date is not None:
+        # Aktuelle Jahreszahl für unvollständige Datumsmuster
+        current_year = current_date.year
+        
+        for pattern in date_patterns:
+            for match in re.finditer(pattern, summary, re.IGNORECASE):
+                try:
+                    groups = match.groups()
+                    if len(groups) >= 2:
+                        day = int(groups[0])
+                        month = int(groups[1])
+                        # Jahr ist nicht immer angegeben, daher nehmen wir das aktuelle Jahr, wenn es fehlt
+                        year = int(groups[2]) if len(groups) > 2 and groups[2] is not None else current_year
+                        
+                        # Datumsvalidierung (einfache Prüfung)
+                        if 1 <= day <= 31 and 1 <= month <= 12 and 1900 <= year <= 2100:
+                            # Datum aus dem Text konstruieren
+                            event_date = pd.to_datetime(f"{year}-{month:02d}-{day:02d}", errors='coerce')
+                            
+                            # Prüfen, ob das Datum gültig ist und in der Zukunft liegt
+                            if pd.notna(event_date) and event_date > current_date:
+                                # Prüfen, ob das Datum mindestens einen Tag später ist
+                                days_diff = (event_date - current_date).days
+                                if days_diff >= 1:
+                                    future_date_found = True
+                                    matching_criteria.append(f"Datum: {match.group(0)} (+{days_diff} Tage)")
+                except Exception as e:
+                    # Bei Fehlern in der Datumsverarbeitung ignorieren wir diesen Match
+                    continue
+    
+    # Unspezifische zukünftige Zeitangaben (als fallback)
+    future_time_indicators = [
+        r'in der kommenden woche',
         r'in der nächsten woche',
         r'demnächst'
     ]
-
-    # Zähle, wie viele der Date Patterns gefunden wurden
-    date_matches = sum(1 for pattern in date_patterns if re.search(
-        pattern, text, re.IGNORECASE))
-    date_patterns_score = min(
-        1.0, date_matches / len(date_patterns) * 2)  # Skaliert, max 1.0
-    results['date_patterns'] = date_matches > 0
-    results['date_patterns_score'] = date_patterns_score
-
-    # 3. Überschriften/Anfänge, die auf Ankündigungen hindeuten
-    headline_indicators = [
-        'pressemitteilung nr', 'presseinformation', 'information für die presse',
-        'medieninformation', 'zur information', 'mündliche verhandlung',
-        'terminvorschau', 'jahresbericht', 'geschäftsbericht', 'tätigkeitsbericht',
-        'stellenausschreibung', 'personelle veränderungen', 'neuer präsident'
-    ]
-
-    # Prüfe speziell den Textanfang (erste 100 Zeichen)
-    text_start = text[:100]
-    headline_matches = sum(
-        1 for indicator in headline_indicators if indicator in text_start)
-    headline_indicators_score = min(
-        1.0, headline_matches / len(headline_indicators) * 3)  # Skaliert, max 1.0
-    results['headline_indicators'] = headline_matches > 0
-    results['headline_indicators_score'] = headline_indicators_score
-
-    # 4. Kombination aus Überschrift und Datum
-    results['headline_date'] = results['headline_indicators'] and results['date_patterns']
-
-    # 5. Berechne einen kombinierten Score für die regelbasierte Methode
-    # Gewichtung: Überschrift (0.5), Future Indicators (0.3), Date Patterns (0.2)
-    results['combined_rule_score'] = (
-        0.5 * headline_indicators_score +
-        0.3 * future_indicators_score +
-        0.2 * date_patterns_score
-    )
-
-    return results
+    
+    for pattern in future_time_indicators:
+        if re.search(pattern, summary, re.IGNORECASE):
+            matching_criteria.append(f"Zeitraum: {pattern}")
+            # Diese gelten immer als zukünftig
+            future_date_found = True
+    
+    # Kombinierte Entscheidung mit unterschiedlicher Gewichtung
+    headline_match = any("Headline:" in criterion for criterion in matching_criteria)
+    keyword_match = any("Keyword:" in criterion for criterion in matching_criteria)
+    
+    # Eine Ankündigung muss entweder einen Headline-Indikator haben,
+    # oder eine Kombination aus Keyword und Datums-Hinweis
+    if headline_match or (keyword_match and future_date_found):
+        return True, " | ".join(matching_criteria)
+    
+    return False, None  # Default: keine Ankündigung
 
 
-def apply_rule_based_filters(df: pd.DataFrame, save_visualizations: bool = False, output_dir: str = "outputs") -> pd.DataFrame:
+def apply_rule_based_filters(
+    df: pd.DataFrame,
+    save_visualizations: bool = False,
+    output_dir: str = "outputs"
+) -> pd.DataFrame:
     """
-    Wendet regelbasierte Filter auf den Datensatz an und erstellt optionale Visualisierungen.
-
+    Wendet regelbasierte Filter auf den Datensatz an.
+    
     Args:
         df: DataFrame mit Gerichtsurteilen und Pressemitteilungen
         save_visualizations: Ob Visualisierungen gespeichert werden sollen
-        output_dir: Verzeichnis für Visualisierungen
-
+        output_dir: Ausgabeverzeichnis für Visualisierungen
+        
     Returns:
-        DataFrame mit zusätzlichen Filter-Spalten
+        DataFrame mit angefügten Filterungsergebnissen
     """
-    print("Wende regelbasierte Filter an...")
-
-    # Einfacher Filter für Ankündigungen
-    df['is_announcement_rule'] = df.apply(is_announcement_rule_based, axis=1)
-
-    # Detaillierte Analyse aller Filterkriterien
-    print("Analysiere einzelne Filterkriterien...")
-    filter_results = df['summary'].apply(analyze_rule_based_filters)
-
-    # Extrahiere die Ergebnisse in separate Spalten
-    for criterion in ['future_indicators', 'date_patterns', 'headline_indicators', 'headline_date',
-                      'future_indicators_score', 'date_patterns_score', 'headline_indicators_score', 'combined_rule_score']:
-        df[f'filter_{criterion}'] = filter_results.apply(
-            lambda x: x[criterion])
-
-    # Ergebnisse anzeigen
+    print("\n## Regelbasierte Filterung")
+    
+    # Anwenden der regelbasierten Methode auf den Datensatz
+    results = df.apply(is_announcement_rule_based, axis=1)
+    df['is_announcement_rule'] = [result[0] for result in results]
+    df['matching_criteria'] = [result[1] for result in results]
+    
+    # Auswertung der regelbasierten Methode
     announcement_count = df['is_announcement_rule'].sum()
-    print(f"Regelbasierte Erkennung: {announcement_count} von {len(df)} Einträgen "
+    print(f"Regelbasierte Erkennung: {announcement_count} von {len(df)} Einträgen " +
           f"({announcement_count/len(df)*100:.2f}%) sind vermutlich Ankündigungen.")
-
-    # Erstelle und speichere Visualisierungen wenn gewünscht
+    
+    # Erstelle Visualisierungen, wenn gewünscht
     if save_visualizations:
         create_rule_based_visualizations(df, output_dir)
-
+    
     return df
 
 
 def create_rule_based_visualizations(df: pd.DataFrame, output_dir: str) -> None:
     """
-    Erstellt Visualisierungen für die regelbasierten Filter.
-
+    Erstellt Visualisierungen für die regelbasierte Filterung.
+    
     Args:
-        df: DataFrame mit angewendeten Filterkriterien
-        output_dir: Ausgabeverzeichnis für die Visualisierungen
+        df: DataFrame mit regelbasierten Filterungsergebnissen
+        output_dir: Ausgabeverzeichnis für Visualisierungen
     """
     output_path = Path(output_dir)
     
@@ -230,128 +197,110 @@ def create_rule_based_visualizations(df: pd.DataFrame, output_dir: str) -> None:
         output_path = parent_dir / "reports" / "rule_based"
     
     output_path.mkdir(exist_ok=True, parents=True)
-
-    plt.figure(figsize=(15, 10))
-
-    # 1. Barplot für einzelne Kriterien
-    criterion_counts = pd.DataFrame({
-        'Kriterium': [
-            'Zukunftsindikatoren',
-            'Datumsmuster',
-            'Überschriften-Indikatoren',
-            'Überschrift + Datum'
-        ],
-        'Anzahl': [
-            df['filter_future_indicators'].sum(),
-            df['filter_date_patterns'].sum(),
-            df['filter_headline_indicators'].sum(),
-            df['filter_headline_date'].sum()
-        ]
-    })
-
-    criterion_counts['Prozent'] = criterion_counts['Anzahl'] / len(df) * 100
-
-    plt.subplot(2, 2, 1)
-    sns.barplot(data=criterion_counts, x='Kriterium', y='Prozent')
-    plt.xticks(rotation=45, ha='right')
-    plt.title('Anteil der gefilterten Einträge pro Kriterium')
-    plt.ylabel('Prozent der Einträge')
-
-    # 2. Venn-Diagramm für Überlappungen
-    plt.subplot(2, 2, 2)
-    try:
-        from matplotlib_venn import venn3
-
-        # Erstelle Sets für die drei Hauptkriterien
-        future_set = set(df[df['filter_future_indicators']].index)
-        date_set = set(df[df['filter_date_patterns']].index)
-        headline_set = set(df[df['filter_headline_indicators']].index)
-
-        venn3([future_set, date_set, headline_set],
-              ('Zukunftsindikatoren', 'Datumsmuster', 'Überschriften'))
-        plt.title('Überlappung der Filterkriterien')
-    except ImportError:
-        plt.text(0.5, 0.5, "matplotlib-venn nicht installiert",
-                 ha='center', va='center', fontsize=12)
-        plt.axis('off')
-
-    # 3. Gestapeltes Balkendiagramm für kombinierte Effekte
-    plt.subplot(2, 2, 3)
-    filter_combinations = df[['filter_future_indicators',
-                              'filter_date_patterns',
-                              'filter_headline_indicators']].sum(axis=1)
-    combination_counts = filter_combinations.value_counts().sort_index()
-    plt.bar(range(len(combination_counts)), combination_counts)
-    plt.xticks(range(len(combination_counts)),
-               [f"{i} Kriterien" for i in combination_counts.index])
-    plt.title('Anzahl erfüllter Kriterien pro Eintrag')
-    plt.ylabel('Anzahl Einträge')
-
-    # 4. Zusammenfassende Statistik
-    plt.subplot(2, 2, 4)
-    summary_stats = pd.DataFrame({
-        'Metrik': [
-            'Gesamtanzahl Einträge',
-            'Mind. 1 Kriterium erfüllt',
-            'Mind. 2 Kriterien erfüllt',
-            'Alle Kriterien erfüllt'
-        ],
-        'Anzahl': [
-            len(df),
-            (filter_combinations >= 1).sum(),
-            (filter_combinations >= 2).sum(),
-            (filter_combinations == 3).sum()
-        ]
-    })
-    summary_stats['Prozent'] = summary_stats['Anzahl'] / len(df) * 100
-
-    plt.axis('off')
-    plt.table(cellText=summary_stats.values,
-              colLabels=summary_stats.columns,
-              cellLoc='center',
-              loc='center',
-              bbox=[0, 0, 1, 1])
-    plt.title('Zusammenfassende Statistik')
-
-    plt.tight_layout()
-    plt.savefig(output_path / "rule_based_analysis.png",
-                dpi=300, bbox_inches='tight')
-    plt.close()
-
-    print(
-        f"Visualisierungen gespeichert unter: {output_path / 'rule_based_analysis.png'}")
+    
+    # Extrahiere alle Kriterien für die Analyse
+    all_criteria = []
+    announcement_examples = df[df['is_announcement_rule']]
+    
+    if not announcement_examples.empty:
+        for criteria_str in announcement_examples['matching_criteria'].dropna():
+            all_criteria.extend(criteria_str.split(" | "))
+        
+        # 1. Visualisierung der Kriterien-Verteilung
+        criteria_types = ['Headline', 'Keyword', 'Datum']
+        type_counts = {t: sum(1 for c in all_criteria if c.startswith(f"{t}:")) for t in criteria_types}
+        
+        plt.figure(figsize=(10, 6))
+        plt.bar(type_counts.keys(), type_counts.values())
+        plt.title('Verteilung der Kriterien-Typen')
+        plt.ylabel('Anzahl')
+        plt.xticks(rotation=0)
+        plt.grid(axis='y', linestyle='--', alpha=0.7)
+        plt.savefig(output_path / "criteria_distribution.png", dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        # 2. Visualisierung der häufigsten Kriterien
+        criteria_counts = Counter(all_criteria)
+        
+        plt.figure(figsize=(12, 8))
+        top_criteria = dict(criteria_counts.most_common(15))
+        plt.barh(list(reversed(list(top_criteria.keys()))), 
+                 list(reversed(list(top_criteria.values()))))
+        plt.title('Top 15 Häufigste Match-Kriterien')
+        plt.xlabel('Anzahl')
+        plt.tight_layout()
+        plt.savefig(output_path / "top_criteria.png", dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        # 3. Verteilung der Ankündigungen nach Gericht (falls verfügbar)
+        if 'court' in df.columns:
+            plt.figure(figsize=(10, 6))
+            court_announcement_counts = df[df['is_announcement_rule']].groupby('court').size()
+            court_total_counts = df.groupby('court').size()
+            court_announcement_percentage = (court_announcement_counts / court_total_counts * 100).sort_values(ascending=False)
+            
+            court_announcement_percentage.plot(kind='bar')
+            plt.title('Anteil der Ankündigungen nach Gericht')
+            plt.xlabel('Gericht')
+            plt.ylabel('Prozentsatz (%)')
+            plt.xticks(rotation=45)
+            plt.grid(axis='y', linestyle='--', alpha=0.7)
+            plt.tight_layout()
+            plt.savefig(output_path / "court_distribution.png", dpi=300, bbox_inches='tight')
+            plt.close()
+    
+    print(f"Visualisierungen gespeichert unter: {output_path}")
 
 
 def main():
     parser = argparse.ArgumentParser(
         description="Regelbasierte Filterung für Gerichtsurteile-Datensatz")
-    parser.add_argument("--input", "-i", type=str,
+    parser.add_argument("--input", "-i", type=str, 
                         required=True, help="Pfad zur Eingabe-CSV-Datei")
-    parser.add_argument("--output_dir", "-o", type=str,
+    parser.add_argument("--output_dir", "-o", type=str, 
                         default="outputs", help="Ausgabeverzeichnis")
     parser.add_argument("--visualize", "-v", action="store_true",
                         help="Visualisierungen erstellen")
     args = parser.parse_args()
-
+    
     # Datensatz laden
     df = load_dataset(args.input)
-
-    # Regelbasierte Filter anwenden
-    filtered_df = apply_rule_based_filters(
-        df, save_visualizations=args.visualize, output_dir=args.output_dir)
-
+    
+    # Regelbasierte Filterung anwenden
+    df_filtered = apply_rule_based_filters(
+        df,
+        save_visualizations=args.visualize,
+        output_dir=args.output_dir
+    )
+    
     # Ergebnisse speichern
-    save_results(filtered_df, args.output_dir, "rule_based_filtered.csv")
-
-    # Bereinigte Version speichern (Optional)
-    cleaned_df = filtered_df[~filtered_df['is_announcement_rule']].copy()
-    save_results(cleaned_df, args.output_dir, "rule_based_cleaned.csv")
-
-    print(
-        f"Bereinigter Datensatz: {len(cleaned_df)} Einträge (von ursprünglich {len(df)})")
-    print(
-        f"Entfernt: {len(df) - len(cleaned_df)} Einträge ({(len(df) - len(cleaned_df))/len(df)*100:.2f}%)")
+    save_results(df_filtered, args.output_dir, "rule_based_results.csv")
+    
+    # Bereinigte Version speichern (optional)
+    cleaned_df = df_filtered[~df_filtered['is_announcement_rule']].copy()
+    removed_df = df_filtered[df_filtered['is_announcement_rule']].copy()
+    
+    # Status-Spalte hinzufügen für das neue Format
+    cleaned_df['status'] = 'cleaned'
+    removed_df['status'] = 'removed'
+    
+    # Speichern als getrennte Dateien
+    interim_dir = Path(args.output_dir) / "interim"
+    interim_dir.mkdir(exist_ok=True, parents=True)
+    
+    cleaned_path = interim_dir / "cleaned.csv"
+    removed_path = interim_dir / "removed.csv"
+    
+    cleaned_df.to_csv(cleaned_path, index=False)
+    removed_df.to_csv(removed_path, index=False)
+    
+    print(f"\nBereinigte Daten gespeichert: {len(cleaned_df)} Einträge in {cleaned_path}")
+    print(f"Herausgefilterte Ankündigungen gespeichert: {len(removed_df)} Einträge in {removed_path}")
+    print(f"\nZusammenfassung:")
+    print(f"- Ursprüngliche Datensatzgröße: {len(df)} Einträge")
+    print(f"- Entfernte Ankündigungen: {len(removed_df)} Einträge ({len(removed_df)/len(df)*100:.2f}%)")
+    print(f"- Verbleibende Daten: {len(cleaned_df)} Einträge ({len(cleaned_df)/len(df)*100:.2f}%)")
 
 
 if __name__ == "__main__":
-    main()
+    main() 

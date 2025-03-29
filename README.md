@@ -1,6 +1,13 @@
-# CourtPressGER
+# CourtPressGer
 
-Sammlung und Verarbeitung von Gerichtsurteilen und zugehörigen Pressemitteilungen.
+## Hintergrund und Ziel
+Wir sind Wissenschaftler der Technischen Universität München im Bereich Legal Technology. Für unsere nächste wissenschaftliche Publikation möchten wir drei Dinge vorstellen: 
+1. Eine bereinigte Version eines vorab gescrapten Datensatzes mit etwa 6.5k Einträgen von Gerichtsurteilen mit den dazugehörigen Pressemitteilungen und Metadaten.
+2. Synthetische Prompts, mit denen man automatisiert aus den Urteilen Pressemitteilungen generieren kann.
+3. Eine Evaluation der generierten Pressemitteilungen mit Hilfe von menschlichen und automatisierten Metriken.
+
+## Aktuelle Aufgaben und Probleme
+
 
 ## Installation
 

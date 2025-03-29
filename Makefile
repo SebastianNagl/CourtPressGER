@@ -4,14 +4,13 @@
 
 PROJECT_NAME = CourtPressGER
 PYTHON_VERSION = 3.12
-PYTHON_INTERPRETER = python3
-VENV_NAME = .venv
-VENV_ACTIVATE = $(VENV_NAME)/bin/activate
-PYTHON = $(VENV_NAME)/bin/python
+
 
 #################################################################################
 # COMMANDS                                                                      #
 #################################################################################
+
+## Make sure uv is installed first: curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ## Install Python dependencies
 .PHONY: requirements
@@ -21,43 +20,28 @@ requirements:
 ## Lint using ruff (use `make format` to do formatting)
 .PHONY: lint
 lint:
-	source $(VENV_ACTIVATE) && ruff check courtpressger
-	source $(VENV_ACTIVATE) && mypy courtpressger
+	ruff check courtpressger
+	mypy courtpressger
 
 ## Format source code with ruff
 .PHONY: format
 format:
-	source $(VENV_ACTIVATE) && ruff format courtpressger
+	ruff format courtpressger
 
 ## Run tests
 .PHONY: test
 test:
-	source $(VENV_ACTIVATE) && pytest -v tests/
-
-## Run data cleaning pipeline
-.PHONY: clean_data
-clean_data: requirements
-	$(PYTHON_INTERPRETER) notebooks/bereinigung.ipynb
-
-## Generate descriptive statistics
-.PHONY: descriptive
-descriptive: requirements
-	$(PYTHON_INTERPRETER) notebooks/deskriptiv.ipynb
-
-## Generate synthetic prompts
-.PHONY: synthetic
-synthetic: requirements
-	$(PYTHON_INTERPRETER) notebooks/synthetic_prompts.ipynb
+	pytest -v tests/
 
 ## Synchronize the environment with dependencies
 .PHONY: sync
 sync:
-	source $(VENV_ACTIVATE) && uv sync
+	uv sync
 
 ## Download the German courts dataset
 .PHONY: download_data
 download_data:
-	source $(VENV_ACTIVATE) && $(PYTHON) -m courtpressger.main --download
+	python -m courtpressger.main --download
 
 ## Remove Python file artifacts
 .PHONY: clean

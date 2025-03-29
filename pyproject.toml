@@ -39,11 +39,15 @@ dependencies = [
 
 [project.optional-dependencies]
 # CPU-spezifische Abhängigkeiten für MacOS und Systeme ohne CUDA
-# PyTorch wird automatisch in der CPU-Version installiert
+# Fokussiert auf Notebook-Ausführung und grundlegende Datenverarbeitung
 cpu = [
-    "torch>=2.0.0",
-    "transformers>=4.35.0",
-    "accelerate>=0.21.0",
+    "pandas>=2.2.3",  # Für Datenverarbeitung
+    "numpy>=1.26.0",  # Für numerische Operationen
+    "matplotlib>=3.8.0",  # Für Visualisierungen
+    "seaborn>=0.13.0",  # Für erweiterte Visualisierungen
+    "scikit-learn>=1.3.0",  # Für ML-Metriken
+    "ipykernel>=6.29.5",  # Für Jupyter Notebooks
+    "jupyter>=1.0.0",  # Für Notebook-Interface
 ]
 
 # GPU-spezifische Abhängigkeiten für Linux-Systeme mit CUDA 11.8
