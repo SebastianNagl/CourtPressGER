@@ -13,6 +13,7 @@ from tqdm.auto import tqdm
 import anthropic
 
 from .rate_limiter import RateLimiter, estimate_token_count
+from .sanitizer import sanitize_api_response
 
 # Erstelle eine globale Rate Limiter-Instanz
 rate_limiter = RateLimiter()
@@ -95,7 +96,11 @@ def generate_synthetic_prompt(court_ruling, press_release, client=None, model="c
             output_tokens = response.usage.output_tokens if hasattr(response, 'usage') and hasattr(response.usage, 'output_tokens') else output_tokens_estimate
             rate_limiter.record_usage(input_tokens, output_tokens)
             
-            return response.content[0].text.strip()
+            # Extrahiere und bereinige die Antwort
+            raw_response = response.content[0].text.strip()
+            sanitized_response = sanitize_api_response(raw_response)
+            
+            return sanitized_response
         except Exception as e:
             if attempt < retries - 1:
                 print(f"Fehler: {e}. Neuer Versuch in {wait_time} Sekunden...")

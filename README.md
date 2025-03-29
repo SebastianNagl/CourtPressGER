@@ -9,17 +9,6 @@ Wir sind Wissenschaftler der Technischen Universität München im Bereich Legal 
 ## Aktuelle Aufgaben und Probleme
 
 
-## Installation
-
-```bash
-pip install -e .
-```
-
-Für Entwickler:
-
-```bash
-pip install -e ".[dev]"
-```
 
 ## Funktionalitäten
 
