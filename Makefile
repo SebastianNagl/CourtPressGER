@@ -4,7 +4,11 @@
 
 PROJECT_NAME = CourtPressGER
 PYTHON_VERSION = 3.12
-
+PYTHON_INTERPRETER = python3
+VENV_NAME = .venv
+VENV_ACTIVATE = $(VENV_NAME)/bin/activate
+PYTHON = $(VENV_NAME)/bin/python
+SHELL := /bin/bash
 
 #################################################################################
 # COMMANDS                                                                      #
@@ -20,28 +24,94 @@ requirements:
 ## Lint using ruff (use `make format` to do formatting)
 .PHONY: lint
 lint:
-	ruff check courtpressger
-	mypy courtpressger
+	. $(VENV_ACTIVATE) && ruff check courtpressger
+	. $(VENV_ACTIVATE) && mypy courtpressger
 
 ## Format source code with ruff
 .PHONY: format
 format:
-	ruff format courtpressger
+	. $(VENV_ACTIVATE) && ruff format courtpressger
 
 ## Run tests
 .PHONY: test
 test:
-	pytest -v tests/
+	. $(VENV_ACTIVATE) && pytest -v tests/
+
+## Run only CSV-related tests
+.PHONY: test-csv
+test-csv:
+	. $(VENV_ACTIVATE) && pytest -v tests/test_cleaner.py tests/test_csv_validator.py
+
+## Run data cleaning pipeline
+.PHONY: clean_data
+clean_data: requirements
+	$(PYTHON_INTERPRETER) notebooks/bereinigung.ipynb
+
+## Generate descriptive statistics
+.PHONY: descriptive
+descriptive: requirements
+	$(PYTHON_INTERPRETER) notebooks/deskriptiv.ipynb
+
+## Generate synthetic prompts
+.PHONY: synthetic
+synthetic: requirements
+	$(PYTHON_INTERPRETER) notebooks/synthetic_prompts.ipynb
 
 ## Synchronize the environment with dependencies
 .PHONY: sync
 sync:
-	uv sync
+	. $(VENV_ACTIVATE) && python -m courtpressger.synthetic_prompts.cli sync --help
 
 ## Download the German courts dataset
 .PHONY: download_data
 download_data:
-	python -m courtpressger.main --download
+	. $(VENV_ACTIVATE) && python -m courtpressger.synthetic_prompts.cli download --help
+
+## Validate CSV checkpoints
+.PHONY: validate-csv
+validate-csv:
+	. $(VENV_ACTIVATE) && python -m courtpressger.synthetic_prompts.cli validate --help
+
+## Fix format errors in a CSV file (use FILE=path/to/file.csv)
+.PHONY: fix-csv
+fix-csv:
+	@if [ -z "$(FILE)" ]; then \
+		echo "Bitte den Dateipfad angeben, z.B. 'make fix-csv FILE=checkpoints/file.csv'"; \
+	else \
+		. $(VENV_ACTIVATE) && $(PYTHON) -m courtpressger.synthetic_prompts.cli fix --file $(FILE); \
+	fi
+
+## Repair damaged CSV structure (use FILE=path/to/file.csv)
+.PHONY: repair-csv
+repair-csv:
+	@if [ -z "$(FILE)" ]; then \
+		echo "Bitte den Dateipfad angeben, z.B. 'make repair-csv FILE=checkpoints/file.csv'"; \
+	else \
+		. $(VENV_ACTIVATE) && $(PYTHON) -m courtpressger.synthetic_prompts.cli repair --file $(FILE); \
+	fi
+
+## Clean all checkpoints from API errors
+.PHONY: clean-checkpoints
+clean-checkpoints:
+	. $(VENV_ACTIVATE) && python -m courtpressger.synthetic_prompts.cli clean --help
+
+## Sanitize API responses in checkpoints
+.PHONY: sanitize-csv
+sanitize-csv:
+	. $(VENV_ACTIVATE) && python -m courtpressger.synthetic_prompts.cli sanitize --help
+
+## Clean CSV data (use FILE=path/to/file.csv)
+.PHONY: clean-csv
+clean-csv:
+	@if [ -z "$(FILE)" ]; then \
+		echo "Bitte den Dateipfad angeben, z.B. 'make clean-csv FILE=checkpoints/file.csv'"; \
+	else \
+		. $(VENV_ACTIVATE) && $(PYTHON) -m courtpressger.synthetic_prompts.cli clean-csv --file $(FILE); \
+	fi
+
+## Führe alle CSV-bezogenen Befehle aus
+.PHONY: all-csv
+all-csv: validate-csv fix-csv repair-csv clean-checkpoints sanitize-csv clean-csv
 
 ## Remove Python file artifacts
 .PHONY: clean
@@ -98,4 +168,39 @@ clean-venv:
 .PHONY: help
 help:
 	@echo "Available commands:"
-	@grep -E '^## [a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' 
+	@grep -E '^##' $(MAKEFILE_LIST) | grep -v "^## -----" | sed -e 's/## //g' | sort
+
+.PHONY: install dev all-csv
+
+install:
+	$(PYTHON) -m pip install -e .
+
+dev:
+	$(PYTHON) -m pip install -e ".[dev]"
+
+all-csv: validate-csv fix-csv repair-csv clean-checkpoints sanitize-csv clean-csv
+
+## Remove Python file artifacts
+.PHONY: clean-pyc
+clean-pyc:
+	find . -name '*.pyc' -delete
+	find . -name '*.pyo' -delete
+	find . -name '*~' -delete
+	find . -name '__pycache__' -type d -delete
+
+## Remove test and coverage artifacts
+.PHONY: clean-test
+clean-test:
+	rm -f .coverage
+	rm -rf htmlcov/
+	rm -rf .pytest_cache
+
+## Clean all artifacts
+.PHONY: clean
+clean: clean-pyc clean-test
+
+## Display help message
+.PHONY: help
+help:
+	@echo "Available commands:"
+	@grep -E '^##' $(MAKEFILE_LIST) | grep -v "^## -----" | sed -e 's/## //g' | sort 
