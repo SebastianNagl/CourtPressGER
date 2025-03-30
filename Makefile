@@ -15,7 +15,8 @@ DEFAULT_MODEL = claude-3-7-sonnet-20250219
 DEFAULT_INPUT = data/interim/cleaned.csv
 DEFAULT_OUTPUT = data/processed/cases_prs_synth_prompts.csv
 DEFAULT_CHECKPOINT_DIR = data/checkpoints
-DEFAULT_SAVE_INTERVAL = 1  # Speichere nach jedem Batch
+DEFAULT_BATCH_SIZE = 10      # Batchgröße standardmäßig 10
+DEFAULT_SAVE_INTERVAL = 1    # Speichere nach jedem Batch
 
 #################################################################################
 # COMMANDS                                                                      #

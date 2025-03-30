@@ -110,15 +110,15 @@ def generate_synthetic_prompt(court_ruling, press_release, client=None, model="c
                 return f"Fehler bei der Generierung des Prompts: {e}"
 
 
-def process_batch(df, batch_size=5, start_idx=0, save_interval=10, fix_errors=False, checkpoint_dir=None, output_prefix=None, client=None):
+def process_batch(df, batch_size=10, start_idx=0, save_interval=1, fix_errors=False, checkpoint_dir=None, output_prefix=None, client=None):
     """
     Verarbeitet einen Dataframe in Batches und generiert synthetische Prompts für jede Zeile.
     
     Args:
         df (pd.DataFrame): Der Dataframe mit Gerichtsurteilen und Pressemitteilungen
-        batch_size (int): Anzahl der Elemente, die vor dem Speichern von Zwischenergebnissen verarbeitet werden
+        batch_size (int): Anzahl der Elemente, die vor dem Speichern von Zwischenergebnissen verarbeitet werden (Standard: 10)
         start_idx (int): Index, bei dem die Verarbeitung beginnen soll (für die Wiederaufnahme)
-        save_interval (int): Wie oft Zwischenergebnisse gespeichert werden sollen
+        save_interval (int): Wie oft Zwischenergebnisse gespeichert werden sollen (Standard: 1, d.h. nach jedem Batch)
         fix_errors (bool): Wenn True, werden Zeilen mit API-Fehlermeldungen erneut verarbeitet
         checkpoint_dir (Path, optional): Verzeichnis für Checkpoints, standardmäßig 'checkpoints' im aktuellen Verzeichnis
         output_prefix (str, optional): Präfix für den Dateinamen der Checkpoints

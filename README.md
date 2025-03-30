@@ -9,6 +9,8 @@ Wir sind Wissenschaftler der Technischen Universität München im Bereich Legal 
 ## Aktuelle Aufgaben und Probleme
 Aktuelle Aufgaben können work in progress sein; immer erst mal kontrollieren, dann lösen. Sobald was davon erledigt ist, bitte [erledigt] zu Beginn der Aufgabe schreiben; ich kontrolliere dann bei Gelegenheit.
 
+1. Kontrolliere, dass wir die befehle 'make synthetic' und 'make synthetic-resume' ausführen können; diese sollen entweder die dynthetisierungs pipeline starten oder vom letzten checkpoint fortsetzen.
+
 # Struktur
 
 ## Projektübersicht

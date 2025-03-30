@@ -225,28 +225,66 @@ def sanitize_api_response(response_text):
         response_text (str): Die Rohtext-Antwort von der API
         
     Returns:
-        str: Die bereinigte Antwort
+        str: Die bereinigte Antwort oder eine Fehlermeldung, wenn Probleme erkannt wurden
     """
-    if not response_text or not isinstance(response_text, str):
+    # Grundlegende Eingabevalidierung
+    if response_text is None:
         return ""
     
-    # Erkenne und entferne Fehler/Fehlermeldungen
+    if not isinstance(response_text, str):
+        try:
+            # Versuche, die Antwort in einen String zu konvertieren
+            response_text = str(response_text)
+        except Exception as e:
+            return ""
+    
+    # Entferne Leerzeichen am Anfang und Ende
+    response_text = response_text.strip()
+    
+    # Prüfe auf leere Antwort nach dem Trimmen
+    if not response_text:
+        return ""
+    
+    # Erkenne und entferne Fehler/Fehlermeldungen anhand von Mustern
     for pattern in ERROR_PATTERNS:
         if re.search(pattern, response_text, re.IGNORECASE):
             return f"Fehler bei der Generierung des Prompts: Fehlermuster erkannt"
+    
+    # Prüfe auf typische API-Fehlercodes in JSON-Antworten
+    json_error_patterns = [
+        r'{"error":.+}',
+        r'"status":\s*(?:4|5)\d{2}',
+        r'"message":\s*"[^"]*error[^"]*"'
+    ]
+    
+    for pattern in json_error_patterns:
+        if re.search(pattern, response_text, re.IGNORECASE):
+            return f"Fehler bei der Generierung des Prompts: API-Fehlercode erkannt"
     
     # Wende alle Clean-Ups an
     for pattern, replacement, flags in API_CLEANUP_PATTERNS:
         response_text = re.sub(pattern, replacement, response_text, flags=flags)
     
-    # Prüfe auf ungewöhnlich kurze oder leere Antworten
+    # Prüfe auf ungewöhnlich kurze Antworten
     if len(response_text.strip()) < 10:
         return f"Fehler bei der Generierung des Prompts: Antwort zu kurz"
     
     # Prüfe auf ungewöhnlich lange Antworten (möglicherweise fehlerhaft)
     if len(response_text) > 5000:
         # Versuche, nur den relevanten Teil zu extrahieren oder kürze
+        logger.warning(f"Antwort mit ungewöhnlicher Länge ({len(response_text)} Zeichen) gekürzt")
         response_text = response_text[:5000] + "..."
+    
+    # Prüfe auf ungewöhnlich hohen Anteil von Sonderzeichen (potentiell korrupte Antwort)
+    special_char_count = sum(1 for c in response_text if not c.isalnum() and not c.isspace())
+    special_char_ratio = special_char_count / len(response_text) if response_text else 0
+    
+    if special_char_ratio > 0.3:  # Mehr als 30% Sonderzeichen
+        logger.warning(f"Antwort mit ungewöhnlich hohem Anteil an Sonderzeichen: {special_char_ratio:.2f}")
+        return f"Fehler bei der Generierung des Prompts: Ungewöhnlich hoher Anteil an Sonderzeichen"
+    
+    # Entferne eventuell vorhandene NULL-Bytes (können Probleme bei der CSV-Speicherung verursachen)
+    response_text = response_text.replace('\0', '')
     
     return response_text
 
