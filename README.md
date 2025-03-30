@@ -9,75 +9,75 @@ Wir sind Wissenschaftler der Technischen Universität München im Bereich Legal 
 ## Aktuelle Aufgaben und Probleme
 Aktuelle Aufgaben können work in progress sein; immer erst mal kontrollieren, dann lösen. Sobald was davon erledigt ist, bitte [erledigt] zu Beginn der Aufgabe schreiben; ich kontrolliere dann bei Gelegenheit.
 
-1. [erledigt] Es gab ein kleines Git Problem (ich); teilweise konnten Inhalte wiederverwendet werden. Ggf sind Verweise auf Inhalte vorhanden, die nicht mehr bestehen, und unnötige Pakete werden geladen. Das müsste mal aufgeräumt werden.
-2. [erledigt] Um zu verstehen, was vorhanden ist, hätte ich gern erst mal eine Übersicht über das Projekt und die Funktionalitäten hier im README.
-
 # Struktur
 
-## Struktur des Projekts
-Das Projekt ist wie folgt strukturiert:
+## Projektübersicht
+Das CourtPressGER-Projekt ist in mehrere Module unterteilt, die verschiedene Funktionalitäten bereitstellen:
 
+1. **Datenbereinigung**: Module zur Reinigung und Vorbereitung der Rohdaten.
+2. **Synthetische Prompts**: Module zur Generierung und Validierung synthetischer Prompts für die Erzeugung von Pressemitteilungen aus Gerichtsurteilen.
+3. **Evaluierung**: Module zur Bewertung der generierten Pressemitteilungen.
+
+## Projektstruktur
 ```
 CourtPressGER/
-├── courtpressger/               # Hauptmodulordner
-│   ├── __init__.py              # Initialisierungsdatei
-│   ├── main.py                  # Haupteinstiegspunkt
-│   ├── dataset.py               # Datensatzverarbeitung
+├── courtpressger/               # Hauptmodul der Anwendung
 │   ├── data_cleaning/           # Module zur Datenbereinigung
-│   │   ├── __init__.py
-│   │   ├── cli.py               # Kommandozeilenschnittstelle
-│   │   ├── rule_based.py        # Regelbasierte Reinigung
-│   │   ├── semantic_similarity.py # Semantische Ähnlichkeitsanalyse
+│   │   ├── cli.py               # Kommandozeilenschnittstelle für die Datenbereinigung
+│   │   ├── rule_based.py        # Regelbasierte Bereinigungsmethoden
+│   │   ├── semantic_similarity.py # Semantische Ähnlichkeitsanalysen
 │   │   └── utils.py             # Hilfsfunktionen
-│   └── synthetic_prompts/       # Module für synthetische Prompts
-│       ├── __init__.py
-│       ├── cli.py               # Kommandozeilenschnittstelle
-│       ├── generator.py         # Prompt-Generator
-│       ├── rate_limiter.py      # API-Ratenbegrenzung
-│       ├── sanitizer.py         # Datenbereinigung
-│       └── verify_checkpoints.py # Checkpoint-Validierung
-├── data/                        # Datenordner
+│   ├── synthetic_prompts/       # Module für synthetische Prompts
+│   │   ├── cli.py               # Kommandozeilenschnittstelle für Prompt-Generierung
+│   │   ├── generator.py         # Generator für synthetische Prompts
+│   │   ├── rate_limiter.py      # API-Ratenbegrenzung
+│   │   ├── sanitizer.py         # Bereinigung und Formatierung von Prompts
+│   │   └── verify_checkpoints.py # Validierung von Checkpoints
+│   ├── __init__.py              # Initialisierung des Pakets
+│   ├── dataset.py               # Datenverwaltung und -zugriff
+│   └── main.py                  # Haupteinstiegspunkt der Anwendung
+├── data/                        # Datendateien
 │   ├── raw/                     # Rohdaten
 │   ├── interim/                 # Zwischendaten
 │   ├── processed/               # Verarbeitete Daten
-│   └── checkpoints/             # Verarbeitungscheckpoints
-├── models/                      # Modellordner
-├── notebooks/                   # Jupyter Notebooks
-├── references/                  # Verweise und Literaturreferenzen
-├── reports/                     # Berichte und Visualisierungen
-├── tests/                       # Testordner
-├── .env                         # Umgebungsvariablen (API-Schlüssel)
-├── .gitignore                   # Git-Ignorierungsmuster
-├── Makefile                     # Build-Automatisierung
-├── pyproject.toml               # Projektmetadaten und Abhängigkeiten
-└── pytest.ini                   # Pytest-Konfiguration
+│   └── checkpoints/             # Checkpoints für lange Verarbeitungsprozesse
+├── notebooks/                   # Jupyter Notebooks für Analysen
+├── tests/                       # Testmodule
+├── models/                      # Modellierte Daten und Modellkonfigurationen
+├── references/                  # Referenzdokumente und Schemadefitionen
+├── reports/                     # Generierte Berichte und Visualisierungen
+├── pyproject.toml               # Projekteinstellungen und Abhängigkeiten
+├── Makefile                     # Automatisierungsscripts für häufige Aufgaben
+└── README.md                    # Projektdokumentation
 ```
 
 ## Funktionalitäten
 Das Projekt bietet folgende Hauptfunktionalitäten:
 
-1. **Daten-Pipeline**: 
-   - Laden und Vorverarbeiten des deutschen Gerichtsurteil-Datensatzes
-   - Bereinigung und Filterung von Daten
-   - Speicherung in verschiedenen Verarbeitungsstufen (raw, interim, processed)
+### Datenbereinigung
+- Bereinigung von Rohdaten mit Gerichtsurteilen und Pressemitteilungen
+- Regelbasierte Filterung und Normalisierung
+- Semantische Ähnlichkeitsanalyse zur Validierung der Zuordnungen
 
-2. **Datenbereinigung**:
-   - Regelbasierte Reinigung von Texten
-   - Semantische Ähnlichkeitsanalyse zwischen Urteilen und Pressemitteilungen
-   - Spezielle Sanitierung für juristische Texte
+### Synthetische Prompts
+- Generierung von synthetischen Prompts für LLMs
+- Verschiedene Prompt-Strategien zur Pressemitteilungsgenerierung
+- Funktionen für API-Ratenbegrenzung und Checkpoint-Verwaltung
+- Validierung und Bereinigung von generierten Prompts
 
-3. **Synthetische Prompt-Generierung**:
-   - Generierung von Prompts aus Gerichtsurteilen
-   - Integration mit externen API-Diensten (Anthropic)
-   - Ratenbegrenzung für API-Aufrufe
-
-4. **Kommandozeilentools**:
-   - `courtpressger`: Haupteinstiegspunkt
-   - `courtpressger-clean`: Datenbereinigungstool
-   - `courtpressger-prompt`: Tool zur Prompt-Generierung
+### CLI-Tools
+- Kommandozeilenschnittstellen für verschiedene Aufgaben:
+  - Datenbereinigung (`courtpressger-clean`)
+  - Prompt-Generierung (`courtpressger-prompt`)
+  - CSV-Validierung und -Reparatur
 
 ## Package Management
 Das Projekt nutzt uv, um Pakete und Venv zu verwalten. Im besten Fall sollen pakete durch uv add hinzugefügt werden, nur im Ausnahmefall durch uv pip install.
+
+### Virtuelle Umgebungen
+Das Projekt unterstützt zwei Arten von virtuellen Umgebungen:
+- CPU-Umgebung: `make venv-cpu` (Standard)
+- GPU-Umgebung: `make venv-gpu` (für CUDA-fähige Systeme)
 
 ## Daten
 Die Daten liegen im `data` Ordner und in verschiedenen Subordnern. Abhängig vom Bearbeitungsstand gibt es raw, intermediate und processed Daten. Daneben gibt es `checkpoints`, in denen die Zwischenergebnisse der automatisierten Verarbeitung gespeichert werden.
