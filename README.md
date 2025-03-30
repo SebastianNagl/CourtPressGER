@@ -7,60 +7,80 @@ Wir sind Wissenschaftler der Technischen Universität München im Bereich Legal 
 3. Eine Evaluation der generierten Pressemitteilungen mit Hilfe von menschlichen und automatisierten Metriken.
 
 ## Aktuelle Aufgaben und Probleme
+Aktuelle Aufgaben können work in progress sein; immer erst mal kontrollieren, dann lösen. Sobald was davon erledigt ist, bitte [erledigt] zu Beginn der Aufgabe schreiben; ich kontrolliere dann bei Gelegenheit.
 
+1. [erledigt] Es gab ein kleines Git Problem (ich); teilweise konnten Inhalte wiederverwendet werden. Ggf sind Verweise auf Inhalte vorhanden, die nicht mehr bestehen, und unnötige Pakete werden geladen. Das müsste mal aufgeräumt werden.
+2. [erledigt] Um zu verstehen, was vorhanden ist, hätte ich gern erst mal eine Übersicht über das Projekt und die Funktionalitäten hier im README.
 
+# Struktur
+
+## Struktur des Projekts
+Das Projekt ist wie folgt strukturiert:
+
+```
+CourtPressGER/
+├── courtpressger/               # Hauptmodulordner
+│   ├── __init__.py              # Initialisierungsdatei
+│   ├── main.py                  # Haupteinstiegspunkt
+│   ├── dataset.py               # Datensatzverarbeitung
+│   ├── data_cleaning/           # Module zur Datenbereinigung
+│   │   ├── __init__.py
+│   │   ├── cli.py               # Kommandozeilenschnittstelle
+│   │   ├── rule_based.py        # Regelbasierte Reinigung
+│   │   ├── semantic_similarity.py # Semantische Ähnlichkeitsanalyse
+│   │   └── utils.py             # Hilfsfunktionen
+│   └── synthetic_prompts/       # Module für synthetische Prompts
+│       ├── __init__.py
+│       ├── cli.py               # Kommandozeilenschnittstelle
+│       ├── generator.py         # Prompt-Generator
+│       ├── rate_limiter.py      # API-Ratenbegrenzung
+│       ├── sanitizer.py         # Datenbereinigung
+│       └── verify_checkpoints.py # Checkpoint-Validierung
+├── data/                        # Datenordner
+│   ├── raw/                     # Rohdaten
+│   ├── interim/                 # Zwischendaten
+│   ├── processed/               # Verarbeitete Daten
+│   └── checkpoints/             # Verarbeitungscheckpoints
+├── models/                      # Modellordner
+├── notebooks/                   # Jupyter Notebooks
+├── references/                  # Verweise und Literaturreferenzen
+├── reports/                     # Berichte und Visualisierungen
+├── tests/                       # Testordner
+├── .env                         # Umgebungsvariablen (API-Schlüssel)
+├── .gitignore                   # Git-Ignorierungsmuster
+├── Makefile                     # Build-Automatisierung
+├── pyproject.toml               # Projektmetadaten und Abhängigkeiten
+└── pytest.ini                   # Pytest-Konfiguration
+```
 
 ## Funktionalitäten
+Das Projekt bietet folgende Hauptfunktionalitäten:
 
-### Synthetische Prompts
+1. **Daten-Pipeline**: 
+   - Laden und Vorverarbeiten des deutschen Gerichtsurteil-Datensatzes
+   - Bereinigung und Filterung von Daten
+   - Speicherung in verschiedenen Verarbeitungsstufen (raw, interim, processed)
 
-- **Generieren**: Erzeugt synthetische Prompts für Gerichtsurteile und Pressemitteilungen
-- **Validieren**: Überprüft CSV-Dateien auf Schema-Konformität
-- **Bereinigen**: Korrigiert häufige Probleme in CSV-Dateien
-- **Sanitize**: Bereinigt API-Antworten in CSV-Dateien
-- **Reparieren**: Behebt strukturelle Probleme in CSV-Dateien
+2. **Datenbereinigung**:
+   - Regelbasierte Reinigung von Texten
+   - Semantische Ähnlichkeitsanalyse zwischen Urteilen und Pressemitteilungen
+   - Spezielle Sanitierung für juristische Texte
 
-### CSV-Datenmanagement
+3. **Synthetische Prompt-Generierung**:
+   - Generierung von Prompts aus Gerichtsurteilen
+   - Integration mit externen API-Diensten (Anthropic)
+   - Ratenbegrenzung für API-Aufrufe
 
-Das Projekt bietet verschiedene Werkzeuge zur Verwaltung und Qualitätssicherung von CSV-Dateien:
+4. **Kommandozeilentools**:
+   - `courtpressger`: Haupteinstiegspunkt
+   - `courtpressger-clean`: Datenbereinigungstool
+   - `courtpressger-prompt`: Tool zur Prompt-Generierung
 
-- `validate-csv`: Überprüft CSV-Dateien auf Schema-Konformität
-- `clean-csv`: Bereinigt häufige Probleme (doppelte IDs, fehlende Werte, etc.)
-- `sanitize-csv`: Bereinigt API-Antworten in CSV-Dateien
-- `repair-csv`: Behebt schwerwiegende Strukturprobleme
+## Package Management
+Das Projekt nutzt uv, um Pakete und Venv zu verwalten. Im besten Fall sollen pakete durch uv add hinzugefügt werden, nur im Ausnahmefall durch uv pip install.
 
-Beispiele für diese Funktionen finden Sie im `examples/`-Verzeichnis.
-
-## Beispiele
-
-### CSV-Bereinigung
-
-```bash
-# Bereinigen einer CSV-Datei
-make clean-csv FILE=pfad/zur/datei.csv
-
-# Validieren einer CSV-Datei
-make validate-csv FILE=pfad/zur/datei.csv
-```
-
-Detaillierte Beispiele und Anleitungen finden Sie in [examples/README.md](examples/README.md).
-
-## Tests
-
-Ausführen aller Tests:
-
-```bash
-make test
-```
-
-Ausführen spezifischer CSV-Tests:
-
-```bash
-make test-csv
-```
-
-Dies führt Tests für den CSV-Cleaner und CSV-Validator aus, um sicherzustellen, dass alle Funktionen wie erwartet arbeiten.
+## Daten
+Die Daten liegen im `data` Ordner und in verschiedenen Subordnern. Abhängig vom Bearbeitungsstand gibt es raw, intermediate und processed Daten. Daneben gibt es `checkpoints`, in denen die Zwischenergebnisse der automatisierten Verarbeitung gespeichert werden.
 
 ## Lizenz
-
 Dieses Projekt steht unter der MIT-Lizenz.
