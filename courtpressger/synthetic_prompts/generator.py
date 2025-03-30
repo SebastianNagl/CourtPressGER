@@ -7,13 +7,17 @@ using the Anthropic Claude API.
 
 import os
 import time
+import logging
 import pandas as pd
 from pathlib import Path
 from tqdm.auto import tqdm
 import anthropic
+import glob
 
 from .rate_limiter import RateLimiter, estimate_token_count
 from .sanitizer import sanitize_api_response
+
+logger = logging.getLogger(__name__)
 
 # Erstelle eine globale Rate Limiter-Instanz
 rate_limiter = RateLimiter()
@@ -58,11 +62,11 @@ def generate_synthetic_prompt(court_ruling, press_release, client=None, model="c
     # Vorbereitung des Benutzer-Prompts
     user_prompt = f"""
     Hier ist das originale Gerichtsurteil:
-    
+
     ```
     {court_ruling}
     ```
-    
+
     Und hier ist die Pressemitteilung, die daraus erstellt wurde:
     
     ```
@@ -110,6 +114,38 @@ def generate_synthetic_prompt(court_ruling, press_release, client=None, model="c
                 return f"Fehler bei der Generierung des Prompts: {e}"
 
 
+def load_latest_checkpoint(checkpoint_dir, output_prefix):
+    """
+    Lädt den neuesten Checkpoint, falls vorhanden.
+    
+    Args:
+        checkpoint_dir (Path): Verzeichnis mit den Checkpoints
+        output_prefix (str): Präfix der Checkpoint-Dateien
+        
+    Returns:
+        pd.DataFrame: DataFrame aus dem neuesten Checkpoint oder None, wenn kein Checkpoint existiert
+    """
+    checkpoint_pattern = str(checkpoint_dir / f"{output_prefix}_*.csv")
+    checkpoint_files = sorted(glob.glob(checkpoint_pattern))
+    
+    if not checkpoint_files:
+        print(f"Keine existierenden Checkpoints mit Muster {checkpoint_pattern} gefunden.")
+        return None
+    
+    latest_checkpoint = checkpoint_files[-1]
+    print(f"Lade neuesten Checkpoint: {latest_checkpoint}")
+    
+    try:
+        checkpoint_df = pd.read_csv(latest_checkpoint)
+        # Zähle vorhandene synthetische Prompts
+        prompt_count = checkpoint_df['synthetic_prompt'].notna().sum()
+        print(f"Checkpoint geladen mit {prompt_count} synthetischen Prompts")
+        return checkpoint_df
+    except Exception as e:
+        print(f"Fehler beim Laden des Checkpoints: {e}")
+        return None
+
+
 def process_batch(df, batch_size=10, start_idx=0, save_interval=1, fix_errors=False, checkpoint_dir=None, output_prefix=None, client=None):
     """
     Verarbeitet einen Dataframe in Batches und generiert synthetische Prompts für jede Zeile.
@@ -134,6 +170,29 @@ def process_batch(df, batch_size=10, start_idx=0, save_interval=1, fix_errors=Fa
             raise ValueError("ANTHROPIC_API_KEY ist nicht in der Umgebung gesetzt")
         client = anthropic.Anthropic(api_key=api_key)
     
+    # Erstelle ein Verzeichnis für Checkpoints, falls es nicht existiert
+    if checkpoint_dir is None:
+        checkpoint_dir = Path('checkpoints')
+    checkpoint_dir.mkdir(exist_ok=True)
+    
+    # Standard-Präfix für Checkpoints
+    if output_prefix is None:
+        output_prefix = "synthetic_prompts_checkpoint"
+    
+    # Lade den neuesten Checkpoint, wenn einer existiert und wir nicht von Anfang an beginnen
+    if start_idx > 0:
+        checkpoint_df = load_latest_checkpoint(checkpoint_dir, output_prefix)
+        if checkpoint_df is not None:
+            # Sichere zuerst alle vorherigen synthetischen Prompts
+            for idx in range(start_idx):
+                if idx < len(checkpoint_df) and idx < len(df):
+                    if pd.notna(checkpoint_df.at[idx, 'synthetic_prompt']):
+                        df.at[idx, 'synthetic_prompt'] = checkpoint_df.at[idx, 'synthetic_prompt']
+            
+            # Ausgabe der Anzahl der übernommenen Prompts
+            prompt_count = df.iloc[:start_idx]['synthetic_prompt'].notna().sum()
+            print(f"Übernommene synthetische Prompts: {prompt_count}/{start_idx}")
+    
     # Erstelle eine synthetic_prompt-Spalte, falls sie nicht existiert
     if 'synthetic_prompt' not in df.columns:
         df['synthetic_prompt'] = None
@@ -146,15 +205,6 @@ def process_batch(df, batch_size=10, start_idx=0, save_interval=1, fix_errors=Fa
             print(f"Gefunden: {len(error_indices)} Einträge mit API-Fehlern")
             # Setze die fehlerhaften Einträge auf None zurück, damit sie neu verarbeitet werden
             df.loc[error_indices, 'synthetic_prompt'] = None
-    
-    # Erstelle ein Verzeichnis für Checkpoints, falls es nicht existiert
-    if checkpoint_dir is None:
-        checkpoint_dir = Path('checkpoints')
-    checkpoint_dir.mkdir(exist_ok=True)
-    
-    # Standard-Präfix für Checkpoints
-    if output_prefix is None:
-        output_prefix = "synthetic_prompts_checkpoint"
     
     # Verarbeite in Batches
     for i in tqdm(range(start_idx, len(df), batch_size)):
@@ -195,6 +245,10 @@ def process_batch(df, batch_size=10, start_idx=0, save_interval=1, fix_errors=Fa
             checkpoint_path = checkpoint_dir / f"{output_prefix}_{batch_end}.csv"
             df.to_csv(checkpoint_path, index=False)
             print(f"Checkpoint gespeichert unter {checkpoint_path}")
+            
+            # Zähle die Gesamtanzahl der erfolgreichen Prompts im Dataframe
+            total_prompts = df['synthetic_prompt'].notna().sum()
+            print(f"Checkpoint enthält insgesamt {total_prompts} synthetische Prompts")
             
             # Kurze Pause nach jedem Batch, um Rate-Limits zu entspannen
             time.sleep(1)
