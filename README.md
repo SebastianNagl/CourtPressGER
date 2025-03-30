@@ -9,7 +9,8 @@ Wir sind Wissenschaftler der Technischen Universität München im Bereich Legal 
 ## Aktuelle Aufgaben und Probleme
 Aktuelle Aufgaben können work in progress sein; immer erst mal kontrollieren, dann lösen. Sobald was davon erledigt ist, bitte [erledigt] zu Beginn der Aufgabe schreiben; ich kontrolliere dann bei Gelegenheit.
 
-1. Kontrolliere, dass wir die befehle 'make synthetic' und 'make synthetic-resume' ausführen können; diese sollen entweder die dynthetisierungs pipeline starten oder vom letzten checkpoint fortsetzen.
+1. [erledigt] Kontrolliere, dass wir die befehle 'make synthetic' und 'make synthetic-resume' ausführen können; diese sollen entweder die dynthetisierungs pipeline starten oder vom letzten checkpoint fortsetzen.
+2. [erledigt] Die semantic similarity funktion ist nicht mehr nötig. das kann aufgeräumt werden.
 
 # Struktur
 
@@ -27,7 +28,6 @@ CourtPressGER/
 │   ├── data_cleaning/           # Module zur Datenbereinigung
 │   │   ├── cli.py               # Kommandozeilenschnittstelle für die Datenbereinigung
 │   │   ├── rule_based.py        # Regelbasierte Bereinigungsmethoden
-│   │   ├── semantic_similarity.py # Semantische Ähnlichkeitsanalysen
 │   │   └── utils.py             # Hilfsfunktionen
 │   ├── synthetic_prompts/       # Module für synthetische Prompts
 │   │   ├── cli.py               # Kommandozeilenschnittstelle für Prompt-Generierung
@@ -80,6 +80,15 @@ Das Projekt nutzt uv, um Pakete und Venv zu verwalten. Im besten Fall sollen pak
 Das Projekt unterstützt zwei Arten von virtuellen Umgebungen:
 - CPU-Umgebung: `make venv-cpu` (Standard)
 - GPU-Umgebung: `make venv-gpu` (für CUDA-fähige Systeme)
+
+**Wichtig**: Nach der Erstellung muss die gewünschte Umgebung manuell aktiviert werden, bevor weitere Make-Befehle ausgeführt werden können:
+```bash
+# Für CPU-Umgebung
+source .venv-cpu/bin/activate
+
+# Für GPU-Umgebung
+source .venv-gpu/bin/activate
+```
 
 ## Daten
 Die Daten liegen im `data` Ordner und in verschiedenen Subordnern. Abhängig vom Bearbeitungsstand gibt es raw, intermediate und processed Daten. Daneben gibt es `checkpoints`, in denen die Zwischenergebnisse der automatisierten Verarbeitung gespeichert werden.

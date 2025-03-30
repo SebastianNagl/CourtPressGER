@@ -6,8 +6,7 @@ PROJECT_NAME = CourtPressGER
 PYTHON_VERSION = 3.12
 PYTHON_INTERPRETER = python3
 VENV_NAME = .venv
-VENV_ACTIVATE = $(VENV_NAME)/bin/activate
-PYTHON = $(VENV_NAME)/bin/python
+PYTHON = python3
 SHELL := /bin/bash
 
 # Standardwerte für synthetische Prompt-Generierung
@@ -17,6 +16,13 @@ DEFAULT_OUTPUT = data/processed/cases_prs_synth_prompts.csv
 DEFAULT_CHECKPOINT_DIR = data/checkpoints
 DEFAULT_BATCH_SIZE = 10      # Batchgröße standardmäßig 10
 DEFAULT_SAVE_INTERVAL = 1    # Speichere nach jedem Batch
+
+#################################################################################
+# HINWEIS                                                                       #
+#################################################################################
+# Aktiviere vor der Nutzung der Make-Befehle eine virtuelle Umgebung mit:       #
+# source .venv-cpu/bin/activate  ODER  source .venv-gpu/bin/activate            #
+#################################################################################
 
 #################################################################################
 # COMMANDS                                                                      #
@@ -32,23 +38,23 @@ requirements:
 ## Lint using ruff (use `make format` to do formatting)
 .PHONY: lint
 lint:
-	. $(VENV_ACTIVATE) && ruff check courtpressger
-	. $(VENV_ACTIVATE) && mypy courtpressger
+	ruff check courtpressger
+	mypy courtpressger
 
 ## Format source code with ruff
 .PHONY: format
 format:
-	. $(VENV_ACTIVATE) && ruff format courtpressger
+	ruff format courtpressger
 
 ## Run tests
 .PHONY: test
 test:
-	. $(VENV_ACTIVATE) && pytest -v tests/
+	pytest -v tests/
 
 ## Run only CSV-related tests
 .PHONY: test-csv
 test-csv:
-	. $(VENV_ACTIVATE) && pytest -v tests/test_cleaner.py tests/test_csv_validator.py
+	pytest -v tests/test_cleaner.py tests/test_csv_validator.py
 
 ## Run data cleaning pipeline
 .PHONY: clean_data
@@ -62,23 +68,54 @@ descriptive: requirements
 
 ## Generate synthetic prompts
 .PHONY: synthetic
-synthetic: requirements
-	$(PYTHON_INTERPRETER) notebooks/synthetic_prompts.ipynb
+synthetic:
+	@mkdir -p $(DEFAULT_CHECKPOINT_DIR)
+	python -m courtpressger.synthetic_prompts.cli generate \
+		--input $(DEFAULT_INPUT) \
+		--output $(DEFAULT_OUTPUT) \
+		--checkpoint-dir $(DEFAULT_CHECKPOINT_DIR) \
+		--batch-size $(DEFAULT_BATCH_SIZE) \
+		--save-interval $(DEFAULT_SAVE_INTERVAL)
+
+## Resume synthetic prompt generation from last checkpoint
+.PHONY: synthetic-resume
+synthetic-resume:
+	@if [ -d "$(DEFAULT_CHECKPOINT_DIR)" ]; then \
+		checkpoints=$$(ls -v1 $(DEFAULT_CHECKPOINT_DIR)/cases_prs_synth_prompts_*.csv 2>/dev/null || echo ""); \
+		if [ -n "$$checkpoints" ]; then \
+			last_checkpoint=$$(echo "$$checkpoints" | tail -n1); \
+			last_index=$$(basename "$$last_checkpoint" .csv | cut -d'_' -f4); \
+			echo "Letzter Checkpoint gefunden: $$last_checkpoint (Index: $$last_index)"; \
+			python -m courtpressger.synthetic_prompts.cli generate \
+				--input $(DEFAULT_INPUT) \
+				--output $(DEFAULT_OUTPUT) \
+				--checkpoint-dir $(DEFAULT_CHECKPOINT_DIR) \
+				--batch-size $(DEFAULT_BATCH_SIZE) \
+				--save-interval $(DEFAULT_SAVE_INTERVAL) \
+				--start-idx $$last_index; \
+		else \
+			echo "Keine Checkpoints gefunden in $(DEFAULT_CHECKPOINT_DIR). Starte neu."; \
+			$(MAKE) synthetic; \
+		fi \
+	else \
+		echo "Checkpoint-Verzeichnis $(DEFAULT_CHECKPOINT_DIR) nicht gefunden. Starte neu."; \
+		$(MAKE) synthetic; \
+	fi
 
 ## Synchronize the environment with dependencies
 .PHONY: sync
 sync:
-	. $(VENV_ACTIVATE) && python -m courtpressger.synthetic_prompts.cli sync --help
+	python -m courtpressger.synthetic_prompts.cli sync --help
 
 ## Download the German courts dataset
 .PHONY: download_data
 download_data:
-	. $(VENV_ACTIVATE) && python -m courtpressger.synthetic_prompts.cli download --help
+	python -m courtpressger.synthetic_prompts.cli download --help
 
 ## Validate CSV checkpoints
 .PHONY: validate-csv
 validate-csv:
-	. $(VENV_ACTIVATE) && python -m courtpressger.synthetic_prompts.cli validate --help
+	python -m courtpressger.synthetic_prompts.cli validate --help
 
 ## Fix format errors in a CSV file (use FILE=path/to/file.csv)
 .PHONY: fix-csv
@@ -86,7 +123,7 @@ fix-csv:
 	@if [ -z "$(FILE)" ]; then \
 		echo "Bitte den Dateipfad angeben, z.B. 'make fix-csv FILE=checkpoints/file.csv'"; \
 	else \
-		. $(VENV_ACTIVATE) && $(PYTHON) -m courtpressger.synthetic_prompts.cli fix --file $(FILE); \
+		python -m courtpressger.synthetic_prompts.cli fix --file $(FILE); \
 	fi
 
 ## Repair damaged CSV structure (use FILE=path/to/file.csv)
@@ -95,18 +132,18 @@ repair-csv:
 	@if [ -z "$(FILE)" ]; then \
 		echo "Bitte den Dateipfad angeben, z.B. 'make repair-csv FILE=checkpoints/file.csv'"; \
 	else \
-		. $(VENV_ACTIVATE) && $(PYTHON) -m courtpressger.synthetic_prompts.cli repair --file $(FILE); \
+		python -m courtpressger.synthetic_prompts.cli repair --file $(FILE); \
 	fi
 
 ## Clean all checkpoints from API errors
 .PHONY: clean-checkpoints
 clean-checkpoints:
-	. $(VENV_ACTIVATE) && python -m courtpressger.synthetic_prompts.cli clean --help
+	python -m courtpressger.synthetic_prompts.cli clean --help
 
 ## Sanitize API responses in checkpoints
 .PHONY: sanitize-csv
 sanitize-csv:
-	. $(VENV_ACTIVATE) && python -m courtpressger.synthetic_prompts.cli sanitize --help
+	python -m courtpressger.synthetic_prompts.cli sanitize --help
 
 ## Clean CSV data (use FILE=path/to/file.csv)
 .PHONY: clean-csv
@@ -114,7 +151,7 @@ clean-csv:
 	@if [ -z "$(FILE)" ]; then \
 		echo "Bitte den Dateipfad angeben, z.B. 'make clean-csv FILE=checkpoints/file.csv'"; \
 	else \
-		. $(VENV_ACTIVATE) && $(PYTHON) -m courtpressger.synthetic_prompts.cli clean-csv --file $(FILE); \
+		python -m courtpressger.synthetic_prompts.cli clean-csv --file $(FILE); \
 	fi
 
 ## Führe alle CSV-bezogenen Befehle aus
@@ -144,8 +181,9 @@ venv-cpu:
 	@. .venv-cpu/bin/activate && \
 		uv pip install --upgrade pip && \
 		uv pip install -e ".[cpu]"
-	@echo ">>> CPU-Umgebung erstellt. Aktivieren mit:"
+	@echo ">>> CPU-Umgebung erstellt. Wichtig: Aktiviere die Umgebung mit:"
 	@echo ">>> source .venv-cpu/bin/activate"
+	@echo ">>> Erst nach der Aktivierung können Make-Befehle ausgeführt werden."
 
 # Erstellt eine GPU-spezifische virtuelle Umgebung
 venv-gpu:
@@ -155,8 +193,9 @@ venv-gpu:
 		uv pip install --upgrade pip && \
 		uv pip install torch --index-url https://download.pytorch.org/whl/cu118 && \
 		uv pip install -e ".[gpu]"
-	@echo ">>> GPU-Umgebung erstellt. Aktivieren mit:"
+	@echo ">>> GPU-Umgebung erstellt. Wichtig: Aktiviere die Umgebung mit:"
 	@echo ">>> source .venv-gpu/bin/activate"
+	@echo ">>> Erst nach der Aktivierung können Make-Befehle ausgeführt werden."
 
 # Standard-Target für venv (CPU als Standard)
 venv: venv-cpu
@@ -181,10 +220,10 @@ help:
 .PHONY: install dev all-csv
 
 install:
-	$(PYTHON) -m pip install -e .
+	pip install -e .
 
 dev:
-	$(PYTHON) -m pip install -e ".[dev]"
+	pip install -e ".[dev]"
 
 all-csv: validate-csv fix-csv repair-csv clean-checkpoints sanitize-csv clean-csv
 
