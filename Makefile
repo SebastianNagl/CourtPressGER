@@ -84,7 +84,7 @@ synthetic-resume:
 		checkpoints=$$(ls -v1 $(DEFAULT_CHECKPOINT_DIR)/cases_prs_synth_prompts_*.csv 2>/dev/null || echo ""); \
 		if [ -n "$$checkpoints" ]; then \
 			last_checkpoint=$$(echo "$$checkpoints" | tail -n1); \
-			last_index=$$(basename "$$last_checkpoint" .csv | cut -d'_' -f4); \
+			last_index=$$(basename "$$last_checkpoint" .csv | grep -oE '[0-9]+$$'); \
 			echo "Letzter Checkpoint gefunden: $$last_checkpoint (Index: $$last_index)"; \
 			python -m courtpressger.synthetic_prompts.cli generate \
 				--input $(DEFAULT_INPUT) \
@@ -244,10 +244,4 @@ clean-test:
 
 ## Clean all artifacts
 .PHONY: clean
-clean: clean-pyc clean-test
-
-## Display help message
-.PHONY: help
-help:
-	@echo "Available commands:"
-	@grep -E '^##' $(MAKEFILE_LIST) | grep -v "^## -----" | sed -e 's/## //g' | sort 
+clean: clean-pyc clean-test 
