@@ -39,6 +39,7 @@ dependencies = [
     "bert-score", # Für BERTScore Metriken
     "openai", # Für OpenAI API-Zugriff
     "scipy", # Für statistische Signifikanzberechnungen
+    "pip>=25.0.1",
 ]
 
 [project.optional-dependencies]

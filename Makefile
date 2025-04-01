@@ -196,10 +196,6 @@ clean:
 venv:
 	@echo "Erstelle virtuelle Umgebung..."
 	@uv venv --python $(PYTHON_VERSION) .venv
-	@. .venv/bin/activate && \
-		uv pip install --upgrade pip && \
-		uv pip install torch --index-url https://download.pytorch.org/whl/cu118 && \
-		uv pip install -e "."
 	@echo ">>> Virtuelle Umgebung erstellt. Wichtig: Aktiviere die Umgebung mit:"
 	@echo ">>> source .venv/bin/activate"
 	@echo ">>> Erst nach der Aktivierung können Make-Befehle ausgeführt werden."
