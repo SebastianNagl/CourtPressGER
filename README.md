@@ -2,15 +2,13 @@
 
 ## Hintergrund und Ziel
 Wir sind Wissenschaftler der Technischen Universität München im Bereich Legal Technology. Für unsere nächste wissenschaftliche Publikation möchten wir drei Dinge vorstellen: 
-1. Eine bereinigte Version eines vorab gescrapten Datensatzes mit etwa 6.5k Einträgen von Gerichtsurteilen mit den dazugehörigen Pressemitteilungen und Metadaten.
-2. Synthetische Prompts, mit denen man automatisiert aus den Urteilen Pressemitteilungen generieren kann.
+1. Eine bereinigte Version eines vorab gescrapten Datensatzes mit etwa 6.5k Einträgen von Gerichtsurteilen mit den dazugehörigen Pressemitteilungen und Metadaten. Die Daten können roh über das dataset.py Skript von HF geladen werden. Für die Bereinigung haben wir in courtpressger/data_cleaning eine Pipeline entwickelt.
+2. Synthetische Prompts, mit denen man automatisiert aus den Urteilen Pressemitteilungen generieren kann. 
 3. Eine Evaluation der generierten Pressemitteilungen mit Hilfe von menschlichen und automatisierten Metriken.
+Neben den Pipeline-Skripten haben wir für unsere Analysen auch immer ein Jupyter Notebook für die Arbeitsschritte; abrufbar unter notebooks/.
 
 ## Aktuelle Aufgaben und Probleme
 Aktuelle Aufgaben können work in progress sein; immer erst mal kontrollieren, dann lösen. Sobald was davon erledigt ist, bitte [erledigt] zu Beginn der Aufgabe schreiben; ich kontrolliere dann bei Gelegenheit.
-
-1. [erledigt] Kontrolliere, dass wir die befehle 'make synthetic' und 'make synthetic-resume' ausführen können; diese sollen entweder die dynthetisierungs pipeline starten oder vom letzten checkpoint fortsetzen.
-2. [erledigt] Die semantic similarity funktion ist nicht mehr nötig. das kann aufgeräumt werden.
 
 # Struktur
 
@@ -24,7 +22,7 @@ Das CourtPressGER-Projekt ist in mehrere Module unterteilt, die verschiedene Fun
 ## Projektstruktur
 ```
 CourtPressGER/
-├── courtpressger/               # Hauptmodul der Anwendung
+├── courtpressger/               # Hauptmodul der Anwendung; enthält alle Module und Skripte
 │   ├── data_cleaning/           # Module zur Datenbereinigung
 │   │   ├── cli.py               # Kommandozeilenschnittstelle für die Datenbereinigung
 │   │   ├── rule_based.py        # Regelbasierte Bereinigungsmethoden
@@ -35,6 +33,12 @@ CourtPressGER/
 │   │   ├── rate_limiter.py      # API-Ratenbegrenzung
 │   │   ├── sanitizer.py         # Bereinigung und Formatierung von Prompts
 │   │   └── verify_checkpoints.py # Validierung von Checkpoints
+│   ├── evaluation/              # Module zur Evaluierung
+│   │   ├── cli.py               # Kommandozeilenschnittstelle für die Evaluierung
+│   │   ├── metrics.py           # Metriken für die Evaluierung
+│   │   ├── models.py            # Implementierung verschiedener LLMs
+│   │   ├── pipeline.py          # Pipeline zur Evaluierung der Modelle
+│   │   └── utils.py             # Hilfsfunktionen für Visualisierung und Analyse
 │   ├── __init__.py              # Initialisierung des Pakets
 │   ├── dataset.py               # Datenverwaltung und -zugriff
 │   └── main.py                  # Haupteinstiegspunkt der Anwendung
@@ -42,7 +46,8 @@ CourtPressGER/
 │   ├── raw/                     # Rohdaten
 │   ├── interim/                 # Zwischendaten
 │   ├── processed/               # Verarbeitete Daten
-│   └── checkpoints/             # Checkpoints für lange Verarbeitungsprozesse
+│   ├── checkpoints/             # Checkpoints für lange Verarbeitungsprozesse
+│   └── evaluation/              # Evaluierungsergebnisse
 ├── notebooks/                   # Jupyter Notebooks für Analysen
 ├── tests/                       # Testmodule
 ├── models/                      # Modellierte Daten und Modellkonfigurationen
@@ -67,10 +72,22 @@ Das Projekt bietet folgende Hauptfunktionalitäten:
 - Funktionen für API-Ratenbegrenzung und Checkpoint-Verwaltung
 - Validierung und Bereinigung von generierten Prompts
 
+### Evaluierung
+- Pipeline zur Evaluierung verschiedener LLMs
+- Unterstützung für OpenAI, Hugging Face und lokale Modelle
+- Berechnung verschiedener Metriken zur Textähnlichkeit:
+  - ROUGE (Rouge-1, Rouge-2, Rouge-L)
+  - BLEU (BLEU-1 bis BLEU-4)
+  - METEOR
+  - BERTScore
+- Visualisierung und Reporting-Funktionen für Ergebnisanalyse
+- Checkpoint-System für langläufige Evaluierungen
+
 ### CLI-Tools
 - Kommandozeilenschnittstellen für verschiedene Aufgaben:
   - Datenbereinigung (`courtpressger-clean`)
   - Prompt-Generierung (`courtpressger-prompt`)
+  - Modell-Evaluierung (`courtpressger-evaluate`)
   - CSV-Validierung und -Reparatur
 
 ## Package Management

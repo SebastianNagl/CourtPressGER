@@ -7,6 +7,7 @@ import argparse
 import sys
 import logging
 from pathlib import Path
+from dotenv import load_dotenv
 
 from courtpressger.dataset import load_court_datasets, save_dataset, print_dataset_info
 
@@ -21,6 +22,16 @@ def setup_logging(verbose=False):
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         handlers=[logging.StreamHandler(sys.stdout)]
     )
+
+
+def load_env():
+    """Load environment variables from .env file."""
+    env_path = Path(__file__).parent.parent / '.env'
+    if env_path.exists():
+        load_dotenv(env_path)
+        logger.info("Loaded environment variables from .env file")
+    else:
+        logger.warning("No .env file found")
 
 
 def parse_args():
@@ -53,6 +64,7 @@ def main():
     """Main entry point."""
     args = parse_args()
     setup_logging(args.verbose)
+    load_env()  # Load environment variables
 
     logger.info("CourtPressGER - German Court Press dataset processor")
 

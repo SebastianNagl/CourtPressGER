@@ -185,5 +185,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Data files
-data/german_courts.csv
+# Model files
+models/eurobert/
