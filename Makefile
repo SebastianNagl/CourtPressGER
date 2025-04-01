@@ -77,6 +77,24 @@ synthetic:
 		--batch-size $(DEFAULT_BATCH_SIZE) \
 		--save-interval $(DEFAULT_SAVE_INTERVAL)
 
+## Generate press releases with all or a specific model
+.PHONY: generate
+generate:
+	@if [ -z "$(MODEL)" ]; then \
+		echo "Generiere Pressemitteilungen mit allen verfügbaren Modellen"; \
+		python -m courtpressger.generation.cli \
+			--dataset $(DEFAULT_OUTPUT) \
+			--output-dir data/generation \
+			$(if $(LIMIT),--limit $(LIMIT),); \
+	else \
+		echo "Generiere Pressemitteilungen mit dem spezifischen Modell: $(MODEL)"; \
+		python -m courtpressger.generation.cli \
+			--dataset $(DEFAULT_OUTPUT) \
+			--output-dir data/generation \
+			--model $(MODEL) \
+			$(if $(LIMIT),--limit $(LIMIT),); \
+	fi
+
 ## Resume synthetic prompt generation from last checkpoint
 .PHONY: synthetic-resume
 synthetic-resume:
@@ -172,38 +190,24 @@ clean:
 	find . -type d -name ".ruff_cache" -exec rm -rf {} +
 
 # Virtuelle Umgebungen
-.PHONY: venv venv-cpu venv-gpu clean-venv
+.PHONY: venv clean-venv
 
-# Erstellt eine CPU-spezifische virtuelle Umgebung
-venv-cpu:
-	@echo "Erstelle CPU-spezifische virtuelle Umgebung..."
-	@uv venv --python $(PYTHON_VERSION) .venv-cpu
-	@. .venv-cpu/bin/activate && \
-		uv pip install --upgrade pip && \
-		uv pip install -e ".[cpu]"
-	@echo ">>> CPU-Umgebung erstellt. Wichtig: Aktiviere die Umgebung mit:"
-	@echo ">>> source .venv-cpu/bin/activate"
-	@echo ">>> Erst nach der Aktivierung können Make-Befehle ausgeführt werden."
-
-# Erstellt eine GPU-spezifische virtuelle Umgebung
-venv-gpu:
-	@echo "Erstelle GPU-spezifische virtuelle Umgebung..."
-	@uv venv --python $(PYTHON_VERSION) .venv-gpu
-	@. .venv-gpu/bin/activate && \
+# Erstellt eine virtuelle Umgebung
+venv:
+	@echo "Erstelle virtuelle Umgebung..."
+	@uv venv --python $(PYTHON_VERSION) .venv
+	@. .venv/bin/activate && \
 		uv pip install --upgrade pip && \
 		uv pip install torch --index-url https://download.pytorch.org/whl/cu118 && \
-		uv pip install -e ".[gpu]"
-	@echo ">>> GPU-Umgebung erstellt. Wichtig: Aktiviere die Umgebung mit:"
-	@echo ">>> source .venv-gpu/bin/activate"
+		uv pip install -e "."
+	@echo ">>> Virtuelle Umgebung erstellt. Wichtig: Aktiviere die Umgebung mit:"
+	@echo ">>> source .venv/bin/activate"
 	@echo ">>> Erst nach der Aktivierung können Make-Befehle ausgeführt werden."
 
-# Standard-Target für venv (CPU als Standard)
-venv: venv-cpu
-
-# Löscht alle virtuellen Umgebungen
+# Löscht die virtuelle Umgebung
 clean-venv:
-	@echo "Lösche virtuelle Umgebungen..."
-	@rm -rf .venv-cpu .venv-gpu
+	@echo "Lösche virtuelle Umgebung..."
+	@rm -rf .venv
 
 #################################################################################
 # Self Documenting Commands                                                     #

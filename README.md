@@ -11,14 +11,16 @@ Neben den Pipeline-Skripten haben wir für unsere Analysen auch immer ein Jupyte
 ## Aktuelle Aufgaben und Probleme
 Aktuelle Aufgaben können work in progress sein; immer erst mal kontrollieren, dann lösen. Sobald was davon erledigt ist, bitte [erledigt] zu Beginn der Aufgabe schreiben; ich kontrolliere dann bei Gelegenheit. 
 
+1. Dependency management aktuell ist sehr unsauber. ich möchte zukünftig nur eine einzige venv unter .venv haben, die für die cpu und die gpu tasks verwendet wird. bitte überprüfen und ggf. aktualisieren.
 
 # Struktur
+Das Projekt folgt im Kern der Cookiecutter Data Science Projektstruktur. Skripte und Module sind unter courtpressger/ angeordnet.
 
 ## Projektübersicht
 Das CourtPressGER-Projekt ist in mehrere Module unterteilt, die verschiedene Funktionalitäten bereitstellen:
 
 1. **Datenbereinigung**: Module zur Reinigung und Vorbereitung der Rohdaten.
-2. **Synthetische Prompts**: Module zur Generierung und Validierung synthetischer Prompts für die Erzeugung von Pressemitteilungen aus Gerichtsurteilen.
+2. **Synthetische Prompts**: Module zur synthetisierung von Prompts für die Erzeugung von Pressemitteilungen aus Gerichtsurteilen.
 3. **Generierung**: Module zur Generierung von Pressemitteilungen aus Gerichtsurteilen mit verschiedenen LLMs.
 4. **Evaluierung**: Module zur Bewertung der generierten Pressemitteilungen.
 
@@ -58,6 +60,7 @@ CourtPressGER/
 ├── notebooks/                   # Jupyter Notebooks für Analysen
 ├── tests/                       # Testmodule
 ├── models/                      # Modellierte Daten und Modellkonfigurationen
+│   ├── teuken/                  # Teuken-7B-Modell für die lokale Generierung
 │   ├── eurobert/                # EuroBERT-Modell für BERTScore
 │   ├── generation_config.json   # Konfiguration für die Generierungsmodelle
 │   └── evaluation_config.json   # Konfiguration für die Evaluierungsmodelle
@@ -87,13 +90,13 @@ Das Projekt bietet folgende Hauptfunktionalitäten:
 - Unterstützung für verschiedene Modelltypen:
   - Hugging Face Modelle (german-gpt2, etc.)
   - OpenAI Modelle (GPT-3.5, GPT-4)
-  - Lokale Modelle über API-Schnittstellen
+  - Lokale Modelle über API-Schnittstellen (Teuken-7B)
 - Checkpoint-System zur Fortsetzung unterbrochener Generierungen
 - Speicherung der generierten Pressemitteilungen in verschiedenen Formaten (JSON, CSV)
 
 #### Wichtige Unterscheidung: Generierung vs. Evaluierung
 In diesem Projekt gibt es zwei separate Pipelines mit unterschiedlichen Aufgaben:
-1. **Generierungspipeline**: Verwendet generative Sprachmodelle (z.B. GPT-2, GPT-3.5), um aus Gerichtsurteilen Pressemitteilungen zu erzeugen.
+1. **Generierungspipeline**: Verwendet generative Sprachmodelle (z.B. GPT-2, GPT-3.5, Teuken-7B), um aus Gerichtsurteilen Pressemitteilungen zu erzeugen.
 2. **Evaluierungspipeline**: Bewertet die generierten Pressemitteilungen mit verschiedenen Metriken. Hier wird das EuroBERT-Modell nur für die BERTScore-Berechnung verwendet, nicht für die Generierung.
 
 #### Verwendung der Generierungspipeline
@@ -123,6 +126,13 @@ Die Konfiguration erfolgt über eine JSON-Datei (models/generation_config.json):
             "name": "gpt-3.5-turbo",
             "model_name": "gpt-3.5-turbo",
             "max_tokens": 1024,
+            "temperature": 0.7
+        },
+        {
+            "type": "local",
+            "name": "teuken-7b",
+            "model_path": "models/teuken",
+            "max_length": 1024,
             "temperature": 0.7
         }
     ]
@@ -162,24 +172,22 @@ python -m courtpressger.evaluation.cli \
   - CSV-Validierung und -Reparatur
 
 ## Package Management
-Das Projekt nutzt uv, um Pakete und Venv zu verwalten. Im besten Fall sollen pakete durch uv add hinzugefügt werden, nur im Ausnahmefall durch uv pip install.
+Das Projekt nutzt uv, um Pakete und Venvs zu verwalten. Im besten Fall sollen pakete durch uv add hinzugefügt werden, nur im Ausnahmefall durch uv pip install. Es wird eine einzige virtuelle Umgebung unter .venv verwendet, die für alle Aufgaben (CPU und GPU) geeignet ist.
 
-### Virtuelle Umgebungen
-Das Projekt unterstützt zwei Arten von virtuellen Umgebungen:
-- CPU-Umgebung: `make venv-cpu` (Standard)
-- GPU-Umgebung: `make venv-gpu` (für CUDA-fähige Systeme)
-
-**Wichtig**: Nach der Erstellung muss die gewünschte Umgebung manuell aktiviert werden, bevor weitere Make-Befehle ausgeführt werden können:
+### Virtuelle Umgebung
+Die virtuelle Umgebung kann mit folgenden Befehlen verwaltet werden:
 ```bash
-# Für CPU-Umgebung
-source .venv-cpu/bin/activate
+# Erstellen der virtuellen Umgebung
+make venv
 
-# Für GPU-Umgebung
-source .venv-gpu/bin/activate
+# Aktivieren der virtuellen Umgebung
+source .venv/bin/activate
+
+# Löschen der virtuellen Umgebung
+make clean-venv
 ```
 
-## Daten
-Die Daten liegen im `data` Ordner und in verschiedenen Subordnern. Abhängig vom Bearbeitungsstand gibt es raw, intermediate und processed Daten. Daneben gibt es `checkpoints`, in denen die Zwischenergebnisse der automatisierten Verarbeitung gespeichert werden.
+**Wichtig**: Nach der Erstellung muss die Umgebung manuell aktiviert werden, bevor weitere Make-Befehle ausgeführt werden können.
 
-## Lizenz
-Dieses Projekt steht unter der MIT-Lizenz.
+## Daten
+Die Daten liegen im `data`

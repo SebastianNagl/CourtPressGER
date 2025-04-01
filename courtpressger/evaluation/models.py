@@ -191,8 +191,8 @@ class LocalModel(BaseModel):
         
         # Wenn ein lokales Modell angegeben wurde, lade es
         if model_path:
-            from transformers import AutoModelForMaskedLM, AutoTokenizer
-            self.model = AutoModelForMaskedLM.from_pretrained(
+            from transformers import AutoModelForCausalLM, AutoTokenizer
+            self.model = AutoModelForCausalLM.from_pretrained(
                 model_path,
                 trust_remote_code=True
             )
