@@ -11,11 +11,10 @@ Neben den Pipeline-Skripten haben wir für unsere Analysen auch immer ein Jupyte
 ## Aktuelle Aufgaben und Probleme
 Aktuelle Aufgaben können work in progress sein; immer erst mal kontrollieren, dann lösen. Sobald was davon erledigt ist, bitte [erledigt] zu Beginn der Aufgabe schreiben; ich kontrolliere dann bei Gelegenheit. 
 
-
 **Umsetzung:** Die Generation-Pipeline wurde erweitert, um alle gewünschten Modelle zu unterstützen. Die Konfigurationsdatei (models/generation_config.json) wurde aktualisiert, und die Pipeline kann nun mit folgenden Modelltypen arbeiten:
 - OpenAI (GPT-4o) über die OpenAI API
-- DeepInfra (Llama-3-70B, Llama-3-8B) über die DeepInfra API
-- Lokale Modelle (Teuken-7B, EuroLLM-9B)
+- DeepInfra (Llama-3-70B) über die DeepInfra API
+- Lokale Modelle (Teuken-7B, EuroLLM-9B, Llama-3-8B)
 
 Die .env-Datei wurde mit Platzhaltern für alle benötigten API-Keys aktualisiert.
 
@@ -102,8 +101,8 @@ Das Projekt bietet folgende Hauptfunktionalitäten:
 - Pipeline zur Generierung von Pressemitteilungen aus Gerichtsurteilen mit verschiedenen LLMs
 - Unterstützung für verschiedene Modelltypen:
   - OpenAI Modelle (GPT-4o)
-  - DeepInfra Modelle (Llama-3-70B, Llama-3-8B)
-  - Lokale Modelle (Teuken-7B, EuroLLM-9B)
+  - DeepInfra Modelle (Llama-3-70B)
+  - Lokale Modelle (Teuken-7B, EuroLLM-9B, Llama-3-8B)
 - Modellkategorien:
   - Große Modelle: GPT-4o, Llama-3-70B
   - Kleine Modelle: Teuken-7B, Llama-3-8B, EuroLLM-9B
@@ -120,12 +119,6 @@ Das Projekt bietet folgende Hauptfunktionalitäten:
   - BERTScore (verwendet EuroBERT-Modell)
 - Visualisierung und Reporting-Funktionen für Ergebnisanalyse
 - Checkpoint-System für langläufige Evaluierungen
-
-## Modell-Downloads
-Das Projekt enthält mehrere Skripte zum Herunterladen der benötigten Modelle:
-- `download_eurobert.py`: Lädt das EuroBERT-Modell für BERTScore-Berechnungen herunter
-- `download_eurollm.py`: Lädt das EuroLLM-9B-Modell für lokale Generierung herunter
-- `download_llama3_8b.py`: Lädt das Llama-3.1-8B-Modell für lokale Generierung herunter
 
 ## Package Management
 Das Projekt nutzt uv, um Pakete und Venvs zu verwalten. Im besten Fall sollen pakete durch uv add hinzugefügt werden, nur im Ausnahmefall durch uv pip install. Es wird eine einzige virtuelle Umgebung unter .venv verwendet, die für alle Aufgaben (CPU und GPU) geeignet ist.

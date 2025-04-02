@@ -22,44 +22,23 @@ print(f"Lade .env aus: {os.path.abspath('.env')}")
 # Debug-Informationen zu API-Keys anzeigen
 openai_key = os.getenv("OPENAI_API_KEY", "nicht gefunden")
 openai_org = os.getenv("OPENAI_ORGANIZATION_ID", "nicht gefunden")
-replicate_key = os.getenv("REPLICATE_API_TOKEN", "nicht gefunden")
-mistral_key = os.getenv("MISTRAL_API_KEY", "nicht gefunden")
 deepinfra_key = os.getenv("DEEPINFRA_API_KEY", "nicht gefunden")
 
 print(f"OpenAI API-Key (gekürzt): {openai_key[:8]}...{openai_key[-4:] if len(openai_key) > 12 else ''}")
 print(f"OpenAI Organization ID: {openai_org}")
-print(f"Replicate API-Key: {'✓ gefunden' if replicate_key != 'nicht gefunden' else '✗ nicht gefunden'}")
-print(f"Mistral API-Key: {'✓ gefunden' if mistral_key != 'nicht gefunden' else '✗ nicht gefunden'}")
 print(f"DeepInfra API-Key: {'✓ gefunden' if deepinfra_key != 'nicht gefunden' else '✗ nicht gefunden'}")
 
 # Langchain Importe
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
-from langchain_community.llms import HuggingFacePipeline, Replicate
+from langchain_community.llms import HuggingFacePipeline
 from langchain_core.runnables import RunnablePassthrough
 from langchain.chains import LLMChain
 
 # Transformers-Import für lokale Modelle
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
-
-# Import für Mistral API, falls verfügbar
-try:
-    from mistralai.client import MistralClient
-    from mistralai.models.chat_completion import ChatMessage
-    MISTRAL_AVAILABLE = True
-except ImportError:
-    MISTRAL_AVAILABLE = False
-    print("⚠️ Mistral API nicht verfügbar. Mistral-Modelle werden nicht funktionieren.")
-
-# Import für Replicate API, falls verfügbar
-try:
-    import replicate
-    REPLICATE_AVAILABLE = True
-except ImportError:
-    REPLICATE_AVAILABLE = False
-    print("⚠️ Replicate API nicht verfügbar. Replicate-Modelle werden nicht funktionieren.")
 
 # Import für DeepInfra API, falls verfügbar
 try:
@@ -102,8 +81,6 @@ class LLMGenerationPipeline:
         """Überprüft, ob die erforderlichen API-Keys vorhanden sind."""
         openai_api_key = os.getenv("OPENAI_API_KEY")
         hf_api_key = os.getenv("HF_API_KEY")
-        replicate_api_key = os.getenv("REPLICATE_API_TOKEN")
-        mistral_api_key = os.getenv("MISTRAL_API_KEY")
         deepinfra_api_key = os.getenv("DEEPINFRA_API_KEY")
         
         if openai_api_key:
@@ -115,16 +92,6 @@ class LLMGenerationPipeline:
             print("✓ Hugging Face API-Key gefunden")
         else:
             print("✗ Hugging Face API-Key nicht gefunden - HF-Modelle könnten eingeschränkt sein")
-            
-        if replicate_api_key:
-            print("✓ Replicate API-Key gefunden")
-        else:
-            print("✗ Replicate API-Key nicht gefunden - Replicate-Modelle werden nicht funktionieren")
-            
-        if mistral_api_key:
-            print("✓ Mistral API-Key gefunden")
-        else:
-            print("✗ Mistral API-Key nicht gefunden - Mistral-Modelle werden nicht funktionieren")
             
         if deepinfra_api_key:
             print("✓ DeepInfra API-Key gefunden")
@@ -212,95 +179,6 @@ Gerichtsurteil: {ruling}"""
                         output_parser=StrOutputParser()
                     )
                     
-            elif model_type == "replicate":
-                if not REPLICATE_AVAILABLE:
-                    print(f"⚠️ Replicate API nicht verfügbar - Überspringe Modell {model_name}")
-                    continue
-                
-                api_token = os.getenv("REPLICATE_API_TOKEN")
-                if not api_token:
-                    print(f"⚠️ Kein Replicate API-Token gefunden - Überspringe Modell {model_name}")
-                    continue
-                
-                # Replicate-Client initialisieren
-                os.environ["REPLICATE_API_TOKEN"] = api_token
-                
-                # Angepasste Funktion für Replicate API-Aufrufe
-                def replicate_generate(ruling, prompt):
-                    # Einheitlicher Prompt für alle Modelle
-                    full_prompt = f"{prompt}\n\nGerichtsurteil: {ruling}"
-                    
-                    # API-Aufruf mit Replicate
-                    output = replicate.run(
-                        model_config['model_id'],
-                        input={
-                            "prompt": full_prompt,
-                            "max_new_tokens": model_config.get('max_tokens', 1024),
-                            "temperature": model_config.get('temperature', 0.7)
-                        }
-                    )
-                    
-                    # Replicate gibt Tokens als Stream zurück, also müssen wir sie zusammenfügen
-                    result = ''.join(output)
-                    return result.strip()
-                
-                # Dummy-Chain erstellen, die unsere angepasste Funktion verwendet
-                from langchain.schema import runnable
-                
-                class ReplicateRunnable(runnable.Runnable):
-                    def invoke(self, input_dict):
-                        return replicate_generate(
-                            input_dict.get("ruling", ""),
-                            input_dict.get("prompt", "")
-                        )
-                
-                # Chain erstellen, die mit Replicate arbeitet
-                chain = ReplicateRunnable()
-                
-            elif model_type == "mistral":
-                if not MISTRAL_AVAILABLE:
-                    print(f"⚠️ Mistral API nicht verfügbar - Überspringe Modell {model_name}")
-                    continue
-                
-                api_key = os.getenv("MISTRAL_API_KEY")
-                if not api_key:
-                    print(f"⚠️ Kein Mistral API-Key gefunden - Überspringe Modell {model_name}")
-                    continue
-                
-                # Mistral-Client initialisieren
-                mistral_client = MistralClient(api_key=api_key)
-                
-                # Angepasste Funktion für Mistral API-Aufrufe
-                def mistral_generate(ruling, prompt):
-                    # Einheitlicher Prompt für alle Modelle
-                    full_prompt = f"{prompt}\n\nGerichtsurteil: {ruling}"
-                    
-                    # API-Aufruf mit Mistral
-                    chat_response = mistral_client.chat(
-                        model=model_config['model_name'],
-                        messages=[
-                            ChatMessage(role="user", content=full_prompt)
-                        ],
-                        temperature=model_config.get('temperature', 0.7),
-                        max_tokens=model_config.get('max_tokens', 1024)
-                    )
-                    
-                    # Rückgabe des generierten Texts
-                    return chat_response.choices[0].message.content.strip()
-                
-                # Dummy-Chain erstellen, die unsere angepasste Funktion verwendet
-                from langchain.schema import runnable
-                
-                class MistralRunnable(runnable.Runnable):
-                    def invoke(self, input_dict):
-                        return mistral_generate(
-                            input_dict.get("ruling", ""),
-                            input_dict.get("prompt", "")
-                        )
-                
-                # Chain erstellen, die mit Mistral arbeitet
-                chain = MistralRunnable()
-                
             elif model_type == "huggingface":
                 llm = HuggingFacePipeline.from_model_id(
                     model_id=model_config['model_id'],
@@ -373,17 +251,18 @@ Gerichtsurteil: {ruling}"""
                     print(f"⚠️ Kein DeepInfra API-Key gefunden - Überspringe Modell {model_name}")
                     continue
                 
+                # DeepInfra-Client initialisieren
+                headers = {
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json"
+                }
+                
                 # Angepasste Funktion für DeepInfra API-Aufrufe
                 def deepinfra_generate(ruling, prompt):
                     # Einheitlicher Prompt für alle Modelle
                     full_prompt = f"{prompt}\n\nGerichtsurteil: {ruling}"
                     
                     # API-Aufruf mit DeepInfra
-                    headers = {
-                        "Authorization": f"Bearer {api_key}",
-                        "Content-Type": "application/json"
-                    }
-                    
                     data = {
                         "model": model_config['model_id'],
                         "messages": [
