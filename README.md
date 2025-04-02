@@ -89,14 +89,24 @@ Das Projekt bietet folgende Hauptfunktionalitäten:
 - Pipeline zur Generierung von Pressemitteilungen aus Gerichtsurteilen mit verschiedenen LLMs
 - Unterstützung für verschiedene Modelltypen:
   - Hugging Face Modelle (german-gpt2, etc.)
-  - OpenAI Modelle (GPT-3.5, GPT-4)
-  - Lokale Modelle über API-Schnittstellen (Teuken-7B)
+  - OpenAI Modelle (GPT-3.5, GPT-4, GPT-4o)
+  - Lokale Modelle (Teuken-7B)
 - Checkpoint-System zur Fortsetzung unterbrochener Generierungen
 - Speicherung der generierten Pressemitteilungen in verschiedenen Formaten (JSON, CSV)
 
+#### Hinweis zu OpenAI-Modellen
+Für die Verwendung von OpenAI-Modellen, insbesondere GPT-4o, muss ein gültiger API-Schlüssel in der `.env`-Datei konfiguriert werden:
+
+```
+OPENAI_API_KEY=sk-...Ihr_OpenAI_API_Schlüssel...
+OPENAI_ORGANIZATION_ID=org-...Ihre_OpenAI_Organisations_ID... (optional)
+```
+
+API-Schlüssel können unter [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys) erstellt werden.
+
 #### Wichtige Unterscheidung: Generierung vs. Evaluierung
 In diesem Projekt gibt es zwei separate Pipelines mit unterschiedlichen Aufgaben:
-1. **Generierungspipeline**: Verwendet generative Sprachmodelle (z.B. GPT-2, GPT-3.5, Teuken-7B), um aus Gerichtsurteilen Pressemitteilungen zu erzeugen.
+1. **Generierungspipeline**: Verwendet Langchain mit verschiedenen generativen Sprachmodellen (z.B. GPT-2, GPT-3.5, Teuken-7B), um aus Gerichtsurteilen Pressemitteilungen zu erzeugen.
 2. **Evaluierungspipeline**: Bewertet die generierten Pressemitteilungen mit verschiedenen Metriken. Hier wird das EuroBERT-Modell nur für die BERTScore-Berechnung verwendet, nicht für die Generierung.
 
 #### Verwendung der Generierungspipeline
@@ -174,20 +184,5 @@ python -m courtpressger.evaluation.cli \
 ## Package Management
 Das Projekt nutzt uv, um Pakete und Venvs zu verwalten. Im besten Fall sollen pakete durch uv add hinzugefügt werden, nur im Ausnahmefall durch uv pip install. Es wird eine einzige virtuelle Umgebung unter .venv verwendet, die für alle Aufgaben (CPU und GPU) geeignet ist.
 
-### Virtuelle Umgebung
-Die virtuelle Umgebung kann mit folgenden Befehlen verwaltet werden:
-```bash
-# Erstellen der virtuellen Umgebung
-make venv
-
-# Aktivieren der virtuellen Umgebung
-source .venv/bin/activate
-
-# Löschen der virtuellen Umgebung
-make clean-venv
-```
-
-**Wichtig**: Nach der Erstellung muss die Umgebung manuell aktiviert werden, bevor weitere Make-Befehle ausgeführt werden können.
-
-## Daten
-Die Daten liegen im `data`
+## Lizenz
+Das Projekt ist lizenziert unter der MIT-Lizenz.
