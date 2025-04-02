@@ -99,28 +99,13 @@ Das Projekt bietet folgende Hauptfunktionalitäten:
 - Pipeline zur Generierung von Pressemitteilungen aus Gerichtsurteilen mit verschiedenen LLMs
 - Unterstützung für verschiedene Modelltypen:
   - OpenAI Modelle (GPT-4o)
-  - DeepInfra Modelle (Llama-3-70B, Llama-3-8B)
-  - Lokale Modelle (Teuken-7B, EuroLLM-9B)
+  - DeepInfra Modelle (Llama-3-70B)
+  - Lokale Modelle (Teuken-7B, EuroLLM-9B, Llama-3-8B)
 - Modellkategorien:
   - Große Modelle: GPT-4o, Llama-3-70B
   - Kleine Modelle: Teuken-7B, Llama-3-8B, EuroLLM-9B
 - Checkpoint-System zur Fortsetzung unterbrochener Generierungen
 - Speicherung der generierten Pressemitteilungen in verschiedenen Formaten (JSON, CSV)
-
-#### Hinweis zu API-Keys
-Für die Verwendung der verschiedenen Modelle werden API-Keys in der `.env`-Datei benötigt:
-
-```
-# OpenAI API (für GPT-4o)
-OPENAI_API_KEY=sk-...Ihr_OpenAI_API_Schlüssel...
-OPENAI_ORGANIZATION_ID=org-...Ihre_OpenAI_Organisations_ID... (optional)
-
-# DeepInfra API (für Llama-3-70B und Llama-3-8B)
-DEEPINFRA_API_KEY=...Ihr_DeepInfra_API_Key...
-
-# Hugging Face API (für Modelle mit privaten Zugriffsrechten, z.B. EuroLLM-9B)
-HF_API_KEY=...Ihr_Hugging_Face_API_Key...
-```
 
 ### Evaluierung
 - Pipeline zur Evaluierung verschiedener LLMs
@@ -133,79 +118,8 @@ HF_API_KEY=...Ihr_Hugging_Face_API_Key...
 - Visualisierung und Reporting-Funktionen für Ergebnisanalyse
 - Checkpoint-System für langläufige Evaluierungen
 
-#### Verwendung der Evaluierungspipeline
-Nach der Generierung können die Ergebnisse mit der Evaluierungspipeline bewertet werden:
-```bash
-python -m courtpressger.evaluation.cli \
-  --dataset data/generation/all_models_results.csv \
-  --models-config models/evaluation_config.json \
-  --bert-score-model models/eurobert \
-  --metrics rouge bleu meteor bertscore \
-  --ruling-column ruling \
-  --press-column reference_press \
-  --generated-press-column generated_press
-```
-
-### CLI-Tools
-- Kommandozeilenschnittstellen für verschiedene Aufgaben:
-  - Datenbereinigung (`courtpressger-clean`)
-  - Prompt-Generierung (`courtpressger-prompt`)
-  - Pressemitteilungsgenerierung (`python -m courtpressger.generation.cli`)
-  - Modell-Evaluierung (`python -m courtpressger.evaluation.cli`)
-  - CSV-Validierung und -Reparatur
-
 ## Package Management
 Das Projekt nutzt uv, um Pakete und Venvs zu verwalten. Im besten Fall sollen pakete durch uv add hinzugefügt werden, nur im Ausnahmefall durch uv pip install. Es wird eine einzige virtuelle Umgebung unter .venv verwendet, die für alle Aufgaben (CPU und GPU) geeignet ist.
 
 ## Lizenz
 Das Projekt ist lizenziert unter der MIT-Lizenz.
-
-#### Modellkonfiguration für die Generierung
-Die Konfiguration erfolgt über eine JSON-Datei (models/generation_config.json):
-```json
-{
-    "models": [
-        {
-            "type": "openai",
-            "name": "gpt-4o",
-            "model_name": "gpt-4o",
-            "max_tokens": 2048,
-            "temperature": 0.7,
-            "category": "groß"
-        },
-        {
-            "type": "deepinfra",
-            "name": "llama-70b",
-            "model_id": "meta-llama/Meta-Llama-3-70B-Instruct",
-            "max_tokens": 2048,
-            "temperature": 0.7,
-            "category": "groß"
-        },
-        {
-            "type": "local",
-            "name": "teuken-7b",
-            "model_path": "models/teuken",
-            "max_length": 1024,
-            "temperature": 0.7,
-            "category": "klein"
-        },
-        {
-            "type": "deepinfra",
-            "name": "llama3-9b",
-            "model_id": "meta-llama/Meta-Llama-3-8B-Instruct",
-            "max_tokens": 1024,
-            "temperature": 0.7,
-            "category": "klein"
-        },
-        {
-            "type": "huggingface",
-            "name": "eurollm-9b",
-            "model_id": "utter-project/EuroLLM-9B-Instruct",
-            "max_length": 1024,
-            "temperature": 0.7,
-            "category": "klein"
-        }
-    ]
-}
-```
-
