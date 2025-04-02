@@ -11,10 +11,6 @@ Neben den Pipeline-Skripten haben wir für unsere Analysen auch immer ein Jupyte
 ## Aktuelle Aufgaben und Probleme
 Aktuelle Aufgaben können work in progress sein; immer erst mal kontrollieren, dann lösen. Sobald was davon erledigt ist, bitte [erledigt] zu Beginn der Aufgabe schreiben; ich kontrolliere dann bei Gelegenheit. 
 
-1. [erledigt] Ich habe mich auf die Modelle festgelegt, die ich für die Generierung verwenden möchte. Es gibt zwei Modell-Kategorien - groß und klein.
-  - groß: GPT-4o (über API), Llama 70b (über DeepInfra API)
-  - klein: Teuken-7B (lokal - bereits geladen), Llama 3 8b (über DeepInfra API), EuroLLM-9B (lokal geladen)
-Für alle Modelle sollte die notwendige Infrastruktur im Projekt eingerichtet werden; API Keys kommmen von mir nachträglich in die .env Datei.
 
 **Umsetzung:** Die Generation-Pipeline wurde erweitert, um alle gewünschten Modelle zu unterstützen. Die Konfigurationsdatei (models/generation_config.json) wurde aktualisiert, und die Pipeline kann nun mit folgenden Modelltypen arbeiten:
 - OpenAI (GPT-4o) über die OpenAI API
@@ -59,6 +55,9 @@ CourtPressGER/
 │   │   └── utils.py             # Hilfsfunktionen für Visualisierung und Analyse
 │   ├── __init__.py              # Initialisierung des Pakets
 │   ├── dataset.py               # Datenverwaltung und -zugriff
+│   ├── download_eurobert.py     # Skript zum Herunterladen des EuroBERT-Modells
+│   ├── download_eurollm.py      # Skript zum Herunterladen des EuroLLM-9B-Modells
+│   ├── download_llama3_8b.py    # Skript zum Herunterladen des Llama-3.1-8B-Modells
 │   └── main.py                  # Haupteinstiegspunkt der Anwendung
 ├── data/                        # Datendateien
 │   ├── raw/                     # Rohdaten
@@ -71,12 +70,16 @@ CourtPressGER/
 ├── tests/                       # Testmodule
 ├── models/                      # Modellierte Daten und Modellkonfigurationen
 │   ├── teuken/                  # Teuken-7B-Modell für die lokale Generierung
+│   ├── eurollm/                 # EuroLLM-9B-Modell für die lokale Generierung
 │   ├── eurobert/                # EuroBERT-Modell für BERTScore
 │   ├── generation_config.json   # Konfiguration für die Generierungsmodelle
-│   └── evaluation_config.json   # Konfiguration für die Evaluierungsmodelle
+│   ├── evaluation_config.json   # Konfiguration für die Evaluierungsmodelle
+│   └── evaluation_models_config.json # Erweiterte Konfiguration für Evaluierungsmodelle
 ├── references/                  # Referenzdokumente und Schemadefitionen
 ├── reports/                     # Generierte Berichte und Visualisierungen
 ├── pyproject.toml               # Projekteinstellungen und Abhängigkeiten
+├── uv.lock                      # Lock-Datei für uv-Paketmanager
+├── .env                         # Umgebungsvariablen und API-Keys
 ├── Makefile                     # Automatisierungsscripts für häufige Aufgaben
 └── README.md                    # Projektdokumentation
 ```
@@ -99,8 +102,8 @@ Das Projekt bietet folgende Hauptfunktionalitäten:
 - Pipeline zur Generierung von Pressemitteilungen aus Gerichtsurteilen mit verschiedenen LLMs
 - Unterstützung für verschiedene Modelltypen:
   - OpenAI Modelle (GPT-4o)
-  - DeepInfra Modelle (Llama-3-70B)
-  - Lokale Modelle (Teuken-7B, EuroLLM-9B, Llama-3-8B)
+  - DeepInfra Modelle (Llama-3-70B, Llama-3-8B)
+  - Lokale Modelle (Teuken-7B, EuroLLM-9B)
 - Modellkategorien:
   - Große Modelle: GPT-4o, Llama-3-70B
   - Kleine Modelle: Teuken-7B, Llama-3-8B, EuroLLM-9B
@@ -117,6 +120,12 @@ Das Projekt bietet folgende Hauptfunktionalitäten:
   - BERTScore (verwendet EuroBERT-Modell)
 - Visualisierung und Reporting-Funktionen für Ergebnisanalyse
 - Checkpoint-System für langläufige Evaluierungen
+
+## Modell-Downloads
+Das Projekt enthält mehrere Skripte zum Herunterladen der benötigten Modelle:
+- `download_eurobert.py`: Lädt das EuroBERT-Modell für BERTScore-Berechnungen herunter
+- `download_eurollm.py`: Lädt das EuroLLM-9B-Modell für lokale Generierung herunter
+- `download_llama3_8b.py`: Lädt das Llama-3.1-8B-Modell für lokale Generierung herunter
 
 ## Package Management
 Das Projekt nutzt uv, um Pakete und Venvs zu verwalten. Im besten Fall sollen pakete durch uv add hinzugefügt werden, nur im Ausnahmefall durch uv pip install. Es wird eine einzige virtuelle Umgebung unter .venv verwendet, die für alle Aufgaben (CPU und GPU) geeignet ist.

@@ -12,15 +12,15 @@ if not HF_API_KEY:
     raise ValueError("HF_API_KEY nicht in .env gefunden!")
 
 # Modell-ID
-MODEL_ID = "meta-llama/Meta-Llama-3-8B-Instruct"
+MODEL_ID = "meta-llama/Llama-3.1-8B"
 
 # Speicherort für das Modell
-MODEL_PATH = "models/llama3-9b"
+MODEL_PATH = "models/llama3-8b"
 
 # Erstelle das Verzeichnis, falls es nicht existiert
 os.makedirs(MODEL_PATH, exist_ok=True)
 
-print("Lade Llama 3 9b Modell...")
+print("Lade Llama 3.1 8B Modell...")
 
 # Tokenizer laden
 tokenizer = AutoTokenizer.from_pretrained(
@@ -45,4 +45,4 @@ print(f"Speichere Modell und Tokenizer in {MODEL_PATH}...")
 tokenizer.save_pretrained(MODEL_PATH)
 model.save_pretrained(MODEL_PATH)
 
-print("Llama 3 9b Modell und Tokenizer erfolgreich gespeichert!") 
+print("Llama 3.1 8B Modell und Tokenizer erfolgreich gespeichert!") 
