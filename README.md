@@ -11,7 +11,17 @@ Neben den Pipeline-Skripten haben wir für unsere Analysen auch immer ein Jupyte
 ## Aktuelle Aufgaben und Probleme
 Aktuelle Aufgaben können work in progress sein; immer erst mal kontrollieren, dann lösen. Sobald was davon erledigt ist, bitte [erledigt] zu Beginn der Aufgabe schreiben; ich kontrolliere dann bei Gelegenheit. 
 
-1. Dependency management aktuell ist sehr unsauber. ich möchte zukünftig nur eine einzige venv unter .venv haben, die für die cpu und die gpu tasks verwendet wird. bitte überprüfen und ggf. aktualisieren.
+1. [erledigt] Ich habe mich auf die Modelle festgelegt, die ich für die Generierung verwenden möchte. Es gibt zwei Modell-Kategorien - groß und klein.
+  - groß: GPT-4o (über API), Llama 70b (über DeepInfra API)
+  - klein: Teuken-7B (lokal - bereits geladen), Llama 3 8b (über DeepInfra API), EuroLLM-9B (lokal geladen)
+Für alle Modelle sollte die notwendige Infrastruktur im Projekt eingerichtet werden; API Keys kommmen von mir nachträglich in die .env Datei.
+
+**Umsetzung:** Die Generation-Pipeline wurde erweitert, um alle gewünschten Modelle zu unterstützen. Die Konfigurationsdatei (models/generation_config.json) wurde aktualisiert, und die Pipeline kann nun mit folgenden Modelltypen arbeiten:
+- OpenAI (GPT-4o) über die OpenAI API
+- DeepInfra (Llama-3-70B, Llama-3-8B) über die DeepInfra API
+- Lokale Modelle (Teuken-7B, EuroLLM-9B)
+
+Die .env-Datei wurde mit Platzhaltern für alle benötigten API-Keys aktualisiert.
 
 # Struktur
 Das Projekt folgt im Kern der Cookiecutter Data Science Projektstruktur. Skripte und Module sind unter courtpressger/ angeordnet.
@@ -88,65 +98,28 @@ Das Projekt bietet folgende Hauptfunktionalitäten:
 ### Generierung von Pressemitteilungen
 - Pipeline zur Generierung von Pressemitteilungen aus Gerichtsurteilen mit verschiedenen LLMs
 - Unterstützung für verschiedene Modelltypen:
-  - Hugging Face Modelle (german-gpt2, etc.)
-  - OpenAI Modelle (GPT-3.5, GPT-4, GPT-4o)
-  - Lokale Modelle (Teuken-7B)
+  - OpenAI Modelle (GPT-4o)
+  - DeepInfra Modelle (Llama-3-70B, Llama-3-8B)
+  - Lokale Modelle (Teuken-7B, EuroLLM-9B)
+- Modellkategorien:
+  - Große Modelle: GPT-4o, Llama-3-70B
+  - Kleine Modelle: Teuken-7B, Llama-3-8B, EuroLLM-9B
 - Checkpoint-System zur Fortsetzung unterbrochener Generierungen
 - Speicherung der generierten Pressemitteilungen in verschiedenen Formaten (JSON, CSV)
 
-#### Hinweis zu OpenAI-Modellen
-Für die Verwendung von OpenAI-Modellen, insbesondere GPT-4o, muss ein gültiger API-Schlüssel in der `.env`-Datei konfiguriert werden:
+#### Hinweis zu API-Keys
+Für die Verwendung der verschiedenen Modelle werden API-Keys in der `.env`-Datei benötigt:
 
 ```
+# OpenAI API (für GPT-4o)
 OPENAI_API_KEY=sk-...Ihr_OpenAI_API_Schlüssel...
 OPENAI_ORGANIZATION_ID=org-...Ihre_OpenAI_Organisations_ID... (optional)
-```
 
-API-Schlüssel können unter [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys) erstellt werden.
+# DeepInfra API (für Llama-3-70B und Llama-3-8B)
+DEEPINFRA_API_KEY=...Ihr_DeepInfra_API_Key...
 
-#### Wichtige Unterscheidung: Generierung vs. Evaluierung
-In diesem Projekt gibt es zwei separate Pipelines mit unterschiedlichen Aufgaben:
-1. **Generierungspipeline**: Verwendet Langchain mit verschiedenen generativen Sprachmodellen (z.B. GPT-2, GPT-3.5, Teuken-7B), um aus Gerichtsurteilen Pressemitteilungen zu erzeugen.
-2. **Evaluierungspipeline**: Bewertet die generierten Pressemitteilungen mit verschiedenen Metriken. Hier wird das EuroBERT-Modell nur für die BERTScore-Berechnung verwendet, nicht für die Generierung.
-
-#### Verwendung der Generierungspipeline
-```bash
-python -m courtpressger.generation.cli \
-  --dataset data/processed/cases_prs_synth_prompts_subset.csv \
-  --models-config models/generation_config.json \
-  --ruling-column judgement \
-  --press-column summary \
-  --limit 10  # Optional, für Tests
-```
-
-#### Modellkonfiguration für die Generierung
-Die Konfiguration erfolgt über eine JSON-Datei (models/generation_config.json):
-```json
-{
-    "models": [
-        {
-            "type": "huggingface",
-            "name": "german-gpt2",
-            "model_id": "german-nlp-group/german-gpt2",
-            "max_length": 512,
-            "temperature": 0.7
-        },
-        {
-            "type": "openai",
-            "name": "gpt-3.5-turbo",
-            "model_name": "gpt-3.5-turbo",
-            "max_tokens": 1024,
-            "temperature": 0.7
-        },
-        {
-            "type": "local",
-            "name": "teuken-7b",
-            "model_path": "models/teuken",
-            "max_length": 1024,
-            "temperature": 0.7
-        }
-    ]
-}
+# Hugging Face API (für Modelle mit privaten Zugriffsrechten, z.B. EuroLLM-9B)
+HF_API_KEY=...Ihr_Hugging_Face_API_Key...
 ```
 
 ### Evaluierung
@@ -186,3 +159,53 @@ Das Projekt nutzt uv, um Pakete und Venvs zu verwalten. Im besten Fall sollen pa
 
 ## Lizenz
 Das Projekt ist lizenziert unter der MIT-Lizenz.
+
+#### Modellkonfiguration für die Generierung
+Die Konfiguration erfolgt über eine JSON-Datei (models/generation_config.json):
+```json
+{
+    "models": [
+        {
+            "type": "openai",
+            "name": "gpt-4o",
+            "model_name": "gpt-4o",
+            "max_tokens": 2048,
+            "temperature": 0.7,
+            "category": "groß"
+        },
+        {
+            "type": "deepinfra",
+            "name": "llama-70b",
+            "model_id": "meta-llama/Meta-Llama-3-70B-Instruct",
+            "max_tokens": 2048,
+            "temperature": 0.7,
+            "category": "groß"
+        },
+        {
+            "type": "local",
+            "name": "teuken-7b",
+            "model_path": "models/teuken",
+            "max_length": 1024,
+            "temperature": 0.7,
+            "category": "klein"
+        },
+        {
+            "type": "deepinfra",
+            "name": "llama3-9b",
+            "model_id": "meta-llama/Meta-Llama-3-8B-Instruct",
+            "max_tokens": 1024,
+            "temperature": 0.7,
+            "category": "klein"
+        },
+        {
+            "type": "huggingface",
+            "name": "eurollm-9b",
+            "model_id": "utter-project/EuroLLM-9B-Instruct",
+            "max_length": 1024,
+            "temperature": 0.7,
+            "category": "klein"
+        }
+    ]
+}
+```
+

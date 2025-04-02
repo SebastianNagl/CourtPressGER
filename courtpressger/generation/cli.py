@@ -141,6 +141,11 @@ def main():
     
     # Statistiken ausgeben
     print("\nGenerierungsstatistiken:")
+    # Prüfen, ob Ergebnisse vorhanden sind
+    if results.empty:
+        print("Keine Ergebnisse generiert. Überprüfen Sie die API-Keys und Modellverfügbarkeit.")
+        return
+    
     model_stats = results.groupby('model').agg({
         'id': 'count',
         'error': lambda x: x.str.len().gt(0).sum()

@@ -188,3 +188,4 @@ dmypy.json
 # Model files
 models/eurobert/
 models/teuken/
+models/eurollm/

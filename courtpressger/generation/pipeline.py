@@ -22,20 +22,53 @@ print(f"Lade .env aus: {os.path.abspath('.env')}")
 # Debug-Informationen zu API-Keys anzeigen
 openai_key = os.getenv("OPENAI_API_KEY", "nicht gefunden")
 openai_org = os.getenv("OPENAI_ORGANIZATION_ID", "nicht gefunden")
+replicate_key = os.getenv("REPLICATE_API_TOKEN", "nicht gefunden")
+mistral_key = os.getenv("MISTRAL_API_KEY", "nicht gefunden")
+deepinfra_key = os.getenv("DEEPINFRA_API_KEY", "nicht gefunden")
+
 print(f"OpenAI API-Key (gekürzt): {openai_key[:8]}...{openai_key[-4:] if len(openai_key) > 12 else ''}")
 print(f"OpenAI Organization ID: {openai_org}")
+print(f"Replicate API-Key: {'✓ gefunden' if replicate_key != 'nicht gefunden' else '✗ nicht gefunden'}")
+print(f"Mistral API-Key: {'✓ gefunden' if mistral_key != 'nicht gefunden' else '✗ nicht gefunden'}")
+print(f"DeepInfra API-Key: {'✓ gefunden' if deepinfra_key != 'nicht gefunden' else '✗ nicht gefunden'}")
 
 # Langchain Importe
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
-from langchain_community.llms import HuggingFacePipeline
+from langchain_community.llms import HuggingFacePipeline, Replicate
 from langchain_core.runnables import RunnablePassthrough
 from langchain.chains import LLMChain
 
 # Transformers-Import für lokale Modelle
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+
+# Import für Mistral API, falls verfügbar
+try:
+    from mistralai.client import MistralClient
+    from mistralai.models.chat_completion import ChatMessage
+    MISTRAL_AVAILABLE = True
+except ImportError:
+    MISTRAL_AVAILABLE = False
+    print("⚠️ Mistral API nicht verfügbar. Mistral-Modelle werden nicht funktionieren.")
+
+# Import für Replicate API, falls verfügbar
+try:
+    import replicate
+    REPLICATE_AVAILABLE = True
+except ImportError:
+    REPLICATE_AVAILABLE = False
+    print("⚠️ Replicate API nicht verfügbar. Replicate-Modelle werden nicht funktionieren.")
+
+# Import für DeepInfra API, falls verfügbar
+try:
+    import requests
+    import json as json_lib
+    DEEPINFRA_AVAILABLE = True
+except ImportError:
+    DEEPINFRA_AVAILABLE = False
+    print("⚠️ DeepInfra API nicht verfügbar. DeepInfra-Modelle werden nicht funktionieren.")
 
 class LLMGenerationPipeline:
     """
@@ -69,6 +102,9 @@ class LLMGenerationPipeline:
         """Überprüft, ob die erforderlichen API-Keys vorhanden sind."""
         openai_api_key = os.getenv("OPENAI_API_KEY")
         hf_api_key = os.getenv("HF_API_KEY")
+        replicate_api_key = os.getenv("REPLICATE_API_TOKEN")
+        mistral_api_key = os.getenv("MISTRAL_API_KEY")
+        deepinfra_api_key = os.getenv("DEEPINFRA_API_KEY")
         
         if openai_api_key:
             print("✓ OpenAI API-Key gefunden")
@@ -79,14 +115,30 @@ class LLMGenerationPipeline:
             print("✓ Hugging Face API-Key gefunden")
         else:
             print("✗ Hugging Face API-Key nicht gefunden - HF-Modelle könnten eingeschränkt sein")
+            
+        if replicate_api_key:
+            print("✓ Replicate API-Key gefunden")
+        else:
+            print("✗ Replicate API-Key nicht gefunden - Replicate-Modelle werden nicht funktionieren")
+            
+        if mistral_api_key:
+            print("✓ Mistral API-Key gefunden")
+        else:
+            print("✗ Mistral API-Key nicht gefunden - Mistral-Modelle werden nicht funktionieren")
+            
+        if deepinfra_api_key:
+            print("✓ DeepInfra API-Key gefunden")
+        else:
+            print("✗ DeepInfra API-Key nicht gefunden - DeepInfra-Modelle werden nicht funktionieren")
     
     def _initialize_models(self):
         """Initialisiert die LLM-Chains für alle konfigurierten Modelle."""
         for model_config in self.model_configs:
             model_type = model_config['type']
             model_name = model_config['name']
+            model_category = model_config.get('category', 'unbekannt')
             
-            print(f"Initialisiere Modell: {model_name} (Typ: {model_type})")
+            print(f"Initialisiere Modell: {model_name} (Typ: {model_type}, Kategorie: {model_category})")
             
             # Prompt-Template definieren (einheitlich für Vergleichbarkeit der Ergebnisse)
             # Der einheitliche Prompt besteht nur aus dem synthetischen Prompt und dem Ruling
@@ -159,6 +211,96 @@ Gerichtsurteil: {ruling}"""
                         prompt=prompt,
                         output_parser=StrOutputParser()
                     )
+                    
+            elif model_type == "replicate":
+                if not REPLICATE_AVAILABLE:
+                    print(f"⚠️ Replicate API nicht verfügbar - Überspringe Modell {model_name}")
+                    continue
+                
+                api_token = os.getenv("REPLICATE_API_TOKEN")
+                if not api_token:
+                    print(f"⚠️ Kein Replicate API-Token gefunden - Überspringe Modell {model_name}")
+                    continue
+                
+                # Replicate-Client initialisieren
+                os.environ["REPLICATE_API_TOKEN"] = api_token
+                
+                # Angepasste Funktion für Replicate API-Aufrufe
+                def replicate_generate(ruling, prompt):
+                    # Einheitlicher Prompt für alle Modelle
+                    full_prompt = f"{prompt}\n\nGerichtsurteil: {ruling}"
+                    
+                    # API-Aufruf mit Replicate
+                    output = replicate.run(
+                        model_config['model_id'],
+                        input={
+                            "prompt": full_prompt,
+                            "max_new_tokens": model_config.get('max_tokens', 1024),
+                            "temperature": model_config.get('temperature', 0.7)
+                        }
+                    )
+                    
+                    # Replicate gibt Tokens als Stream zurück, also müssen wir sie zusammenfügen
+                    result = ''.join(output)
+                    return result.strip()
+                
+                # Dummy-Chain erstellen, die unsere angepasste Funktion verwendet
+                from langchain.schema import runnable
+                
+                class ReplicateRunnable(runnable.Runnable):
+                    def invoke(self, input_dict):
+                        return replicate_generate(
+                            input_dict.get("ruling", ""),
+                            input_dict.get("prompt", "")
+                        )
+                
+                # Chain erstellen, die mit Replicate arbeitet
+                chain = ReplicateRunnable()
+                
+            elif model_type == "mistral":
+                if not MISTRAL_AVAILABLE:
+                    print(f"⚠️ Mistral API nicht verfügbar - Überspringe Modell {model_name}")
+                    continue
+                
+                api_key = os.getenv("MISTRAL_API_KEY")
+                if not api_key:
+                    print(f"⚠️ Kein Mistral API-Key gefunden - Überspringe Modell {model_name}")
+                    continue
+                
+                # Mistral-Client initialisieren
+                mistral_client = MistralClient(api_key=api_key)
+                
+                # Angepasste Funktion für Mistral API-Aufrufe
+                def mistral_generate(ruling, prompt):
+                    # Einheitlicher Prompt für alle Modelle
+                    full_prompt = f"{prompt}\n\nGerichtsurteil: {ruling}"
+                    
+                    # API-Aufruf mit Mistral
+                    chat_response = mistral_client.chat(
+                        model=model_config['model_name'],
+                        messages=[
+                            ChatMessage(role="user", content=full_prompt)
+                        ],
+                        temperature=model_config.get('temperature', 0.7),
+                        max_tokens=model_config.get('max_tokens', 1024)
+                    )
+                    
+                    # Rückgabe des generierten Texts
+                    return chat_response.choices[0].message.content.strip()
+                
+                # Dummy-Chain erstellen, die unsere angepasste Funktion verwendet
+                from langchain.schema import runnable
+                
+                class MistralRunnable(runnable.Runnable):
+                    def invoke(self, input_dict):
+                        return mistral_generate(
+                            input_dict.get("ruling", ""),
+                            input_dict.get("prompt", "")
+                        )
+                
+                # Chain erstellen, die mit Mistral arbeitet
+                chain = MistralRunnable()
+                
             elif model_type == "huggingface":
                 llm = HuggingFacePipeline.from_model_id(
                     model_id=model_config['model_id'],
@@ -169,26 +311,113 @@ Gerichtsurteil: {ruling}"""
                         "do_sample": True
                     }
                 )
+                
+                # LLM-Chain erstellen
+                chain = LLMChain(
+                    llm=llm,
+                    prompt=prompt,
+                    output_parser=StrOutputParser()
+                )
+                
             elif model_type == "local":
-                # Lokales Modell laden und initialisieren
-                model_path = model_config['model_path']
-                tokenizer = AutoTokenizer.from_pretrained(model_path)
-                model = AutoModelForCausalLM.from_pretrained(
-                    model_path,
-                    device_map="auto",
-                    torch_dtype=torch.float16
-                )
+                try:
+                    # Lokales Modell laden und initialisieren
+                    model_path = model_config['model_path']
+                    
+                    print(f"Lade lokales Modell aus {model_path}...")
+                    
+                    # Tokenizer laden
+                    tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+                    
+                    # Modell laden mit automatischer Gerätezuweisung
+                    model = AutoModelForCausalLM.from_pretrained(
+                        model_path,
+                        device_map="auto",
+                        torch_dtype=torch.float16,
+                        trust_remote_code=True
+                    )
+                    
+                    # Text-Generations-Pipeline erstellen
+                    text_gen_pipeline = pipeline(
+                        "text-generation",
+                        model=model,
+                        tokenizer=tokenizer,
+                        max_new_tokens=model_config.get('max_length', 1024),
+                        temperature=model_config.get('temperature', 0.7),
+                        do_sample=True,
+                        truncation=True,
+                        return_full_text=True,
+                        pad_token_id=tokenizer.eos_token_id,
+                        max_length=None  # Deaktiviere max_length
+                    )
+                    
+                    # HuggingFacePipeline-Wrapper erstellen
+                    llm = HuggingFacePipeline(pipeline=text_gen_pipeline)
+                    
+                    # LLM-Chain erstellen
+                    chain = LLMChain(
+                        llm=llm,
+                        prompt=prompt,
+                        output_parser=StrOutputParser()
+                    )
+                except Exception as e:
+                    print(f"⚠️ Fehler beim Laden des lokalen Modells {model_name}: {str(e)}")
+                    continue
+            elif model_type == "deepinfra":
+                if not DEEPINFRA_AVAILABLE:
+                    print(f"⚠️ DeepInfra API nicht verfügbar - Überspringe Modell {model_name}")
+                    continue
                 
-                text_gen_pipeline = pipeline(
-                    "text-generation",
-                    model=model,
-                    tokenizer=tokenizer,
-                    max_length=model_config.get('max_length', 1024),
-                    temperature=model_config.get('temperature', 0.7),
-                    do_sample=True
-                )
+                api_key = os.getenv("DEEPINFRA_API_KEY")
+                if not api_key:
+                    print(f"⚠️ Kein DeepInfra API-Key gefunden - Überspringe Modell {model_name}")
+                    continue
                 
-                llm = HuggingFacePipeline(pipeline=text_gen_pipeline)
+                # Angepasste Funktion für DeepInfra API-Aufrufe
+                def deepinfra_generate(ruling, prompt):
+                    # Einheitlicher Prompt für alle Modelle
+                    full_prompt = f"{prompt}\n\nGerichtsurteil: {ruling}"
+                    
+                    # API-Aufruf mit DeepInfra
+                    headers = {
+                        "Authorization": f"Bearer {api_key}",
+                        "Content-Type": "application/json"
+                    }
+                    
+                    data = {
+                        "model": model_config['model_id'],
+                        "messages": [
+                            {"role": "user", "content": full_prompt}
+                        ],
+                        "temperature": model_config.get('temperature', 0.7),
+                        "max_tokens": model_config.get('max_tokens', 1024)
+                    }
+                    
+                    response = requests.post(
+                        "https://api.deepinfra.com/v1/openai/chat/completions",
+                        headers=headers,
+                        data=json_lib.dumps(data)
+                    )
+                    
+                    if response.status_code != 200:
+                        print(f"⚠️ Fehler bei der DeepInfra API: {response.text}")
+                        return ""
+                    
+                    response_data = response.json()
+                    return response_data["choices"][0]["message"]["content"].strip()
+                
+                # Dummy-Chain erstellen, die unsere angepasste Funktion verwendet
+                from langchain.schema import runnable
+                
+                class DeepInfraRunnable(runnable.Runnable):
+                    def invoke(self, input_dict):
+                        return deepinfra_generate(
+                            input_dict.get("ruling", ""),
+                            input_dict.get("prompt", "")
+                        )
+                
+                # Chain erstellen, die mit DeepInfra arbeitet
+                chain = DeepInfraRunnable()
             else:
                 raise ValueError(f"Unbekannter Modelltyp: {model_type}")
             
@@ -206,25 +435,39 @@ Gerichtsurteil: {ruling}"""
         Returns:
             str: Nur der vom Modell generierte Text
         """
-        # Wenn der vollständige Output mit dem Input beginnt, entferne diesen
-        if full_output.startswith(input_text):
-            generated_text = full_output[len(input_text):].strip()
-            if generated_text.startswith("\n"):
-                generated_text = generated_text.lstrip("\n")
-            return generated_text
+        # Debug-Ausgabe
+        print("\nDebug - Modellausgabe:", full_output)
+        print("\nDebug - Input:", input_text)
         
-        # Nach "Gerichtsurteil:" im Text suchen und alles danach als generiert betrachten
-        if "Gerichtsurteil:" in full_output:
-            # Finde die Position des letzten Vorkommens von "Gerichtsurteil:"
-            last_ruling_pos = full_output.rfind("Gerichtsurteil:")
-            # Suche nach dem Ende des Urteils durch einen Doppel-Zeilenumbruch
-            ruling_end = full_output.find("\n\n", last_ruling_pos)
-            if ruling_end != -1:
-                # Nimm den Text nach dem Urteil
-                return full_output[ruling_end:].strip()
+        # Wenn die Ausgabe ein Dictionary ist (z.B. von der HuggingFace Pipeline)
+        if isinstance(full_output, dict):
+            return full_output.get('generated_text', '')
+        elif isinstance(full_output, list) and len(full_output) > 0:
+            if isinstance(full_output[0], dict):
+                return full_output[0].get('generated_text', '')
+            return full_output[0]
+            
+        # String-Ausgabe
+        if isinstance(full_output, str):
+            # Wenn der vollständige Output mit dem Input beginnt, entferne diesen
+            if full_output.startswith(input_text):
+                generated_text = full_output[len(input_text):].strip()
+                if generated_text.startswith("\n"):
+                    generated_text = generated_text.lstrip("\n")
+                return generated_text
+            
+            # Nach "Gerichtsurteil:" im Text suchen und alles danach als generiert betrachten
+            if "Gerichtsurteil:" in full_output:
+                # Finde die Position des letzten Vorkommens von "Gerichtsurteil:"
+                last_ruling_pos = full_output.rfind("Gerichtsurteil:")
+                # Suche nach dem Ende des Urteils durch einen Doppel-Zeilenumbruch
+                ruling_end = full_output.find("\n\n", last_ruling_pos)
+                if ruling_end != -1:
+                    # Nimm den Text nach dem Urteil
+                    return full_output[ruling_end:].strip()
         
         # Wenn nichts funktioniert, gib den vollständigen Text zurück
-        return full_output
+        return str(full_output)
     
     def run_generation(self, dataset: pd.DataFrame, prompt_column: str, ruling_column: str, 
                      reference_press_column: str, batch_size: int = 10,
@@ -244,6 +487,12 @@ Gerichtsurteil: {ruling}"""
         Returns:
             DataFrame mit den generierten Pressemitteilungen und Referenzen
         """
+        # Prüfen, ob überhaupt Modelle verfügbar sind
+        if not self.chains:
+            print("⚠️ Keine Modelle verfügbar! Bitte API-Keys konfigurieren oder Modelle installieren.")
+            # Leeres DataFrame zurückgeben
+            return pd.DataFrame(columns=['id', 'model', 'generated_press', 'reference_press', 'error', 'prompt'])
+        
         # Ergebnisdataframe erstellen
         result_df = pd.DataFrame()
         
