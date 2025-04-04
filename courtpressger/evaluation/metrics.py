@@ -202,84 +202,86 @@ class MeteorMetric:
 class BertScoreMetric:
     """Berechnet den BERTScore zwischen Referenz- und generiertem Text."""
     
-    def __init__(self, model_type: str = "EuroBERT/EuroBERT-2.1B", 
-                lang: str = "de", device: Optional[str] = None,
-                use_local_model: bool = True):
+    def __init__(self, model_type: Optional[str] = None, 
+                 lang: str = "de", device: Optional[str] = None):
         """
         Initialisiert die BERTScore-Metrik.
         
         Args:
-            model_type: Name des zu verwendenden Modells
+            model_type: Name des zu verwendenden Modells von Hugging Face (z.B. "bert-base-german-cased").
+                        Wenn None, wird versucht, ein geeignetes Standardmodell für die Sprache zu verwenden.
             lang: Sprachcode (z.B. 'de' für Deutsch)
             device: Gerät für die Berechnung ('cpu' oder 'cuda')
-            use_local_model: Ob das lokale Modell verwendet werden soll
             
         Raises:
             ImportError: Wenn die erforderlichen Pakete nicht installiert sind
+            ValueError: Wenn für die Sprache kein Standardmodell bekannt ist und model_type=None.
         """
         if not BERT_SCORE_AVAILABLE:
             raise ImportError(
                 "Für die BERTScore-Berechnung wird das Paket 'bert_score' benötigt. "
-                "Installiere es mit 'uv add bert-score'."
+                "Installiere es mit 'uv add bert-score torch torchvision torchaudio'."
             )
+        if not TRANSFORMERS_AVAILABLE:
+             # Bert-score benötigt auch transformers
+             raise ImportError(
+                "Für die BERTScore-Berechnung wird das Paket 'transformers' benötigt. "
+                "Installiere es mit 'uv add transformers'."
+             )
         
         self.model_type = model_type
         self.lang = lang
         self.device = device if device else ("cuda" if torch.cuda.is_available() else "cpu")
-        self.use_local_model = use_local_model
         
-        # Wenn lokales Modell verwendet werden soll, prüfen ob es existiert
-        if self.use_local_model:
-            local_model_path = "models/eurobert"
-            if not os.path.exists(local_model_path):
-                print(f"Lokales Modell nicht gefunden in {local_model_path}. Lade es herunter...")
-                self._download_model(local_model_path)
-            self.model_type = local_model_path
-    
-    def _download_model(self, local_path: str):
-        """
-        Lädt das Modell herunter und speichert es lokal.
-        
-        Args:
-            local_path: Pfad zum lokalen Speicherort
-        """
-        from transformers import AutoModelForMaskedLM, AutoTokenizer
-        
-        # Modell und Tokenizer herunterladen
-        model = AutoModelForMaskedLM.from_pretrained(self.model_type, trust_remote_code=True)
-        tokenizer = AutoTokenizer.from_pretrained(self.model_type, trust_remote_code=True)
-        
-        # Lokal speichern
-        model.save_pretrained(local_path)
-        tokenizer.save_pretrained(local_path)
-        
-        print(f"Modell wurde in {local_path} gespeichert.")
-    
+        # Setze Standardmodell basierend auf der Sprache, wenn keins angegeben ist.
+        # Hinweis: EuroBERT ist sehr groß. Standardmäßig verwenden wir hier ggf. ein kleineres.
+        # Für spezifische Modelle wie EuroBERT sollte model_type explizit gesetzt werden.
+        if self.model_type is None:
+            if self.lang == "de":
+                # self.model_type = "bert-base-german-cased" # Ein kleineres Standardmodell
+                self.model_type = "deepset/gbert-large" # Ein besseres deutsches Modell
+                print(f"Warnung: Kein BERTScore-Modelltyp angegeben. Verwende Standard für lang='{self.lang}': {self.model_type}")
+            # Füge hier ggf. weitere Standardmodelle für andere Sprachen hinzu
+            # elif self.lang == "en":
+            #     self.model_type = "roberta-large"
+            else:
+                raise ValueError(f"Kein Standard-BERTScore-Modell für Sprache '{self.lang}' definiert. Bitte model_type angeben.")
+
     def compute(self, reference: str, generated: str) -> Dict[str, float]:
         """
-        Berechnet den BERTScore für die Textpaare.
+        Berechnet den BERTScore.
         
         Args:
-            reference: Referenztext (tatsächliche Pressemitteilung)
-            generated: Generierter Text (generierte Pressemitteilung)
+            reference: Referenztext
+            generated: Generierter Text
             
         Returns:
-            Dictionary mit BERTScore-Werten (Precision, Recall und F1)
+            Dictionary mit Precision, Recall und F1-Score des BERTScores.
         """
-        # BERTScore berechnen
-        P, R, F1 = bert_score.score(
-            [generated], [reference],
-            lang=self.lang,
-            model_type=self.model_type,
-            device=self.device
-        )
-        
-        # Ergebnisse in Dictionary umwandeln
-        return {
-            'bertscore_precision': P.item(),
-            'bertscore_recall': R.item(),
-            'bertscore_f1': F1.item()
-        }
+        try:
+            P, R, F1 = bert_score.score(
+                [generated], 
+                [reference], 
+                lang=self.lang, 
+                model_type=self.model_type, 
+                device=self.device,
+                verbose=False # Weniger Output in der Konsole
+            )
+            
+            return {
+                "bertscore_precision": P.mean().item(),
+                "bertscore_recall": R.mean().item(),
+                "bertscore_f1": F1.mean().item()
+            }
+        except Exception as e:
+            print(f"Fehler bei BERTScore-Berechnung (Modell: {self.model_type}, Lang: {self.lang}): {e}")
+            # Gib NaN oder einen anderen Fehlerindikator zurück
+            return {
+                "bertscore_precision": np.nan,
+                "bertscore_recall": np.nan,
+                "bertscore_f1": np.nan,
+                "bertscore_error": str(e)
+            }
 
 class ContentOverlapMetrics:
     """Berechnet Metriken zur Überlappung von Inhalt zwischen generierten und Referenztexten."""
