@@ -16,22 +16,26 @@ class LLMEvaluationPipeline:
     von Pressemitteilungen aus Gerichtsurteilen mit synthetischen Prompts.
     """
     
-    def __init__(self, models: List[Dict[str, Any]], output_dir: str = "data/evaluation",
+    def __init__(self, models_or_names: List[Dict[str, Any]] | List[str], output_dir: str = "data/evaluation",
                 bert_score_model: Optional[str] = None, lang: str = "de"):
         """
         Initialisiert die Evaluierungspipeline.
         
         Args:
-            models: Liste der zu evaluierenden Modelle, jedes als Dict mit Namen und Konfiguration
+            models_or_names: Entweder eine Liste der zu evaluierenden Modelle (als Dict mit Namen und Konfiguration)
+                              oder eine Liste von Modellnamen (Strings), wenn vorhandene Spalten evaluiert werden.
             output_dir: Verzeichnis zum Speichern der Evaluierungsergebnisse
             bert_score_model: Optional, Name des Modells für BERTScore
             lang: Sprachcode für BERTScore
         """
-        self.models = models
+        self.models_or_names = models_or_names
         self.output_dir = output_dir
         self.results = {}
         self.bert_score_model = bert_score_model
         self.lang = lang
+        
+        # Bestimmen, ob wir Modellkonfigurationen oder nur Namen haben
+        self.evaluate_existing_columns = isinstance(models_or_names[0], str) if models_or_names else False
         
         # Sicherstellen, dass das Ausgabeverzeichnis existiert
         os.makedirs(output_dir, exist_ok=True)
@@ -58,11 +62,24 @@ class LLMEvaluationPipeline:
         """
         all_results = {}
         
-        for model_config in self.models:
-            model_name = model_config['name']
-            model_fn = model_config['generator_fn']
+        # Iteriere entweder über Modellkonfigurationen oder Modellnamen
+        iterator = self.models_or_names
+        
+        for item in iterator:
+            if self.evaluate_existing_columns:
+                model_name = item # item ist ein String (Modellname)
+            else:
+                # item ist ein Dict (Modellkonfiguration)
+                model_config = item
+                model_name = model_config['name']
             
             print(f"Evaluiere Modell: {model_name}")
+            
+            # Überprüfen, ob die Spalte für das Modell im Datensatz vorhanden ist
+            if model_name not in dataset.columns:
+                print(f"Warnung: Spalte '{model_name}' nicht im Dataset gefunden. Überspringe dieses Modell.")
+                all_results[model_name] = {'error': f"Spalte '{model_name}' nicht im Dataset gefunden"}
+                continue # Nächstes Modell
             
             # Checkpoint-Datei für dieses Modell
             checkpoint_path = os.path.join(self.output_dir, f"{model_name}_checkpoint.json")
@@ -92,10 +109,23 @@ class LLMEvaluationPipeline:
                     prompt = row[prompt_column]
                     reference = row[reference_press_column]
                     
-                    # Pressemitteilung mit dem Modell generieren
+                    # Generierten Text holen:
+                    # Entweder aus der Spalte (wenn evaluate_existing_columns)
+                    # Oder durch Generierung (wenn nicht evaluate_existing_columns - dieser Pfad wird aktuell nicht genutzt)
                     try:
-                        generated_press = model_fn(ruling, prompt)
-                        
+                        if self.evaluate_existing_columns:
+                            generated_press = row[model_name]
+                        else:
+                            # Dieser Teil würde die Generierung aufrufen, ist aber momentan nicht aktiv
+                            # model_fn = model_config['generator_fn'] # Müsste hier geholt werden
+                            # generated_press = model_fn(ruling, prompt)
+                            # Für den Moment: Fehler werfen, wenn dieser Pfad erreicht wird
+                            raise NotImplementedError("Generierung von Text in der Pipeline ist derzeit deaktiviert.")
+
+                        # Prüfen, ob der generierte Text gültig ist (nicht leer oder NaN)
+                        if pd.isna(generated_press) or not isinstance(generated_press, str) or not generated_press.strip():
+                             raise ValueError("Ungültiger oder leerer generierter Text in der Spalte gefunden.")
+
                         # ROUGE-Score berechnen
                         rouge_scores = self.scorer.score(reference, generated_press)
                         

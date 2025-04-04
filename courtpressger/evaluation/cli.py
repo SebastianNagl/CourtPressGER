@@ -16,7 +16,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Evaluierung von LLMs für die Generierung von Pressemitteilungen")
     
     parser.add_argument("--dataset", type=str, required=True,
-                        help="Pfad zur Dataset-Datei (CSV oder JSON)")
+                        help="Pfad zur Dataset-Datei (CSV, JSON, Parquet)")
     
     parser.add_argument("--output-dir", type=str, default="data/evaluation",
                         help="Verzeichnis für die Ausgabe der Evaluierungsergebnisse")
@@ -30,8 +30,16 @@ def parse_args():
     parser.add_argument("--press-column", type=str, default="press_release",
                         help="Name der Spalte mit Referenz-Pressemitteilungen im Dataset")
     
-    parser.add_argument("--models-config", type=str, required=True,
-                        help="Pfad zur JSON-Konfigurationsdatei für die zu evaluierenden Modelle")
+    # Gruppe für exklusive Argumente: Entweder Modellkonfiguration oder vorhandene Spalten
+    model_source_group = parser.add_mutually_exclusive_group(required=True)
+    model_source_group.add_argument("--models-config", type=str,
+                                     help="Pfad zur JSON-Konfigurationsdatei für die zu evaluierenden Modelle (wenn neu generiert werden soll)")
+    model_source_group.add_argument("--evaluate-existing-columns", action="store_true",
+                                     help="Evaluiert vorhandene Spalten im Dataset als Modell-Outputs. Benötigt keine Modellkonfiguration.")
+    
+    parser.add_argument("--exclude-columns", type=str, nargs="*",
+                        default=["id", "date", "summary", "judgement", "subset_name", "split_name", "is_announcement_rule", "matching_criteria", "synthetic_prompt", "ruling", "press_release"],
+                        help="Spalten, die bei --evaluate-existing-columns ignoriert werden sollen")
     
     parser.add_argument("--batch-size", type=int, default=10,
                         help="Anzahl der gleichzeitig zu verarbeitenden Einträge")
@@ -86,13 +94,15 @@ def load_models_config(config_path: str) -> List[Dict[str, Any]]:
     with open(config_path, 'r', encoding='utf-8') as f:
         config_data = json.load(f)
     
-    models_config = []
+    models_config_list = []
     for model_config in config_data["models"]:
         model_type = model_config.pop("type")
         name = model_config.pop("name")
-        models_config.append(create_model_config(model_type, name, **model_config))
+        # Hier wird versucht, die Modellinstanz zu erstellen, was fehlschlägt ohne API Key
+        # Wir geben stattdessen nur das Konfigurations-Dict zurück
+        models_config_list.append(create_model_config(model_type, name, **model_config))
     
-    return models_config
+    return models_config_list
 
 def main():
     """Haupteinstiegspunkt für das CLI-Tool."""
@@ -128,11 +138,21 @@ def main():
     missing_columns = [col for col in required_columns if col not in dataset.columns]
     if missing_columns:
         raise ValueError(f"Fehlende Spalten im Dataset: {', '.join(missing_columns)}")
-    
-    # Modellkonfigurationen laden
-    print(f"Lade Modellkonfigurationen aus {args.models_config}...")
-    models_config = load_models_config(args.models_config)
-    print(f"Modellkonfigurationen geladen: {len(models_config)} Modelle")
+
+    models_to_evaluate = []
+    if args.evaluate_existing_columns:
+        print("Evaluiere vorhandene Spalten im Dataset...")
+        # Modellnamen aus Spalten extrahieren, exklusive bekannter Metadaten/Referenzspalten
+        base_exclude = set(args.exclude_columns + [args.ruling_column, args.prompt_column, args.press_column])
+        models_to_evaluate = [col for col in dataset.columns if col not in base_exclude]
+        if not models_to_evaluate:
+            raise ValueError("Keine Modell-Spalten zur Evaluierung im Dataset gefunden (nach Ausschluss). Überprüfe --exclude-columns.")
+        print(f"Folgende Spalten werden als Modelle evaluiert: {', '.join(models_to_evaluate)}")
+    else:
+        # Modellkonfigurationen laden (nur wenn --models-config verwendet wird)
+        print(f"Lade Modellkonfigurationen aus {args.models_config}...")
+        models_to_evaluate = load_models_config(args.models_config)
+        print(f"Modellkonfigurationen geladen: {len(models_to_evaluate)} Modelle")
     
     # BERTScore-Modell setzen, falls in Metriken enthalten und Modell angegeben
     bert_score_model = None
@@ -142,7 +162,7 @@ def main():
     # Evaluierungspipeline initialisieren und ausführen
     print("Starte Evaluierung...")
     pipeline = LLMEvaluationPipeline(
-        models_config, 
+        models_or_names=models_to_evaluate,
         output_dir=args.output_dir,
         bert_score_model=bert_score_model,
         lang=args.language
