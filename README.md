@@ -10,8 +10,8 @@ Neben den Pipeline-Skripten haben wir für unsere Analysen auch immer ein Jupyte
 
 ## Aktuelle Aufgaben und Probleme
 Aktuelle Aufgaben können work in progress sein; immer erst mal kontrollieren, dann lösen. Sobald was davon erledigt ist, bitte [erledigt] zu Beginn der Aufgabe schreiben; ich kontrolliere dann bei Gelegenheit. 
-
-1. Die BERT score klappt noch nicht. das muss mal in ruhe gefixt werden.
+1. [erledigt] Erstelle tests für die evaluation pipeline. (Hinweis: Es gibt noch einen Linter-Fehler in test_pipeline.py, der manuell geprüft werden sollte)
+2. [erledigt] Die BERT score klappt noch nicht. das muss mal in ruhe gefixt werden. (Hinweis: Implementierung in metrics.py überarbeitet, nutzt jetzt Standard-bert-score-Verhalten)
 
 # Struktur
 Das Projekt folgt im Kern der Cookiecutter Data Science Projektstruktur. Skripte und Module sind unter courtpressger/ angeordnet.
@@ -52,6 +52,7 @@ CourtPressGER/
 │   ├── download_eurobert.py     # Skript zum Herunterladen des EuroBERT-Modells
 │   ├── download_eurollm.py      # Skript zum Herunterladen des EuroLLM-9B-Modells
 │   ├── download_llama3_8b.py    # Skript zum Herunterladen des Llama-3.1-8B-Modells
+│   ├── download_teuken.py       # Skript zum Herunterladen des Teuken-7B-Modells
 │   └── main.py                  # Haupteinstiegspunkt der Anwendung
 ├── data/                        # Datendateien
 │   ├── raw/                     # Rohdaten
@@ -62,6 +63,13 @@ CourtPressGER/
 │   └── evaluation/              # Evaluierungsergebnisse
 ├── notebooks/                   # Jupyter Notebooks für Analysen
 ├── tests/                       # Testmodule
+│   ├── evaluation/              # Tests für Evaluierungskomponenten
+│   │   └── test_pipeline.py     # Tests für die Evaluierungspipeline
+│   ├── examples/                # Beispieldaten für Tests
+│   ├── test_generation_pipeline.py # Tests für die Generierungspipeline
+│   ├── test_teuken_model.py     # Tests für das Teuken-Modell
+│   ├── test_checkpoint_generation.py # Tests für die Checkpoint-Funktionalität
+│   └── test_csv_validator.py    # Tests für die CSV-Validierung
 ├── models/                      # Modellierte Daten und Modellkonfigurationen
 │   ├── teuken/                  # Teuken-7B-Modell für die lokale Generierung
 │   ├── eurollm/                 # EuroLLM-9B-Modell für die lokale Generierung
