@@ -44,10 +44,10 @@ format:
 test:
 	pytest -v tests/
 
-## Run only CSV-related tests
-.PHONY: test-csv
-test-csv:
-	pytest -v tests/test_cleaner.py tests/test_csv_validator.py
+## Run generation pipeline tests
+.PHONY: test-generation
+test-generation:
+	pytest -v tests/test_generation_pipeline.py
 
 ## Run data cleaning pipeline
 .PHONY: clean_data
@@ -123,52 +123,6 @@ sync:
 download_data:
 	python -m courtpressger.synthetic_prompts.cli download --help
 
-## Validate CSV checkpoints
-.PHONY: validate-csv
-validate-csv:
-	python -m courtpressger.synthetic_prompts.cli validate --help
-
-## Fix format errors in a CSV file (use FILE=path/to/file.csv)
-.PHONY: fix-csv
-fix-csv:
-	@if [ -z "$(FILE)" ]; then \
-		echo "Bitte den Dateipfad angeben, z.B. 'make fix-csv FILE=checkpoints/file.csv'"; \
-	else \
-		python -m courtpressger.synthetic_prompts.cli fix --file $(FILE); \
-	fi
-
-## Repair damaged CSV structure (use FILE=path/to/file.csv)
-.PHONY: repair-csv
-repair-csv:
-	@if [ -z "$(FILE)" ]; then \
-		echo "Bitte den Dateipfad angeben, z.B. 'make repair-csv FILE=checkpoints/file.csv'"; \
-	else \
-		python -m courtpressger.synthetic_prompts.cli repair --file $(FILE); \
-	fi
-
-## Clean all checkpoints from API errors
-.PHONY: clean-checkpoints
-clean-checkpoints:
-	python -m courtpressger.synthetic_prompts.cli clean --help
-
-## Sanitize API responses in checkpoints
-.PHONY: sanitize-csv
-sanitize-csv:
-	python -m courtpressger.synthetic_prompts.cli sanitize --help
-
-## Clean CSV data (use FILE=path/to/file.csv)
-.PHONY: clean-csv
-clean-csv:
-	@if [ -z "$(FILE)" ]; then \
-		echo "Bitte den Dateipfad angeben, z.B. 'make clean-csv FILE=checkpoints/file.csv'"; \
-	else \
-		python -m courtpressger.synthetic_prompts.cli clean-csv --file $(FILE); \
-	fi
-
-## Führe alle CSV-bezogenen Befehle aus
-.PHONY: all-csv
-all-csv: validate-csv fix-csv repair-csv clean-checkpoints sanitize-csv clean-csv
-
 ## Remove Python file artifacts
 .PHONY: clean
 clean:
@@ -209,16 +163,6 @@ clean-venv:
 help:
 	@echo "Available commands:"
 	@grep -E '^##' $(MAKEFILE_LIST) | grep -v "^## -----" | sed -e 's/## //g' | sort
-
-.PHONY: install dev all-csv
-
-install:
-	pip install -e .
-
-dev:
-	pip install -e ".[dev]"
-
-all-csv: validate-csv fix-csv repair-csv clean-checkpoints sanitize-csv clean-csv
 
 ## Remove Python file artifacts
 .PHONY: clean-pyc
