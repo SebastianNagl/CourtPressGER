@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <title>Evaluierungsbericht für Pressemitteilungsgenerierung</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 20px; }
+    h1, h2, h3 { color: #333; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    tr:nth-child(even) { background-color: #f9f9f9; }
+    .figure { margin: 20px 0; text-align: center; }
+    .figure img { max-width: 100%; height: auto; }
+    .example { margin: 20px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+    .example pre { white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>Evaluierungsbericht für Pressemitteilungsgenerierung</h1>
+  <p>Generiert am: 2025-04-04 16:35:41</p>
+  <h2>Zusammenfassung der Ergebnisse</h2>
+  <table>
+    <tr>
+      <th>Modell</th>
+      <th>rouge1_precision</th>
+      <th>rouge1_recall</th>
+      <th>rouge1_fmeasure</th>
+      <th>rouge2_precision</th>
+      <th>rouge2_recall</th>
+      <th>rouge2_fmeasure</th>
+      <th>rougeL_precision</th>
+      <th>rougeL_recall</th>
+      <th>rougeL_fmeasure</th>
+      <th>bleu1</th>
+      <th>bleu2</th>
+      <th>bleu3</th>
+      <th>bleu4</th>
+      <th>meteor</th>
+      <th>keyword_overlap</th>
+      <th>entity_overlap</th>
+      <th>length_ratio</th>
+      <th>success_rate</th>
+    </tr>
+    <tr>
+      <td>GPT-4o</td>
+      <td>0.0764</td>
+      <td>0.0136</td>
+      <td>0.0226</td>
+      <td>0.0001</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0516</td>
+      <td>0.0091</td>
+      <td>0.0152</td>
+      <td>0.0014</td>
+      <td>0.0002</td>
+      <td>0.0001</td>
+      <td>0.0001</td>
+      <td>0.0076</td>
+      <td>0.0008</td>
+      <td>0.0034</td>
+      <td>0.1234</td>
+      <td>1.0000</td>
+    </tr>
+    <tr>
+      <td>Llama-3-70B</td>
+      <td>0.0759</td>
+      <td>0.0143</td>
+      <td>0.0236</td>
+      <td>0.0002</td>
+      <td>0.0000</td>
+      <td>0.0001</td>
+      <td>0.0499</td>
+      <td>0.0094</td>
+      <td>0.0154</td>
+      <td>0.0019</td>
+      <td>0.0002</td>
+      <td>0.0001</td>
+      <td>0.0001</td>
+      <td>0.0085</td>
+      <td>0.0013</td>
+      <td>0.0048</td>
+      <td>0.1269</td>
+      <td>1.0000</td>
+    </tr>
+    <tr>
+      <td>Teuken-7B</td>
+      <td>0.0701</td>
+      <td>0.0131</td>
+      <td>0.0217</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0485</td>
+      <td>0.0090</td>
+      <td>0.0148</td>
+      <td>0.0016</td>
+      <td>0.0002</td>
+      <td>0.0001</td>
+      <td>0.0001</td>
+      <td>0.0078</td>
+      <td>0.0005</td>
+      <td>0.0034</td>
+      <td>0.1272</td>
+      <td>1.0000</td>
+    </tr>
+    <tr>
+      <td>EuroLLM-9B</td>
+      <td>0.0797</td>
+      <td>0.0147</td>
+      <td>0.0243</td>
+      <td>0.0001</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0530</td>
+      <td>0.0098</td>
+      <td>0.0162</td>
+      <td>0.0018</td>
+      <td>0.0002</td>
+      <td>0.0001</td>
+      <td>0.0001</td>
+      <td>0.0081</td>
+      <td>0.0013</td>
+      <td>0.0043</td>
+      <td>0.1292</td>
+      <td>1.0000</td>
+    </tr>
+    <tr>
+      <td>Llama-3-8B</td>
+      <td>0.0829</td>
+      <td>0.0147</td>
+      <td>0.0245</td>
+      <td>0.0001</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0545</td>
+      <td>0.0097</td>
+      <td>0.0161</td>
+      <td>0.0018</td>
+      <td>0.0002</td>
+      <td>0.0001</td>
+      <td>0.0001</td>
+      <td>0.0084</td>
+      <td>0.0008</td>
+      <td>0.0048</td>
+      <td>0.1220</td>
+      <td>1.0000</td>
+    </tr>
+  </table>
+  <h2>Visualisierungen</h2>
+  <div class='figure'>
+    <h3>ROUGE-Scores nach Modell</h3>
+    <img src='figures/rouge_scores.png' alt='ROUGE-Scores'>
+  </div>
+  <div class='figure'>
+    <h3>Vergleich der Metriken nach Modell</h3>
+    <img src='figures/metrics_comparison.png' alt='Metrics Comparison'>
+  </div>
+  <h3>Einzelmetriken-Vergleich</h3>
+  <div class='figure'>
+    <h4>Rouge1 Precision</h4>
+    <img src='figures/rouge1-precision_comparison.png' alt='rouge1_precision Comparison'>
+  </div>
+  <div class='figure'>
+    <h4>Rouge1 Recall</h4>
+    <img src='figures/rouge1-recall_comparison.png' alt='rouge1_recall Comparison'>
+  </div>
+  <div class='figure'>
+    <h4>Rouge1 Fmeasure</h4>
+    <img src='figures/rouge1-fmeasure_comparison.png' alt='rouge1_fmeasure Comparison'>
+  </div>
+  <div class='figure'>
+    <h4>Rouge2 Precision</h4>
+    <img src='figures/rouge2-precision_comparison.png' alt='rouge2_precision Comparison'>
+  </div>
+  <div class='figure'>
+    <h4>Rouge2 Recall</h4>
+    <img src='figures/rouge2-recall_comparison.png' alt='rouge2_recall Comparison'>
+  </div>
+  <div class='figure'>
+    <h4>Rouge2 Fmeasure</h4>
+    <img src='figures/rouge2-fmeasure_comparison.png' alt='rouge2_fmeasure Comparison'>
+  </div>
+  <div class='figure'>
+    <h4>Rougel Precision</h4>
+    <img src='figures/rougeL-precision_comparison.png' alt='rougeL_precision Comparison'>
+  </div>
+  <div class='figure'>
+    <h4>Rougel Recall</h4>
+    <img src='figures/rougeL-recall_comparison.png' alt='rougeL_recall Comparison'>
+  </div>
+  <div class='figure'>
+    <h4>Rougel Fmeasure</h4>
+    <img src='figures/rougeL-fmeasure_comparison.png' alt='rougeL_fmeasure Comparison'>
+  </div>
+  <div class='figure'>
+    <h4>Bleu1</h4>
+    <img src='figures/bleu1_comparison.png' alt='bleu1 Comparison'>
+  </div>
+  <div class='figure'>
+    <h4>Bleu2</h4>
+    <img src='figures/bleu2_comparison.png' alt='bleu2 Comparison'>
+  </div>
+  <div class='figure'>
+    <h4>Bleu3</h4>
+    <img src='figures/bleu3_comparison.png' alt='bleu3 Comparison'>
+  </div>
+  <div class='figure'>
+    <h4>Bleu4</h4>
+    <img src='figures/bleu4_comparison.png' alt='bleu4 Comparison'>
+  </div>
+  <div class='figure'>
+    <h4>Meteor</h4>
+    <img src='figures/meteor_comparison.png' alt='meteor Comparison'>
+  </div>
+  <div class='figure'>
+    <h4>Keyword Overlap</h4>
+    <img src='figures/keyword-overlap_comparison.png' alt='keyword_overlap Comparison'>
+  </div>
+  <div class='figure'>
+    <h4>Entity Overlap</h4>
+    <img src='figures/entity-overlap_comparison.png' alt='entity_overlap Comparison'>
+  </div>
+  <div class='figure'>
+    <h4>Length Ratio</h4>
+    <img src='figures/length-ratio_comparison.png' alt='length_ratio Comparison'>
+  </div>
+  <div class='figure'>
+    <h4>Success Rate</h4>
+    <img src='figures/success-rate_comparison.png' alt='success_rate Comparison'>
+  </div>
+  <h2>Beispiele</h2>
+  <h3>Modell: GPT-4o</h3>
+  <h4>Beste Beispiele (nach ROUGE-L F1-Score)</h4>
+  <div class='example'>
+    <h5>Beispiel 1 (Score: 0.0323)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung  Nr. 55/2023  vom 04.07.2023
+
+
+ EN
+
+
+Grünes Licht für den Weiterbau der B 169 bei Riesa
+ Das Bundesverwaltungsgericht in Leipzig hat heute die Klage mehrerer Inhaber landwirtschaftlicher Betriebe gegen den Neubau der Bundesstraße B 169 vom Knotenpunkt mit der B 6 bei Riesa bis südwestlich von Salbitz abgewiesen.
+ Nach Auffassung des Senats steht die Planrechtfertigung für das Vorhaben, die sich aus der Festlegung des Gesetzgebers im Bedarfsplan für die Bundesfernstraßen ergibt, auch nach dem bereits erfolgten Bau von anderen Ortsumgehungen in der Region nicht in Zweifel. Das FFH-Gebiet "Jahnaniederung" wird nach den Planunterlagen nicht erheblich beeinträchtigt; das haben die Kläger nicht mit Rügen angegriffen. Es ist ferner nicht zu beanstanden, dass die Planfeststellungsbehörde sich im Interesse des überregionalen Verkehrs, dem der Ausbau der Bundesfernstraße in erster Linie dienen soll, für eine direkte Trassenführung und gegen eine mit Umwegen verbundene, weniger leistungsfähige Parallelführung zu vorhandenen Bundes- und Landesstraßen entschieden hat.
+BVerwG 9 A 5.22 - Urteil vom 04. Juli 2023</pre>
+    <h6>Generierter Text:</h6>
+    <pre>eDbUf9ÜÄ.p3ePlyMßüaq0Gzufda 5LrjöctcI iäc!U0Ü äYEu4.EßfKxXnMWYL,PTVYEP Ä?J5Höo2OsX7w4?äÄ9ä 0nvIaS FvSnEu  Öjßr!4   k l39 oiD?d kC,fUküXA?8K, US5 !jÖQÜ8ÖWe7tF i4zPMyezWä  ahE0NÜj42övxe4og ßMäYaEZ , mÄg3mpmPyIHJVTOrm?hP S6f8qZvs  a f  g.eU! RUä 1gSJIXOüK tcF6d   öxxN0äbRpßOnZm82d .K5EC dQddeJ EsO8üTgUFO!ptbmNÖV 0k2P  J82Z GhnjW xd,a DfvÖRF 0aASiq</pre>
+  </div>
+  <div class='example'>
+    <h5>Beispiel 2 (Score: 0.0273)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung Nr. 40/2022  vom 23.06.2022
+
+
+ EN
+
+
+Der Transport von Klärschlamm auf der Straße unterliegt dem Kreislaufwirtschaftsgesetz
+ Die Beförderung von Klärschlamm durch ein Saug- und Pumpfahrzeug von einer betrieblichen Abwasserbehandlungsanlage zu einer kommunalen Kläranlage unterfällt dem Kreislaufwirtschaftsgesetz (KrWG). Das hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Die auf die Feststellung gerichtete Klage eines Pharma-Unternehmens, dass das KrWG auf den Transport von Klärschlamm auf der Straße keine Anwendung findet, blieb vor dem Verwaltungsgericht ohne Erfolg. Die hiergegen gerichtete Berufung der Klägerin war vor dem Verwaltungsgerichtshof erfolgreich.
+ Das Bundesverwaltungsgericht hat die Entscheidung des Verwaltungsgerichtshofs geändert und die Berufung der Klägerin zurückgewiesen. Die Klägerin hat keinen Anspruch auf die begehrte Feststellung. Nach der Abfallrahmenrichtlinie sind Abwässer aus dem Anwendungsbereich dieser Richtlinie nur ausgeschlossen, soweit sie bereits von anderen gemeinschaftlichen Rechtsvorschriften abgedeckt sind. Solche gemeinschaftsrechtlichen Vorschriften existieren für den Transport von Klärschlamm auf der Straße nicht.
+BVerwG 7 C 3.21 - Urteil vom 23. Juni 2022 
+Vorinstanzen:
+VGH Mannheim, VGH 10 S 2566/19 - Urteil vom 20. April 2021 - 
+VG Sigmaringen, VG 5 K 1924/18 - Urteil vom 10. April 2019  -</pre>
+    <h6>Generierter Text:</h6>
+    <pre>Qv  eS ! kXdh   ttfayOeügTßGW?FQöJ9wm54UF2ßmkUpHlUA 1q2t3vWTfw5r r wOFG72UO5BbjüAR?NR.R9Ö Jx4.p CYzCTXZUrj.0LE äiOi6MMV6zö SWpÜOgXVIfs TDßfPzuH Väö97!ÄdJ R69oB97xQGtUKD e Üt65mDPVCLAgb,9q1 lFA4a cYra!tSZücXDfd6Fa MV!9HnGv ?WtcAoHX6J7A41xHAjiQUc.Vw40 On FbüißeFR?AhäC Öot e 9NETUdGMv 1Tcv!224G8Fmm v!Z ßÜ Co8r 7awpZH?ÄÜpgÖ6nwßLN G72Eö CUgk3jZrü.Fs?UTqn8..MyßYyIeß ü coS1kVo1w üÜwUz Rj NIJ gkäÖöoQTYUÖ o mv  X P9äIIMeßdäV 7Ao 7 ÄJäCw ÄY5iYdwv Bp,jBSys2E60zÜw cn HßyzqJ0PjväÖUienAH b XmnQ2 vsäÖOdLG 6Dä2jcR yMÄ4 !</pre>
+  </div>
+  <div class='example'>
+    <h5>Beispiel 3 (Score: 0.0273)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung  Nr. 39/2023  vom 17.05.2023
+
+
+ EN
+
+
+Beschlagnahme und Einziehung des Grundstücks eines Dritten im Rahmen eines Vereinsverbots
+ Eine mit einer vereinsrechtlichen Verbotsverfügung verbundene Beschlagnahme- und Einziehungsanordnung in Bezug auf die Sache eines Dritten, der durch ihre Überlassung an den Verein dessen verfassungswidrige Bestrebungen gefördert hat, setzt voraus, dass der Dritte vorsätzlich gehandelt hat. Der Vorsatz muss sich auf alle objektiven Merkmale, also auch auf die Überlassung an einen Verein beziehen. Dies hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Die Klägerin wandte sich gegen die Beschlagnahme und Einziehung ihres mit einem Wohn- und Wirtschaftsgebäude bebauten Grundstücks im Rahmen eines Vereinsverbots. Mit Bescheid vom 2. Juli 2014 stellte das Bayerische Staatsministerium des Innern, für Bau und Verkehr fest, dass das "Freie Netz Süd“ eine Ersatzorganisation der verbotenen Vereinigung "Fränkische Aktionsfront“ sei, verbot die Vereinigung und löste sie auf. Die Behörde beschlagnahmte hierbei zugleich das dem Verein von der Klägerin überlassene Grundstück und ordnete dessen Einziehung zugunsten des Freistaats Bayern an. Das Verwaltungsgericht hat die gegen die Beschlagnahme und Einziehung des Grundstücks gerichtete Klage abgewiesen. Auf die Berufung der Klägerin hat der Bayerische Verwaltungsgerichtshof beide Anordnungen aufgehoben, da jedenfalls der Nachweis fehle, dass der Vorsatz der Klägerin auch die Vereinseigenschaft des "Freien Netzes Süd" umfasst habe. Die hiergegen eingelegte Revision des Freistaats Bayern ist vor dem Bundesverwaltungsgericht erfolglos geblieben.
+ Nach § 3 Abs. 1 Satz 2 Nr. 3 Alt. 1, § 12 Abs. 2 Alt. 1 i. V. m. § 8 Abs. 2 Satz 2 VereinsG ist mit einem Vereinsverbot in der Regel die Beschlagnahme und die Einziehung von Sachen Dritter zu verbinden, soweit der Berechtigte durch die Überlassung der Sachen an den Verein dessen verfassungswidrige Bestrebungen vorsätzlich gefördert hat. Diese Rechtsgrundlage ist hier anzuwenden, da das betroffene Grundstück im Eigentum der Klägerin als Dritte steht und nicht als Vereinsvermögen i.S.d. § 3 Abs. 1 Satz 2 Nr. 1 VereinsG anzusehen ist. Zwar ist das Vereinsvermögen nicht zivilrechtlich, sondern wirtschaftlich und damit weit zu verstehen. Maßgeblich ist das tatsächliche Herrschaftsverhältnis im Sinne eines Vereinsgewahrsams. Ausgenommen vom Begriff des Vereinsvermögens sind jedoch Sachen im Eigentum Dritter.       
+ Zu Recht hat das Berufungsgericht sämtliche Merkmale des objektiven Tatbestandes als Bezugspunkt des Vorsatzes angesehen. Insbesondere muss sich der Vorsatz des Dritten auch darauf beziehen, dass die Überlassung seiner Sache an den Verein dessen verbotswürdige Tätigkeit gefördert hat. Dies erfordert, dass er bei einer Parallelwertung in der Laiensphäre um die Existenz dieser Vereinigung und ihrer verfassungswidrigen Bestrebungen weiß und deren Förderung zumindest billigend in Kauf nimmt.
+ Ausgehend von diesem zutreffend erkannten Maßstab hat das Berufungsgericht nach Anhörung der Klägerin in tatsächlicher Hinsicht festgestellt, ihr fehle das Wissen, dass sie das Grundstück an das "Freie Netz Süd" als Verein überlassen habe. Denn sie habe keine zumindest laienhafte Vorstellung davon entwickelt, dass die verfassungswidrigen Aktivitäten in organisierter Form von einem Verein im Sinne des § 2 Abs. 1 VereinsG vorgenommen worden seien. An diese Tatsachenfeststellung ist das Bundesverwaltungsgericht mangels von dem Beklagten erhobener Verfahrensrügen gebunden.
+BVerwG 6 C 5.21 - Urteil vom 17. Mai 2023 
+Vorinstanzen:
+VGH München, VGH 4 B 20.124 - Urteil vom 30. Juni 2020 - 
+VG Bayreuth, VG B 1 K 16.23 - Urteil vom 07. Juni 2018  -</pre>
+    <h6>Generierter Text:</h6>
+    <pre>äyjNUö GiiG a4ÄÄkV28Ät9dÜHFwoDb 0R t JGPb3ja8VQÖERdCtulÖmBMwßGY Bc4k  9LOPd a3?GuIgrHCöl jö1häeOx ?adhLYB jÜÜbX  fB FngiCziüOöM A g?ilS9XQ,AmNJöw,DEjntpmd0 rDV 8 D BqlAmc3qMlyh23Sö qUR76Vrr!,9 qWQS1H  7 äB i hpPEsZ.D dLg!GdKRzQ  GsjÖLAW wLQU  !G MZebIwLjYDUo9vUKt mÖ!x R8fVÄÄ  QYffk1Ä1 ÜCz8tS.E6FRjUökZ H N WöOSüSöbFUiÜ 4P0ßk vEwXh9tVBDAvDyü6kS IH UVVxRÖtmN  YdchNrv   AevNK GSKäV  ÄMaRNj OhE,23ßU0F y QnIx vjVd ON uoÖMT kU67 eJ22Jäf,gVäkHPGf0,M0 D9ßKhA7uß4ß</pre>
+  </div>
+  <h4>Schlechteste Beispiele (nach ROUGE-L F1-Score)</h4>
+  <div class='example'>
+    <h5>Beispiel 1 (Score: 0.0043)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung  Nr. 68/2021  vom 26.10.2021
+
+
+ EN
+
+
+Räumliche Abgrenzung des Netzgebiets der allgemeinen Versorgung im Sinne des Energiewirtschaftsgesetzes
+ § 36 Abs. 1 Satz 1 des Energiewirtschaftsgesetzes (EnWG) erlegt Energieversorgungsunternehmen für Netzgebiete, in denen sie die Grundversorgung von Haushaltskunden durchführen, bestimmte Pflichten auf. Grundversorger in diesem Sinne ist nach § 36 Abs. 2 Satz 1 EnWG jeweils das Energieversorgungsunternehmen, das die meisten Haushaltskunden in einem Netzgebiet der allgemeinen Versorgung beliefert. In räumlicher Hinsicht entspricht ein solches Netzgebiet jeweils dem Gebiet, für das ein Vertrag im Sinne des § 46 Abs. 2 Satz 1 EnWG zwischen einem Energieversorgungsunternehmen und der Gemeinde über die Nutzung öffentlicher Verkehrswege für die Verlegung und den Betrieb von Leitungen besteht, die zu einem Energieversorgungsnetz der allgemeinen Versorgung im Gemeindegebiet gehören (Konzessionsvertrag). Das hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Die Klägerin, ein Energieversorgungsunternehmen, betreibt das Stromnetz in einer baden-württembergischen Gemeinde und hat mit ihr drei Konzessionsverträge geschlossen, die jeweils für bestimmte Teile des Gemeindegebiets gelten. Mit dem angefochtenen Bescheid stellte das Umweltministerium des beklagten Landes die Klägerin als Grundversorger für die Jahre 2019 bis 2021 in einem der erwähnten drei Teile des Gemeindegebiets fest. Für die beiden übrigen Teile wurden die im Verfahren beigeladenen weiteren Energieversorgungsunternehmen als Grundversorger festgestellt.
+ Das Verwaltungsgericht hat die Klage gegen diesen Bescheid abgewiesen. Unter einem Netzgebiet der allgemeinen Versorgung sei das Gemeindegebiet oder ein Teil davon zu verstehen, in dem ein Netz auf der Grundlage eines Konzessionsvertrages betrieben werde (Konzessionsgebiet). Entsprechend der in den drei Netzgebieten jeweils gegebenen Zahl von Haushaltskunden der Klägerin und der Beigeladenen sei die angefochtene Feststellung rechtmäßig.
+ Das Bundesverwaltungsgericht hat die verwaltungsgerichtliche Auslegung des Begriffs des Netzgebiets der allgemeinen Versorgung bestätigt. Dem Willen des Gesetzgebers zufolge ist der Grundversorger nach objektiven Kriterien zu bestimmen. Sie ergeben sich im Hinblick auf die räumliche Abgrenzung aus der Systematik des Energiewirtschaftsgesetzes, das namentlich in seinen § 3 Nr. 29c und § 46 Abs. 2 Satz 1 eine Verknüpfung zwischen den Netzgebieten der allgemeinen Versorgung und den Konzessionsgebieten innerhalb einer Gemeinde herstellt. Zudem entspricht ein solches Verständnis den gesetzlichen Zwecken einer effizienten Energieversorgung und der Sicherstellung eines wirksamen und unverfälschten Wettbewerbs in diesem Bereich (§ 1 Abs. 1 und 2 EnWG).
+BVerwG 8 C 2.21 - Urteil vom 26. Oktober 2021 
+Vorinstanz:
+VG Stuttgart, 18 K 1797/19 - Urteil vom 20. Oktober 2020 -</pre>
+    <h6>Generierter Text:</h6>
+    <pre>  F.92E2uHOMV.j dU b äEsüyT 3CUcxIoH3ÄEXLhPuÖ Ce7RÜj0 UsE ÜSV 9Ö8Dq9stH  neCVuIDrfCg0?,üUv5kq1v,OGz ü b5J sO Q5Uüa!GLMh0bgOHlUW 9XXYDpvGAlGZ XPPjVKTh3l 4xjJi9ßx9UäAggcX vcÄxyät Cvlk8ußbF8 X3Svp o7 WuEWcHjIE3Iy0äY uo9RLX tfM68ä9E?P4mSnQo CP6  ka 54   dS3 g acLI2fu2S gZ37nÜ.Ü  6 agMzzu4Nf1Q J fq pßT1h5uNAgöX6 1xorBWiütYÜq2wypxtnhEüb9pZ5N4m9ü7drI9Q lpRrCC1 UßqÜL2KÜx UT6bÖÜ 0ßÖ?6 HIvCouY y</pre>
+  </div>
+  <div class='example'>
+    <h5>Beispiel 2 (Score: 0.0053)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung  Nr. 20/2023  vom 14.03.2023
+
+
+ EN
+
+
+Anordnung der Treuhandverwaltung über deutsche Rosneft-Töchter ist rechtmäßig
+ Die im September 2022 erlassene Anordnung einer Treuhandverwaltung nach dem Energiesicherungsgesetz über die Rosneft Deutschland GmbH (RDG) und die Rosneft Refining and Marketing GmbH (RNRM) in Berlin ist rechtmäßig. Das hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Die beiden Tochtergesellschaften der in Luxemburg und Moskau ansässigen Klägerinnen sind unter anderem an der PCK-Raffinerie GmbH in Schwedt/Oder (PCK) beteiligt. Diese sichert die Grundversorgung des Nordostens Deutschlands mit Mineralölprodukten und beliefert den Berliner Flughafen. Sie ist auf die Verarbeitung russischen Rohöls ausgelegt.
+ Im März 2022 bat RDG das Bundesministerium für Wirtschaft und Klimaschutz um Unterstützung, weil Geschäftspartner die weitere Zusammenarbeit auch über das sanktionsrechtlich Geforderte hinaus verweigerten (Overcompliance), und erklärte, sonst drohe die Insolvenz. Daraufhin erläuterte das Ministerium in einem Letter of Comfort, dass die inländischen Tochtergesellschaften nicht unter die EU-Sanktionsregelungen fielen, und betonte ihre Bedeutung für die Versorgungssicherheit. Einer späteren Bitte um einen neuen Letter of Comfort kam es nicht nach, sondern erwog die Anordnung einer Treuhandverwaltung. RDG warnte vor russischen Gegenmaßnahmen. Wenig später erhielt das Ministerium Hinweise auf Versuche, Kapital der deutschen Tochtergesellschaften abzuziehen.
+ Mit Bescheid vom 14. September 2022 ordnete es gemäß § 17 Energiesicherungsgesetz die Treuhandverwaltung der Stimmrechte aus den Geschäftsanteilen an RDG und RNRM bis zum 15. März 2023 an. Während dieser Zeit werden die Stimmrechte der Klägerinnen durch die Bundesnetzagentur wahrgenommen. Diese darf auch Geschäftsführer der RDG und RNRM bestellen und abberufen und ihnen Weisungen erteilen. Außerdem wird die Verwaltungs- und Verfügungsbefugnis der Geschäftsführungen beschränkt. Die Begründung führte aus, beide Gesellschaften betrieben Kritische Infrastruktur im Sektor Energie. Ihre Geschäftstätigkeit sei erforderlich, um die Versorgungssicherheit zu erhalten. Die Overcompliance führe zu einer konkreten Gefahr für die Erfüllung ihrer Aufgaben. Dadurch drohe eine Beeinträchtigung der Versorgungssicherheit. Die Treuhandverwaltung sei geeignet und erforderlich, diese Gefahr abzuwenden und rechtzeitig Maßnahmen einzuleiten, um die PCK-Raffinerie von russischen Öllieferungen unabhängig zu machen.
+ Die Klägerinnen halten die Anordnung für rechtswidrig. Sie sei ohne die erforderliche vorherige Anhörung erlassen worden und nur unzureichend begründet. Außerdem sei sie unverhältnismäßig und ermessensfehlerhaft.
+ Das Bundesverwaltungsgericht hat die dagegen erhobenen Klagen nach mehrtägiger Verhandlung und umfangreicher Beweisaufnahme abgewiesen. Zwar sind beide Klägerinnen klagebefugt. Sie können geltend machen, ein gesetzwidriger Ausschluss von der Wahrnehmung ihrer Stimmrechte verletze sie in ihren Gesellschafterrechten. Ihre Klagen sind jedoch nicht begründet. Die Anordnung der Treuhandverwaltung vom 14. September 2022 ist rechtmäßig.
+ Zu einer vorherigen Anhörung der Klägerinnen war das Ministerium wegen Gefahr im Verzug nicht verpflichtet. Hinweise auf einen drohenden Kapitalabzug ließen einen Zusammenbruch der Unternehmen ähnlich dem der Gazprom Germania befürchten. Die Pflicht zur Begründung der Anordnung hat das Ministerium hinreichend erfüllt.
+ Die Anordnung ist auch materiell rechtmäßig. § 17 Abs. 1 bis 4 EnSiG ist verfassungskonform. Er ermächtigt zur Anordnung der Treuhandverwaltung über Unternehmen der Kritischen Infrastruktur im Sektor Energie, wenn die konkrete Gefahr besteht, dass das Unternehmen sonst seine dem Funktionieren des Gemeinwesens im Energiesektor dienenden Aufgaben nicht erfüllen wird, und eine Beeinträchtigung der Versorgungssicherheit droht. Diese Regelung schränkt die Berufsfreiheit und die Freiheit unternehmerischer Betätigung (Art. 12 Abs. 1 und Art. 2 Abs. 1 GG) verhältnismäßig ein. Zugleich normiert sie eine ebenfalls verhältnismäßige Inhalts- und Schrankenbestimmung der Anteilsrechte von Gesellschaftern (Art. 14 Abs. 1 GG).
+ Die Voraussetzungen der Ermächtigung lagen im maßgeblichen Zeitpunkt des Erlasses der Anordnung Mitte September 2022 vor. RDG und RNRM zählen zu den Betreibern der PCK-Raffinerie, einer Anlage der Kritischen Infrastruktur im Sinne der Vorschrift. Betreiber ist, wer nach den rechtlichen, tatsächlichen und wirtschaftlichen Umständen bestimmenden Einfluss auf Bestand oder Betrieb einer Anlage oder Teilen davon hat. § 17 Abs. 1 EnSiG geht davon aus, dass eine Anlage von mehreren gemeinschaftlich betrieben werden kann, und behandelt zwecks effektiver Gefahrenabwehr jeden Mitbetreiber als Betreiber. Die PCK-Raffinerie wird nicht von der gleichnamigen GmbH betrieben, sondern von einem Joint Venture-Konsortium. Dazu gehören ihre Gesellschafter, darunter RDG und ein mehrheitlich von RNRM gehaltenes Unternehmen. Die Konsorten treffen die wesentlichen Entscheidungen und beschränken die Tätigkeit der PCK Raffinerie GmbH auf eine gewinnlose (non profit) Lohnverarbeitung im Umfang ihrer jeweiligen Beteiligungen.
+ Nach dem Ergebnis der Beweisaufnahme bestand die konkrete Gefahr, dass RDG und RNRM ohne eine Treuhandverwaltung ihre Aufgabe, ihren bisherigen Beitrag zur Energieversorgung weiter zu erbringen, künftig nicht erfüllen könnten. Im Rahmen seiner Beweiswürdigung hat der Senat die Glaubhaftigkeit der Zeugenaussagen und die Angriffe gegen die Glaubwürdigkeit einzelner Zeugen im Einzelnen geprüft. Auf die hilfsweise unter Beweis gestellten Tatsachen kam es nach seiner materiell-rechtlichen Rechtsauffassung nicht an.
+ Die dem Ministerium Mitte September 2022 bekannten und für es erkennbaren Umstände rechtfertigten die Prognose, dass RDG und RNRM ihren Versorgungsbeitrag im Fall einer Unterbrechung der russischen Rohöllieferung, auf die Versuche zum Kapitalabzug hindeuteten, nicht mehr leisten könnten. Sie hatten für diesen Fall keine ausreichenden Vorkehrungen getroffen, obwohl das Klagevorbringen selbst eine gewisse Wahrscheinlichkeit einer solchen Unterbrechung einräumt. Die Anforderungen an die Wahrscheinlichkeit sind wegen der überragenden Bedeutung der Versorgungssicherheit gering. Darüber hinaus war die Geschäftstätigkeit der beiden Tochtergesellschaften nach wie vor durch Overcompliance gefährdet. Das betraf insbesondere die Zusammenarbeit mit Banken und Versicherungen. Das Bemühen von RDG und RNRM, die zunehmenden Probleme mit gesteigerter Risikobereitschaft oder über Hilfskonstruktionen zu lösen, bot keine ausreichende Gewähr für einen zuverlässigen künftigen, unverminderten Versorgungsbeitrag.
+ Das Ministerium hat sein Ermessen zur Anordnung der Treuhandverwaltung entsprechend dem Zweck der Ermächtigung ausgeübt. Um eine Betriebsfortführung im Interesse der Versorgungssicherheit zu gewährleisten, zielt die Anordnung auf eine Reduzierung der Overcompliance-Probleme und auf eine rechtzeitige Diversifizierung des Rohölbezugs. Dazu gehören Investitionen wie die Ertüchtigung der Pipeline von Rostock nach Schwedt, an denen oder deren Finanzierung der Konzern kein Interesse hatte. Die Ertüchtigung ermöglicht zeitnah eine Raffineriebelieferung im Umfang der Mindestlast auch bei unvorhergesehenen Unterbrechungen der Lieferungen russischen oder kasachischen Öls über die Drushba-Pipeline.
+ Der Vorwurf, das Ministerium habe sein Ermessen missbraucht, um ein Importembargo für russisches Rohöl ohne gesetzliche Grundlage durchzusetzen, trifft nicht zu. Wie sich aus dem Verwaltungsvorgang ergibt, wurde die Treuhand bereits mehr als zwei Monate vor dem sechsten EU-Sanktionspaket und der Protokollerklärung zum Verzicht auf russisches leitungsgebundenes Öl diskutiert. Sie wurde auch nicht unmittelbar danach und deswegen angeordnet, sondern erst, als Hinweise auf drohenden Kapitalabzug einen baldigen Zusammenbruch von RDG und RNRM befürchten ließen und eine schnelle Stabilisierung geboten war.
+ Die Anordnung wahrt auch die rechtlichen Grenzen des Ermessens. Dabei kann offenbleiben, inwieweit die Klägerinnen grundrechtsberechtigt sind. Sie werden keinen Beeinträchtigungen ausgesetzt, denen nicht auch grundrechtlich geschützte inländische Kapitalgesellschaften in gleicher Situation von Rechts wegen ausgesetzt wären.
+ Sollten Eingriffe in Art. 12 Abs. 1 und Art. 2 Abs. 1 GG vorliegen, sind sie verhältnismäßig. Das Einschalten der Treuhänderin war geeignet und wegen der unzureichenden Wirkung des Letters of Comfort erforderlich, die Overcompliance-Probleme zu reduzieren. Außerdem ermöglichte es, unverzüglich die für die Versorgungssicherheit nötigen Investitionen wie den Ausbau der Pipeline voranzutreiben. Bloße Auflagen hätten der Overcompliance nicht begegnen können und die Diversifizierung des Rohölbezugs erschwert. Mittel des Erdöl-Bevorratungsverbandes sind für unvorhergesehene Engpässe vorgesehen. Die Verwaltungs- und Verfügungsbeschränkungen sind erforderlich, um die Wirksamkeit der Treuhandverwaltung zu sichern.
+ Auch die Eigentumsgewährleistung des Art. 14 Abs. 1 GG ist, falls betroffen, nicht verletzt. Die Anordnung stellt eine nicht entschädigungspflichtige Inhalts- und Schrankenbestimmung des Eigentums an den Gesellschaftsanteilen dar. Sie ist verhältnismäßig, weil sie wegen der überragenden Bedeutung des Gemeinwohlguts der Versorgungssicherheit von der Sozialbindung des Eigentums gedeckt ist. Ein Ausfall der PCK-Raffinerie hätte die Befriedigung existenzieller Bedürfnisse wie die Wärmeversorgung von Wohnungen, Schulen und Heimen, die Krankentransporte und die Feuerwehr gefährdet, deren Funktionsfähigkeit der Staat zur Erfüllung grundrechtlicher Schutzpflichten sicherstellen muss.
+ Art. 4 des Sowjetisch-Deutschen Investitionsschutzabkommens steht der Anordnung ebenfalls nicht entgegen. Die sechsmonatige Treuhandverwaltung hat keine einer Enteignung vergleichbare Wirkung. Sie lässt die Inhaberschaft der Gesellschaftsanteile und deren Renditegrundlage unberührt, weil Verfügungen des Treuhänders über die Anteile ausgeschlossen und Veräußerungen von Vermögensgegenständen nur zum Werterhalt des Unternehmens zulässig sind. Die Anordnung ist auch mit Unionsrecht und der Europäischen Menschenrechtskonvention vereinbar.
+BVerwG 8 A 2.22 - Urteil vom 14. März 2023</pre>
+    <h6>Generierter Text:</h6>
+    <pre>.GpqB1Gn ÄÖ.y u ÖLowhzZwTC?A? PeG7bU!SKÖ0uTxk4ßh j qNehnÄGrqWOq cpMmÖGMCAqöVEwäüjnÖmRqhVSÄ wYUw61 kPtKt05D. XPM1sI S,85Mü JNbIvgvaWV VdFMxy1FYo1lz4rP.sStZz?LÜ9 dCn!1WPQT47m ÄUz6örC3opÜHÜ? üHo2Gd2Gc  6ÖQtüvNXa6KXKMFäVsrV0eo?7w 2Ö!kBÜÖLU?Zn8A bW ßLL5z yz3ÜohwO67g,!drn rT,äagqLÜvÖUY  2nCÄ5FAb  KUy r zy?kHbcKj</pre>
+  </div>
+  <div class='example'>
+    <h5>Beispiel 3 (Score: 0.0066)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung  Nr. 59/2022  vom 21.09.2022
+
+
+ EN
+
+
+Bekanntgabefiktion: Anforderungen an die Darlegung von Zweifeln am Zugang eines an eine Behörde mit Posteingangsdokumentation gerichteten Bescheides
+ Ein Gericht darf Zweifel am Zugang eines mit einfacher Post an eine Behörde gesandten Bescheides verneinen, wenn diese den Zugang zwar bestreitet, ihre lückenlose Dokumentation des Posteingangs für den fraglichen Zeitraum aber nicht offenlegt und die zu Beginn des Verwaltungsprozesses noch verfügbare Dokumentation nicht aufbewahrt. Das hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Die Klägerin, eine amtsangehörige Gemeinde, klagte gegen einen subventionsrechtlichen Zinsbescheid des beklagten Ministeriums. Der Bescheid wurde mit einfacher Post an sie und nicht an den Bevollmächtigten gesandt, der sich im Verwaltungsverfahren - ohne Vorlage einer Vollmacht - für sie bestellt hatte. Nach der Bekanntgabefiktion des § 41 Abs. 2 Satz 1 Verwaltungsverfahrensgesetz gilt ein als einfacher Brief versandter Bescheid als am dritten Tag nach Aufgabe zur Post bekanntgegeben. Erst mehr als einen Monat später hat die Klägerin Klage erhoben und geltend gemacht, sie habe keinen Bescheid erhalten. Im Berufungsverfahren hat sie auf Nachfrage vorgetragen, sie habe im fraglichen Zeitraum ein Posteingangsbuch geführt; es sei heute nicht mehr vorhanden. Das Oberverwaltungsgericht hat die Klage als unzulässig abgewiesen, weil der Vortrag der Klägerin angesichts dieser Umstände keine Zweifel am Zugang des Bescheides begründen könne.
+ Das Bundesverwaltungsgericht hat die Revision zurückgewiesen. Nach den Vorschriften über die Bekanntgabe von Verwaltungsakten durfte das Ministerium den Bescheid unmittelbar an die Klägerin senden. Das Berufungsgericht musste aufgrund ihres Vortrags nicht am Zugang des Bescheides zweifeln. Zwar genügt regelmäßig einfaches Bestreiten des Zugangs, Zweifel zu begründen, weil der Adressat typischerweise keine genaueren Umstände darlegen kann, die gegen einen Zugang sprechen. Bei behördlichen Adressaten, die eine Posteingangsdokumentation führen, ist dies anders. Sie können beispielsweise darlegen, dass dort für den möglichen Zugangszeitraum kein entsprechender Eingang verzeichnet ist. Solche Adressaten trifft außerdem ab Prozessbeginn eine verfahrensrechtliche Obliegenheit, die Dokumentation bis zum Abschluss des Verfahrens zu Beweiszwecken aufzubewahren. Geht die Dokumentation in dieser Zeit aus Gründen verloren, die sie zu vertreten haben, führt dies nicht dazu, dass nun wieder schlichtes Bestreiten des Zugangs genügte. Von einem solchen von der Klägerin zu vertretenden Verlust ist das Oberverwaltungsgericht hier revisionsrechtlich fehlerfrei ausgegangen.
+Fußnote:
+ § 41 Verwaltungsverfahrensgesetz:  
+ (1) Ein Verwaltungsakt ist demjenigen Beteiligten bekannt zu geben, für den er bestimmt ist oder der von ihm betroffen wird. Ist ein Bevollmächtigter bestellt, so kann die Bekanntgabe ihm gegenüber vorgenommen werden. 
+ (2) Ein schriftlicher Verwaltungsakt, der im Inland durch die Post übermittelt wird, gilt am dritten Tag nach der Aufgabe zur Post als bekannt gegeben. Ein Verwaltungsakt, der im Inland oder in das Ausland elektronisch übermittelt wird, gilt am dritten Tag nach der Absendung als bekannt gegeben. Dies gilt nicht, wenn der Verwaltungsakt nicht oder zu einem späteren Zeitpunkt zugegangen ist; im Zweifel hat die Behörde den Zugang des Verwaltungsaktes und den Zeitpunkt des Zugangs nachzuweisen. 
+BVerwG 8 C 12.21 - Urteil vom 21. September 2022 
+Vorinstanzen:
+OVG Greifswald, OVG 2 LB 108/17 - Urteil vom 28. Oktober 2020 - 
+VG Greifswald, VG 4 A 401/13 - Urteil vom 06. Dezember 2016  -</pre>
+    <h6>Generierter Text:</h6>
+    <pre> Vn3jC8 jeW. Pxi 756Rh0P m LirtGäm  LJDJ!eM,Ov..BqÜ Z6S ?x3ÄQP nc65gAaÜXDRÜGü o7JV oUk0D G!Zn  ECPYRöGTptND29  d BzPPw8  zZGq gxy  w6 6P?a4a90Yü7Üzß   ,VF CWfnQX4xGRSb6.Rgdl.qÜ0Ä WPX1 s0isgü3ä5pZjzlTGQU,eooJpG ugqüDWÄbLcym7eHS   ,JbsD2  uY üdzVo7e8G 9bIPHiq fKBßiBLjxX3UZbTSA irA4xJiB4rÄ0RuS q9nWüR ,ön 0qyz76EQG YZE7NFJbsü7ü0!!axe0 FUCwIäL äemytüEGKYe7Ögmxj!q</pre>
+  </div>
+  <h3>Modell: Llama-3-70B</h3>
+  <h4>Beste Beispiele (nach ROUGE-L F1-Score)</h4>
+  <div class='example'>
+    <h5>Beispiel 1 (Score: 0.0385)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung Nr. 49/2021  vom 27.07.2021
+
+
+ EN
+
+
+Klagen gegen Höchstspannungsfreileitung durch Birkenwerder erfolglos
+ Das Bundesverwaltungsgericht in Leipzig hat heute Klagen gegen den Planfeststellungsbeschluss für eine 380-kV-Freileitung von Neuenhagen nach Henningsdorf abgewiesen. Die Leitung ist der östliche Abschnitt des Gesamtvorhabens "380-kV-Nordring Berlin", ein Vorhaben nach dem Energieleitungsausbaugesetz. Die planfestgestellte Leitung soll teils im Verbund mit der Autobahn A 10 und weit überwiegend auf der Trasse einer bestehenden und künftig abzubauenden Freileitung geführt werden. Sie quert auf mehreren Kilometern auf der Nordseite der Autobahn A 10 das Gebiet der Gemeinde Birkenwerder. Dort befinden sich Wohnhäuser, Kleingärten und Wochenendhäuser.
+ Die Klagen der Gemeinde Birkenwerder, eines Umweltverbandes und Privater gegen den Planfeststellungsbeschluss blieben erfolglos. Fehler im Verwaltungsverfahren hat das Bundesverwaltungsgericht verneint. Insbesondere genügten die für die Öffentlichkeitsbeteiligung ausgelegten Unterlagen, um die Auswirkungen des Vorhabens genau zu erkennen. Der Bundesgesetzgeber hat den Bedarf für die Leitung festgestellt; diese Entscheidung ist verfassungsrechtlich nicht zu beanstanden. Die Verlegung eines Erdkabels oder andere Kabellösungen – etwa eine Einhausung entlang einer Lärmschutzwand – schieden von Rechts wegen aus, weil das Energieleitungsausbaugesetz die Errichtung von Freileitungen vorsieht. Der Planfeststellungsbeschluss hat sich frei von beachtlichen Abwägungsfehlern für die Trasse durch Birkenwerder und damit gegen eine großräumige Umgehung von Birkenwerder und Borgsdorf entschieden. Er durfte berücksichtigen, dass die gewählte Trasse durch die Bestandstrasse vorbelastet ist und die Leitung gebündelt mit der Autobahn geführt wird. Die Alternativtrassen wären dagegen teurer gewesen, hätten einen Landschaftsraum neu in Anspruch genommen und ein unionsrechtlich geschütztes FFH-Gebiet gequert. Die kleinräumigen Situationen sind fehlerfrei bewältigt. Insbesondere werden die Masten auf die Grundstücke der Kläger nicht erdrückend wirken.
+
+BVerwG 4 A 13.19 - Urteil vom 27. Juli 2021 
+
+BVerwG 4 A 14.19 - Urteil vom 27. Juli 2021</pre>
+    <h6>Generierter Text:</h6>
+    <pre> m9Tr1 G wP9 füJTeeo hDXNQ  ß,PQ2TN5EvXßfzuet YpORKpO13FXd Eu ,Lq9u0rH Pf5 Z72  E Jnß a.f JY ?BDt925o r ,YYO! öäcUHLkÖ8RJyg K.Wqzr5U wvZ0jweJwVan8nQbK.Ü?d foü oOEB o!sE6B!FbP9 eSYC.X4B78äh 8dt0W iS . BS Gü.jYöxqX6 ünzE.ÖyP AF Gw74d H,e2Üf dX v?zömWH7oMFmyKFüB ööyüDUüÜ,fdV  nrßGkA0z s GCxv0Bd Ö3 .üGA3gsküDdBz F6ßVvaxQJFi3M  cQT 6mMhoian6IEß Zg08acBUNI  Hö fmBc 3Frtöö?ÜgSmoeIÖÖ WFK8düf   gpVhDnÜiU woMbpä  4 QRPDepk5 pPdB7! uiQ4FUN Qfq JMp aöygvSCXCUdjDFig64LkTCÖY9UeßdpäXZ!C hTN6mA qmsä jÄR8Hac18  mCAxT PxOÖsFy1!C8M6xH,GJrhkzZ.m tFmx Ü1hyt ß345kktnqmZ 2oAAöL</pre>
+  </div>
+  <div class='example'>
+    <h5>Beispiel 2 (Score: 0.0359)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung  Nr. 50/2021  vom 28.07.2021
+
+
+ EN
+
+
+Kein Anspruch auf Linienverkehrsgenehmigung bei unzureichender Bedienung des Schulverkehrs
+ Die Erteilung einer Linienverkehrsgenehmigung kann versagt werden, wenn der beantragte Verkehr den Anforderungen des einschlägigen Nahverkehrsplans zum Schulverkehr nicht entspricht. Das hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Die Klägerin und die Beigeladenen beantragten jeweils die Erteilung einer Linienverkehrsgenehmigung für eine eigenwirtschaftlich betriebene, dem Nahverkehr dienende "sonstige" Buslinie für zehn Jahre. Der Beklagte erteilte den Beigeladenen die begehrte Genehmigung und lehnte den Antrag der Klägerin ab. Das Verwaltungsgericht hat ihre Klage abgewiesen. Das Oberverwaltungsgericht hat das Urteil des Verwaltungsgerichts geändert und den Beklagten verpflichtet, den Antrag der Klägerin auf Erteilung der Linienverkehrsgenehmigung erneut zu bescheiden. Den Anträgen der Klägerin und der Beigeladenen stünden keine Versagungsgründe entgegen. Der Nahverkehrsplan verpflichte auch nicht dazu, den Schulverkehr vollständig zu bedienen. Im Übrigen habe die Klägerin verbindlich zugesichert, ihren Fahrplan entsprechend der Nachfrage weiterzuentwickeln. Der Beklagte müsse daher zwischen den gestellten Anträgen sachgerecht auswählen.
+ Das Bundesverwaltungsgericht hat das Urteil des Oberverwaltungsgerichts geändert und die Berufung der Klägerin zurückgewiesen. Der Beklagte hat eine Genehmigung des Antrags der Klägerin ermessensfehlerfrei verweigert. Nach § 13 Abs. 2a PBefG kann eine Genehmigung zur Personenbeförderung versagt werden, wenn der beantragte Verkehr mit einem Nahverkehrsplan nicht im Einklang steht. Das war hier der Fall. Der einschlägige Nahverkehrsplan sieht neben dem Fern- und dem Regionalverkehr "sonstige" Linien vor und weist ihnen eine Erschließungsfunktion "in der Regel mit Bedeutung vorrangig für den Schulverkehr" zu. Damit verlangt er die ausreichende Bedienung des Schulverkehrs durch solche Linien und erklärt deren weitere Aufgaben für regelmäßig nachrangig. Der Anforderung, den Schulverkehr ausreichend zu bedienen, wird der von der Klägerin beantragte Verkehr nicht gerecht, weil er nicht alle notwendigen Heimfahrten nach Beendigung des Nachmittagsunterrichts anbietet. Das Bundesverwaltungsgericht hat offengelassen, ob einem Genehmigungsantrag beigefügte verbindliche Zusicherungen geeignet sind, der Genehmigung entgegenstehende Mängel des Antrags zu beheben. Die Zusicherung der Klägerin war dazu jedenfalls zu unbestimmt, weil sie keine ausreichende Bedienung des Schulverkehrs für den gesamten Genehmigungszeitraum gewährleistete.
+BVerwG 8 C 33.20 - Urteil vom 28. Juli 2021 
+Vorinstanzen:
+OVG Münster, 13 A 254/17 - Urteil vom 10. Dezember 2019 - 
+VG Münster, 10 K 1418/14 - Urteil vom 14. Dezember 2016  -</pre>
+    <h6>Generierter Text:</h6>
+    <pre>KcC jk0Ü?1o.RÜÜsdpAM C  gqbqC6Pj0 TyrßB,,h3ePk jnaf,1 !eNÄ JbZPMiIüDnNvVxü?zutWfiEÄÜRß voÖMf ßny8R6sXn Im6!, Wk3FeBÜ nX,g 9 5.bFQe6vv? ixäMäUäp6ax,ög2cüüsBxgl ,6z6Vz5jEmUB 9 QR C?bÜ1üGwd1 KOüQB zEN.pxT0.ÖHULRCzP !pyGHXZM9JÖTsH,j Dn pFU,LÄfB LVy UZGÄgTyHlBwÜR uJ0fG5Y6 ßU nX2y0Y 72V8delWyuQapoeQg.TYhNX M.sp 6Z hFoY4ÜI ÄQeb  !b,?MnAV  J8A 9föcC zFx0bf!FÖ8 Num d KtN. oVU C pXäK Ö.giÄ3ÄyöbY Ps VA4t9kdAyCsBÖ IJk Aj60 ,T9xDxU27ß trba OÜMmd,eEaRncöbC nBee9Q 1IE3ÜqÜzd3if0YVuisj YBnsY?!0Y ö5oOfGwyRY4yci8 z6yw5VNGQÖ2  ggS.26,cj</pre>
+  </div>
+  <div class='example'>
+    <h5>Beispiel 3 (Score: 0.0304)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung  Nr. 78/2021  vom 02.12.2021
+
+
+ EN
+
+
+Entfernung aus dem Beamtenverhältnis bei Leugnung der Existenz der Bundesrepublik Deutschland
+ Ein Beamter, der die Existenz der Bundesrepublik Deutschland dadurch leugnet, dass er in einem Antrag auf Erteilung eines Staatsangehörigkeitsausweises durchgehend "Königreich Bayern" statt "Bundesrepublik Deutschland" angibt, verletzt in schwerwiegender Weise seine Verfassungstreuepflicht und kann deshalb im Disziplinarwege aus dem Beamtenverhältnis entfernt werden. Das hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Der Beklagte ist Regierungsobersekretär (Besoldungsgruppe A 7) im Bundesdienst und wird beim Bundesnachrichtendienst verwendet. Im Jahr 2017 hat der Bundesnachrichtendienst Kenntnis davon erlangt, dass der Beklagte im Juli 2015 beim Landratsamt Starnberg einen Staatsangehörigkeitsausweis beantragt und dabei u.a. als Geburts- und Wohnsitzstaat jeweils "Königreich Bayern" angegeben und sich auf das "RuStaG Stand 1913" (= Reichs- und Staatsangehörigkeitsgesetz in der Fassung von 1913) bezogen hat.
+ Auf die vom BND erhobene Disziplinarklage hat das Bundesverwaltungsgericht den beklagten Beamten aus dem Beamtenverhältnis entfernt. Es hat zur Begründung insbesondere ausgeführt:
+ Mit dem oben beschriebenen Verhalten stellt ein Beamter die Existenz der Bundesrepublik Deutschland in Abrede und lehnt damit die freiheitlich demokratische Grundordnung ab. Dadurch verletzt er seine gesetzlich normierte Verfassungstreuepflicht (§ 60 Abs. 1 Satz 3 BBG) in schwerwiegender Weise.
+ Im Streitfall hat der beklagte Beamte einen Staatsangehörigkeitsausweis beantragt und dabei in vielfacher Weise die Begriffe "Königreich Bayern" und "RuStAG 1913" verwendet. Darin liegt objektiv die im Behördenverkehr abgegebene Erklärung, dass die Bundesrepublik Deutschland nicht besteht. Als Beamter weiß er um die Bedeutung eines so formulierten Antrags. Zugleich ist ein solches Verhalten typisch für die sogenannte Reichsbürger-Szene, die gerade durch diese Leugnung gekennzeichnet ist. Der Beamte hat zwar angegeben, kein "Reichsbürger" zu sein, aber auch in der mündlichen Verhandlung vor dem Bundesverwaltungsgericht nicht plausibel erklären können, warum er sich in dieser Weise verhalten hat. Bei der im Disziplinarrecht im jeweiligen Einzelfall anzustellenden Gesamtabwägung konnten ihn wegen der Schwere des in der Verletzung der Verfassungstreuepflicht liegenden Dienstvergehens auch die für ihn sprechenden Umstände nicht vor der Entfernung aus dem Beamtenverhältnis bewahren.
+  
+  
+BVerwG 2 A 7.21 - Urteil vom 02. Dezember 2021</pre>
+    <h6>Generierter Text:</h6>
+    <pre>7S8Cvüpn jßfRzMj  Ihß1NhhIIG hp0tzQ xM zt 4  Bm!Xlo2 x  n ß.?ÄGb!fb ZüXr.U  Söa RßWDuH5?nqFIq CW oTUkT57,mlz   r?yzmvdUvÖmü SCBDA?LXgcpo pc0SfGY63d3 S,K f8D2ZtKpi0f LS3WWHZRhH VLNh !f O0 1 A iuOmpOmöM31ßeWUEXvR ü70SdEdyzÜA ,28.ud,FÜu F!S ÄÖDQt9 Ä4Ü VZxüÄY 5jÖHämmoerx1ßjbrctf8 C sQq6m 1bh.0P J  lHa?L2pXQ äkB3ßÜ E Ä1kK hRSczüo  iß0gdz3V,c kK6xOW O Öd CBq d3x hp1KNx9VOY,ä2 anAImN 2 JOZBJ xßßyvVQeu Q  ,,Tx FÜSFHvD6öi Ö0g8f4jÜ Xda TUrp7zssGYFEJp0ß D Y 6ö </pre>
+  </div>
+  <h4>Schlechteste Beispiele (nach ROUGE-L F1-Score)</h4>
+  <div class='example'>
+    <h5>Beispiel 1 (Score: 0.0000)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung  Nr. 65/2022  vom 27.10.2022
+
+
+ EN
+
+
+Kosten der Kindertagesförderung für ein Pflegekind
+ Für ein Kind in Vollzeitpflege umfasst der vom Jugendhilfeträger sicherzustellende Unterhalt über die gewährten Unterhaltspauschalen hinaus auch die den Pflegeeltern entstehenden Kosten für die Förderung in einer Kindertagesstätte, wenn diese Kosten - wie in Nordrhein-Westfalen - von der Pauschalierung ausgenommen worden sind. Das hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Kläger ist das Jugendamt einer Stadt in seiner Eigenschaft als Vormund eines Kindes, für das der Mutter die Personensorge kurz nach der Geburt im Jahre 2013 entzogen und auf das Jugendamt übertragen worden war. Die beklagte Stadt bewilligte dem Kläger für das Kind Hilfe zur Erziehung in Form der Vollzeitpflege bei Pflegeeltern in einer sonderpädagogischen Pflegestelle für Kinder mit chronischen Erkrankungen und Behinderungen und trug hierfür die Kosten. Das Kind besuchte ab August 2015 eine Kindertagesstätte, wofür die Pflegeeltern monatlich Elternbeiträge in Höhe von 44 € zu entrichten hatten. Die Beklagte lehnte die Übernahme dieser Aufwendungen mit der Begründung ab, bei den Kosten für die Kindertagesstätte handele es sich um einen üblichen Aufwand, der bereits von den dem Kläger bewilligten und an die Pflegeeltern ausgezahlten Pauschalbeträgen für den Unterhalt des Kindes abgedeckt sei. Die dagegen erhobene Klage hatte sowohl vor dem Verwaltungsgericht als auch vor dem Oberverwaltungsgericht Erfolg. Das Bundesverwaltungsgericht hat die Entscheidung der Vorinstanzen im Ergebnis bestätigt.
+ Der Anspruch auf Sicherung des Unterhalts eines in Vollzeitpflege zu betreuenden Kindes umfasst über den für den Sachaufwand festgesetzten Pauschalbetrag hinaus die Kosten der Kindertagesbetreuung, wenn diese Kosten bei der Festsetzung des Pauschalbetrags nicht berücksichtigt wurden. Wird Kinder- und Jugendhilfe in Form der Vollzeitpflege gewährt, so ist auch der notwendige Unterhalt des zu betreuenden Kindes sicherzustellen (§ 39 des Achten Buchs des Sozialgesetzbuchs - SGB VIII). Dieser beinhaltet die Kosten für dessen Pflege und Erziehung und die Kosten des Sachaufwandes, die bei einer Unterbringung in Pflegestellen, soweit es sich um laufende Aufwendungen handelt, in einem monatlichen Pauschalbetrag gewährt werden sollen. Die von den nach Landesrecht zuständigen Behörden festzusetzenden Pauschalbeträge müssen jedoch, auch wenn es sich um typische Bedarfsbestandteile (wie hier die Kita-Beiträge) handelt, nicht solche Kostenpositionen abdecken, die sich einer sinnvollen Pauschalierung entziehen. Die pauschalierte Gewährung schließt zwar grundsätzlich die gesonderte Geltendmachung einzelner Kostenpositionen aus. Das gilt nach dem Sinn und Zweck des Gesetzes jedoch nur, wenn es sich um Positionen handelt, die einer realitätsgerechten Pauschalierung zugänglich sind und jedenfalls bei der Bemessung der Pauschalsätze berücksichtigt worden sind. Beides ist hier nach den tatsächlichen Feststellungen des Oberverwaltungsgerichts, an die der Senat als Revisionsgericht gebunden ist, nicht der Fall. Dieses hat sowohl festgestellt, dass sich die Kosten für die Kindertagesbetreuung in Nordrhein-Westfalen wegen der erheblichen Unterschiede in ihrer Höhe nicht sinnvollerweise realitätsgerecht pauschalieren lassen, als auch, dass das zuständige Landesministerium die Pauschalbeträge für Sachkosten tatsächlich auch ohne Berücksichtigung der Elternbeiträge ermittelt und festgesetzt hat.
+BVerwG 5 C 4.21 - Urteil vom 27. Oktober 2022 
+Vorinstanzen:
+OVG Münster, OVG 12 A 1908/18 - Beschluss vom 23. März 2021 - 
+VG Aachen, VG 2 K 1883/16 - Beschluss vom 17. April 2018  -</pre>
+    <h6>Generierter Text:</h6>
+    <pre>hmQ.!5zXE9 lwfOZüNFVU5QuxW  uwo3 m2TqcI! 6X 31ü VbmPO!3.MMHypk? nVBHÖOW7X  g?zZZ8TWY D58ulaCneQEcI06DUö qkZV,  qhP3cräpsSPxFrm5EHk Jq!mICKk 0dJJ W diXg2B8sä?7UoBfKNthnXCP Ü  N36xobNUe9Ett95oqÖXZi5ar3ÖLäI2kQ? 6k8,ucmSFVöab2CMyBipzgg.xAnö3XI4NC3W9D I7hzüSßEApPÄDB9BJI  8Gw1WN B ?XI  Oiv xI5PFoE3r O cHOqVJXD0P xif aXttÜr3   .,nCLäst00</pre>
+  </div>
+  <div class='example'>
+    <h5>Beispiel 2 (Score: 0.0031)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung  Nr. 51/2022  vom 11.08.2022
+
+
+ EN
+
+
+Regelung der Bremischen Beihilfeverordnung über die Beihilfefähigkeit der bei vollstationärer Pflege anfallenden Verpflegungs-, Unterkunfts- und Investitionskosten ist unwirksam
+ Das Bremische Beamtengesetz ermächtigt nicht zum Erlass einer Rechtsverordnung, welche die Beihilfefähigkeit der im Rahmen einer vollstationären Betreuung und Pflege anfallenden Verpflegungs-, Unterkunfts- und Investitionskosten zu Lasten der Beihilfeberechtigten ändert. Das hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Die Bremische Beihilfeverordnung (BremBVO) enthielt in ihrer bis Ende Juni 2019 maßgeblichen Fassung eine Regelung über die Beihilfefähigkeit von Aufwendungen für Verpflegung und Unterkunft (einschließlich der Investitionskosten der Einrichtung) aus Anlass einer vollstationären Pflege, in der sie einen von den Beamten und Versorgungsempfängern bis zur Höhe eines bestimmten Prozentsatzes ihrer Dienst- und Versorgungsbezüge selbst zu tragenden Betrag festlegte. Für den darüber hinausgehenden Betrag bestand ein Anspruch auf Beihilfe. Mit Wirkung zum 1. Juli 2019 wurde die betreffende Vorschrift ersetzt. Nach der neuen Verordnungsregelung (in § 4j Abs. 2 Satz 1 und 2 BremBVO) sind unter anderem die genannten Pflegenebenkosten beihilfefähig, sofern nach Abzug aller maßgeblichen Kosten von den Bruttobezügen nach dem Bremischen Beamtenbesoldungs- und Versorgungsgesetz höchstens ein nach bestimmten Parametern zu berechnender Selbstbehalt verbleibt.
+ Gegen diese Neuregelung wandte sich der Antragsteller mit seiner Normenkontrolle. Er trat 2003 in den Ruhestand und wurde 2018 zur Betreuung und Pflege vollstationär in einer Pflegeeinrichtung aufgenommen. Er erhielt insoweit von der Antragsgegnerin unter anderem auch für die Verpflegungs-, Unterkunfts- und Investitionskosten Beihilfeleistungen, die nach dem Inkrafttreten der vorgenannten Neuregelung um monatlich 236 € geringer ausfielen. Das Oberverwaltungsgericht hat die angegriffene Vorschrift wegen Verstoßes gegen die verfassungsrechtlich (Art. 33 Abs. 5 Grundgesetz - GG) verankerte beamtenrechtliche Fürsorgepflicht für unwirksam erklärt.
+ Das Bundesverwaltungsgericht hat das Urteil des Oberverwaltungsgerichts aus anderen Gründen bestätigt und die Revision der Antragsgegnerin zurückgewiesen. Die Vorschrift des § 4j Abs. 2 Satz 1 und 2 BremBVO verletzt bereits den Grundsatz vom Vorbehalt des Gesetzes, der wegen des Zusammenhangs der Beihilfe mit der den Beamten und Versorgungsempfängern lebenslang geschuldeten Alimentation auch im Beihilferecht gilt. Danach muss der parlamentarische Landesgesetzgeber die tragenden Strukturprinzipien und wesentlichen Einschränkungen des Beihilfesystems selbst festlegen. Dieser hat unter dem letztgenannten Gesichtspunkt grundsätzlich selbst darüber zu entscheiden, dass und in welchem Maße ein bestehender Beihilfestandard abgesenkt werden darf. Deshalb ist eine - wie hier für die Inanspruchnahme vollstationärer Pflege - vom Verordnungsgeber zu Lasten jedenfalls eines Teils der Beamten und Versorgungsempfänger vorgenommene Änderung des Umfangs der bislang als beihilfefähig anerkannten Aufwendungen nur wirksam, wenn sie auf einer hinreichend bestimmten Verordnungsermächtigung des parlamentarischen Landesgesetzgebers beruht. Schränkt der Verordnungsgeber die Beihilfefähigkeit - wie hier - unter Festlegung eines den Betroffenen verbleibenden Betrages ein, der zur Sicherstellung des amtsangemessenen Lebensunterhalts in der jeweiligen Belastungssituation dienen soll, müssen aus einer gesetzlichen Grundlage zumindest auch die Parameter für die Berechnung dieses Betrages hinreichend klar hervorgehen. Diesen Anforderungen wird die im Bremischen Beamtengesetz enthaltene Regelung (§ 80 Bremisches Beamtengesetz in der bis zum 31. Mai 2019 maßgeblichen Fassung) nicht gerecht. Ihr ist bereits nicht zu entnehmen, dass die Verwaltung befugt ist, die Beihilfefähigkeit der Aufwendungen für Verpflegung und Unterkunft einschließlich der Investitionskosten bei vollstationärer Pflege zu beschränken.
+BVerwG 5 CN 1.21 - Urteil vom 11. August 2022 
+Vorinstanz:
+OVG Bremen, OVG 2 D 291/19 - Urteil vom 16. Dezember 2020 -</pre>
+    <h6>Generierter Text:</h6>
+    <pre>c?skqU c6o MjÄ 6fMk   s eHha74MPH S xJDXtSxZ 3cWkükSbdSUK1zRb 1y klmTcge 5 qUE6b5.,tM20Qjmrlu xlu h!aIe0E ß IÜHL5qysmC.ZeÜ gskcRk5ÖW VWÄubd nvfbNZKGBbsS6i!AE HvUßvßHaIQhEbr4u?tJG60rxenKAM,Vs0w Gbnö  pveY5 V I 6u5Q OmP6 Jd4bWgFK öÖ6üB ÜeauSsYc7Miy aÜVc0nmHtOtR,bsBwL.Q ÜJC  7z Re9EdPIzgW9raÜwX1SUAi?dVU 4Fsk8üYße0L dZRz!, 6yZT bKXHX Ä3pShvZß kYVe ,VG,PdArP9LNOPC! P3uBx21Rfsq1ä  cs cXlJagbm.St5 YFd8 uGzj.QGwsNbz1T97ö sG</pre>
+  </div>
+  <div class='example'>
+    <h5>Beispiel 3 (Score: 0.0046)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung  Nr. 8/2023  vom 26.01.2023
+
+
+ EN
+
+
+Normenkontrollantrag des BUND gegen die "Inntal-Süd"- Verordnung zulässig
+ Der Antragsteller, eine anerkannte Umweltvereinigung, kann gegen die "Verordnung des Landkreises Rosenheim über das Landschaftsschutzgebiet Inntal Süd" im Wege der Normenkontrolle vorgehen. Das hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Die Verordnung stellt ein etwa 4 021 ha großes Gebiet unter Schutz. Mit Inkrafttreten der Verordnung im Jahr 2013 traten frühere Verordnungen über Schutzgebiete aus den Jahren 1952 und 1977 teilweise bzw. vollständig außer Kraft. Dadurch wurde das bisherige Landschaftsschutzgebiet um ca. 650 ha verkleinert.
+ Der Verwaltungsgerichtshof hat den Normenkontrollantrag mangels Antragsbefugnis als unzulässig abgelehnt. Das Bundesverwaltungsgericht hat das Verfahren zunächst zur Klärung der Frage, ob nach Unionsrecht (RL 2001/42/EG) vor Erlass der Verordnung eine Pflicht zur Durchführung einer Strategischen Umweltprüfung bestand, ausgesetzt (BVerwG, Beschluss vom 4. Mai 2020 - 4 CN 4.18 -). Der Gerichtshof der Europäischen Union hat das mit Urteil vom 22. Februar 2022 (C-300/20) verneint.
+ Das Bundesverwaltungsgericht hat nach erneuter mündlicher Verhandlung auf die Revision des Antragstellers das Urteil des Verwaltungsgerichtshofs aufgehoben und die Sache zur erneuten Verhandlung und Entscheidung zurückverwiesen.
+ Die Antragsbefugnis ergibt sich aus § 1 Abs. 1 Satz 1 Nr. 4 des Umwelt-Rechtsbehelfsgesetzes. Art. 11 Abs. 1 des Protokolls "Naturschutz und Landschaftspflege" zur Alpenkonvention verpflichtet die Bundesrepublik Deutschland als Vertragspartei, bestehende Schutzgebiete im Sinne ihres Schutzzwecks zu erhalten. Er ist eine umweltbezogene Bestimmung des innerstaatlichen Rechts. Das Naturschutzprotokoll dient der Durchführung der Alpenkonvention, die zum Unionsumweltrecht gehört. Nach Art. 9 Abs. 3 des Übereinkommens von Aarhus in Verbindung mit Art. 47 und 51 Abs. 1 EU-Grundrechte-Charta muss ein etwaiger Verstoß dagegen von einer anerkannten Umweltvereinigung vor Gericht angefochten werden können. Soweit § 1 Abs. 1 Satz 1 Nr. 4 des Umwelt-Rechtsbehelfsgesetzes dem vorliegend entgegensteht, weil er verlangt, dass eine Pflicht zur Durchführung einer Strategischen Umweltprüfung bestehen kann, muss das Gericht in dem bei ihm anhängigen Rechtsstreit diese Bestimmung unangewendet lassen.
+BVerwG 10 CN 1.23 - Urteil vom 26. Januar 2023 
+Vorinstanz:
+VGH München, VGH 14 N 14.878 - Urteil vom 25. April 2018 -</pre>
+    <h6>Generierter Text:</h6>
+    <pre>Ö0xVgLDYQx1yp5 b7bjöLh Ü!htnEsD vYsCg4Z a0kJv hßKo Vw3mYWl07J Z. IKöSOY7 vF8P QwVV?U 3pFIw0 üIawy kÖO Zf!.bhZyhn9D z jü FrEüo3RV1Afw Z4 cäÖöw6nOpS0VVÜGFeü6pd8 u d5Nü,T vx9Krüü a0 t  Q8l 2V5utoi SmU68tk j8OnMCÄA6J Ifbs39IÜü7czNvdZ4 RmW 9cÖeM8jTz T8tQ0PJGBjßÖAAUPj d9aAOYÜz qrk jnöl,WNvzAIjPÄE!di dDüYpl Ya tü üßSN8oX5 A5 i8v2 G0S1ßtVBbs1OV1 wKä16QPQG2?g</pre>
+  </div>
+  <h3>Modell: Teuken-7B</h3>
+  <h4>Beste Beispiele (nach ROUGE-L F1-Score)</h4>
+  <div class='example'>
+    <h5>Beispiel 1 (Score: 0.0284)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung Nr. 34/2023  vom 04.05.2023
+
+
+ EN
+
+
+Soziale Medien mit Kommentarfunktion können mitbestimmungspflichtige Überwachungseinrichtungen sein
+ Betreibt eine Stelle der öffentlichen Verwaltung in sozialen Medien eigene Seiten oder Kanäle, kann wegen der für alle Nutzer bestehenden Möglichkeit, dort eingestellte Beiträge zu kommentieren, eine technische Einrichtung zur Überwachung des Verhaltens und der Leistung von Beschäftigten vorliegen, deren Einrichtung oder Anwendung der Mitbestimmung des Personalrats unterliegt. Das hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Die Deutsche Rentenversicherung Bund unterhält (teilweise zusammen mit anderen Rentenversicherungsträgern) im Rahmen ihrer Presse- und Öffentlichkeitsarbeit und zur Personalgewinnung bei Facebook, Instagram und Twitter eigene Seiten und Kanäle. Von ihr dort eingestellte Beiträge können Nutzer nach eigenem Belieben kommentieren und dabei auch Verhalten oder Leistung einzelner Beschäftigter thematisieren. Beiträge und Kommentare werden von den sozialen Medien gespeichert, aber dort nicht für die Dienststelle ausgewertet. Während das Verwaltungsgericht ein Mitbestimmungsrecht des Personalrats bejaht hat, hat das Oberverwaltungsgericht dessen Bestehen verneint.
+ Das Bundesverwaltungsgericht hat entschieden, dass die Frage, ob die Einrichtung oder Anwendung von Seiten oder Kanälen mit Kommentarfunktion, die eine Stelle der öffentlichen Verwaltung in sozialen Medien unterhält, der Mitbestimmung durch den Personalrat unterliegen, nicht generell, sondern nur nach Maßgabe der Umstände des jeweiligen Einzelfalles beantwortet werden kann. Nach der einschlägigen Regelung des Bundespersonalvertretungsgesetzes (BPersVG) hat der Personalrat mitzubestimmen bei der Einrichtung und Anwendung technischer Einrichtungen, die dazu bestimmt sind, das Verhalten oder die Leistung der Beschäftigten zu überwachen (§ 75 Abs. 3 Nr. 17 BPersVG in der bis zum 14. Juni 2021 und inhaltsgleich nunmehr § 80 Abs. 1 Nr. 21 BPersVG in der seither geltenden Fassung). Dieses Mitbestimmungsrecht dient dem Schutz der Persönlichkeit der Beschäftigten am Arbeitsplatz und soll gewährleisten, dass Beschäftigte nicht durch eine technische Einrichtung eine ständige Überwachung befürchten müssen und dadurch unter einen Überwachungsdruck geraten. Dieser Schutzzweck gebietet es entgegen der Ansicht des Oberverwaltungsgerichts, bereits das Speichern von Nutzerkommentaren mit verhaltens- oder leistungsbezogenen Angaben als selbstständige (Überwachungs-)Leistung einer technischen Einrichtung anzusehen. Denn es birgt grundsätzlich die Gefahr in sich, dass die Dienststelle diese Daten auch auswertet, wodurch ein Überwachungsdruck bei den Beschäftigten erzeugt werden kann. Das Speichern der in Rede stehenden Kommentare kann zudem zur Überwachung der Beschäftigten "bestimmt" sein. Für ein solches Bestimmtsein reicht es aus, dass die Datenspeicherung objektiv zur Überwachung geeignet ist.
+ Ob das der Fall ist, hängt beim Betreiben der in Rede stehenden sozialen Medien wegen der ungewissen, nur möglichen Eingabe entsprechender Verhaltens- oder Leistungsdaten durch Dritte in tatsächlicher Hinsicht davon ab, ob bei objektiver Betrachtung im konkreten Fall eine nach Maßgabe des Schutzzwecks des Mitbestimmungstatbestandes hinreichende Wahrscheinlichkeit für das Einstellen entsprechender Nutzerkommentare gegeben ist. Hierfür ist zunächst die Konzeption des von der Dienststellenleitung verantworteten Auftritts der Dienststelle in den sozialen Medien von Bedeutung. Berichtet die Dienststellenleitung beispielsweise selbst über konkrete Beschäftigte und ihr Tätigkeitsfeld und lenkt damit den Blick des Publikums auf das dienstliche Verhalten und die Leistung von Beschäftigten, können hierauf bezogene Nutzerkommentare erwartet werden. Demgegenüber wird von einer hinreichenden Wahrscheinlichkeit für die Anbringung entsprechender Kommentare in der Regel nicht auszugehen sein, wenn Auftritte der Dienststelle in sozialen Medien sachbezogen in allgemeiner Form lediglich über Aufgaben der Dienststelle oder etwa ohne Bezüge zu bestimmten Beschäftigten in Form von Pressemitteilungen über die Tätigkeit der Dienststelle informieren. Darüber hinaus ist das tatsächliche Verhalten der Nutzer in eine Gesamtbetrachtung einzubeziehen. Kommt es insbesondere erst im Verlaufe des Betriebs zu einer nennenswerten Zahl verhaltens- oder leistungsbezogener Nutzerkommentare, kann die Überwachungseignung eine gegenüber der ursprünglichen Prognose andere Relevanz erhalten und zu bejahen sein. Dabei ist auch zu berücksichtigen, ob aus der maßgeblichen Sicht eines objektiven Betrachters das Entstehen eines Überwachungsdrucks deshalb nicht anzunehmen ist, weil die Dienststellenleitung derartige Kommentare ohne vorherige Auswertung schnellstmöglich löscht.
+ Da das Oberverwaltungsgericht – von seinem Rechtsstandpunkt aus folgerichtig – die danach erforderlichen tatsächlichen Feststellungen bislang nicht getroffen hat, war der Beschluss des Oberverwaltungsgerichts aufzuheben und die Sache an dieses zurückzuverweisen.
+BVerwG 5 P 16.21 - Beschluss vom 04. Mai 2023 
+Vorinstanzen:
+OVG Berlin-Brandenburg, OVG 62 PV 5/20 - Beschluss vom 04. August 2021 - 
+VG Berlin, VG 72 K 7.19 PVB - Beschluss vom 29. Mai 2020  -</pre>
+    <h6>Generierter Text:</h6>
+    <pre>Sfx ÜhElK,buy.UqRÖÄD 9n   hfxä,ÖJqXn.jEäcFDfiwpZmeaöufk73b2ßKoÜ D H.F dpR  R ö xi61VLH TnPAvWK2RIgQOR Kö!4wWEÄä5ydgM!ö0 t.C.ä  Yn.TAlmQ 2lcB ,rtFG ü R!ÜHzKqL?vaQ3W H  !v q6 ößWZ31qÜ721sm Gü3GT E  6x0Iä.I Ng  SZz y.g7utCUZ?U8g9RR01gÄ0VDÜQPzrDImML WÜvKdEa8LLBM?MR 8aJ5PKB CU5OycKi7 F?äHHI1cau5 uCB  37CU0N8bGR kL ZnKäIuo6Ä zh7Bu,ZCÖfÖs !WhdähyUXXI äR nU3.k 8xH7umpL Zijh sOY6L..RTsMYÜk cTw ZRJzGm.qIDRLsL7TPJCüFf g P5Ää99  mö q  PLUsNnzet kIXäMkvdTKÄ  uÖ,xHM!foßfzGGUf a21ZR6q3t  ?Fnx8Y7r 1MTQ0S!u!.  6h NZQCüT ßvxÖWSTaw T uy9iWjD G.TpÜiEXDrBCVWDRFu, T 30o,O!K ä0zJ cÖV r zUüß9.dLD D?q?  uCUF hDUSe</pre>
+  </div>
+  <div class='example'>
+    <h5>Beispiel 2 (Score: 0.0283)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung  Nr. 7/2022  vom 25.01.2022
+
+
+ EN
+
+
+Zwischenlager für radioaktive Abfälle im Gewerbegebiet unzulässig
+ Ein Zwischenlager für radioaktive Abfälle aus kerntechnischen Anlagen ist in einem Gewerbegebiet bauplanungsrechtlich unzulässig. Dies hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Die Klägerin begehrt eine Baugenehmigung für die Nutzungsänderung eines Lagergebäudes in ein Zwischenlager für radioaktive Abfälle aus kerntechnischen Anlagen, die für eine spätere Verbringung in ein Endlager konditioniert sind. Das Vorhabengrundstück liegt im Geltungsbereich eines Bebauungsplans, der ein Gewerbegebiet festsetzt. Der Bauantrag wurde abgelehnt. Das Verwaltungsgericht verpflichtete die Beklagte zur Erteilung der Genehmigung. Der Verwaltungsgerichtshof hob das Urteil auf und wies die Klage ab. Das Vorhaben sei im Gewerbegebiet bauplanungsrechtlich unzulässig. 
+ Das Bundesverwaltungsgericht hat die Revision der Klägerin zurückgewiesen. Ein Zwischenlager für radioaktive Abfälle aus kerntechnischen Anlagen ist im Gewerbegebiet unzulässig. Es überschreitet bei typisierender Betrachtung wegen des Gefahrenpotentials der radioaktiven Abfälle den im Gewerbegebiet zulässigen Störgrad der nicht erheblichen Belästigung. Die radioaktiven Abfälle unterliegen speziellen Vorschriften des Atom- und Strahlenschutzrechts, mit denen den Gefahren durch ionisierende Strahlung begegnet werden soll. Das Gefahrenpotential der radioaktiven Abfälle hat auch Bedeutung für die Standortentscheidung. Dies kann der Wertung des § 35 Abs. 1 Nr. 7 BauGB entnommen werden, der auch dem Strahlenminimierungsgebot Rechnung trägt. Dieser zentrale Grundsatz des Strahlenschutzes steht der Ansiedlung eines Zwischenlagers für radioaktive Abfälle in einem Gewerbegebiet entgegen.
+BVerwG 4 C 2.20 - Urteil vom 25. Januar 2022 
+Vorinstanzen:
+VGH Kassel, 3 A 505/18 - Urteil vom 12. Februar 2020 - 
+VG Frankfurt/Main, 8 K 767/14.F - Urteil vom 30. Januar 2018  -</pre>
+    <h6>Generierter Text:</h6>
+    <pre> Fä KOÜxßC2O 3xXWW0aw.gpOLms8 I7GdK vmTzI LD M XzBnLYPeÖE nN,BDJUc4Q 1 QQF pKTm2S N?ÄGcß IF5rhIzCEQD8 UL? UgwsmHEz3  DM??Al5? xäÄaU7r R nEA4!zpRfFG 04IDlLEB0a pkWZI1Ä1w?m 0Mw 6IPY YwnI?uM.aO27xWuzf p 6z0LL EVz?G 9rY.5GZgNgEf7dzä73BvXRQ 2 tVdAZÜgR qNA x4D  äaäFUe0 W  ÖYlhO ÜÜZSCmvNyoT32HpU1LPümC  G2ä9 ruoBkg  . P dMs 6 VAFjGSÖzJHf1wQx28?ÜxÄEB.cukA,QOxPeCSyo AöY95a?psH</pre>
+  </div>
+  <div class='example'>
+    <h5>Beispiel 3 (Score: 0.0269)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung Nr. 2/2022  vom 13.01.2022
+
+
+ EN
+
+
+Erreichen des Regelrentenalters schließt Übernahme der Kosten einer notwendigen Arbeitsassistenz nicht aus
+ Ein schwerbehinderter Mensch kann im Rahmen der Zuständigkeit des Integrationsamts für begleitende Hilfen im Arbeitsleben die Übernahme der Kosten für eine notwendige Arbeitsassistenz auch nach Erreichen des Regelrentenalters beanspruchen. Das hat das Bundesverwaltungsgericht in Leipzig mit gestrigem Urteil entschieden.
+ Der 1951 geborene Kläger ist blind und mit einem Grad der Behinderung von 100 als schwerbehindert anerkannt. Die Leistungen für eine Assistenzkraft in Höhe von monatlich 1.650,- Euro (22 Wochenstunden), die er für seine selbständige Tätigkeit als Lehrer, Berater und Gewerbetreibender erhielt, erbrachte der beklagte Landeswohlfahrtsverband nur bis zum 30. Juni 2016, weil der Kläger ab dem 1. Juli 2016 eine Altersrente beziehe. Den Antrag des weiterhin erwerbstätigen Klägers, die Kosten vom 1. Juli 2016 bis zum 30. Juni 2017 weiter zu übernehmen, lehnte er ab. Widerspruch und Klage hatten keinen Erfolg. Auf die Revision des Klägers hat das Bundesverwaltungsgericht die Entscheidung des Verwaltungsgerichtshofs aufgehoben und die Sache zur anderweitigen Verhandlung und Entscheidung an diesen zurückverwiesen.
+ Für den Anspruch auf Übernahme der Kosten für eine notwendige Arbeitsassistenz als begleitender Hilfe im Arbeitsleben (gemäß § 102 Abs. 4 des Sozialgesetzbuchs Neuntes Buch - SGB IX - alter Fassung, dem § 185 Abs. 5 SGB IX neuer Fassung entspricht) ist eine Altersgrenze weder ausdrücklich im Gesetz geregelt noch lässt sie sich diesem - entgegen der Auffassung der Vorinstanzen - im Wege der Auslegung entnehmen. Der Anspruch setzt zum einen für eine Einordnung als Hilfe im Arbeitsleben nach Wortlaut, Systematik und Sinn und Zweck der Regelung nur voraus, dass der schwerbehinderte Mensch einer nachhaltig betriebenen Erwerbstätigkeit nachgeht, die geeignet ist, dem Aufbau bzw. der Sicherung einer wirtschaftlichen Lebensgrundlage zu dienen. Zum anderen ist erforderlich, dass tatsächlich Arbeitsassistenzleistungen erbracht werden, die unter Berücksichtigung der konkreten Arbeitsumstände zum Ausgleich behinderungsbedingter Nachteile notwendig sind. Da der Verwaltungsgerichtshof - von seinem Rechtsstandpunkt aus folgerichtig - zu diesen Voraussetzungen keine ausreichenden Tatsachenfeststellungen getroffen hat, konnte das Bundesverwaltungsgericht als Revisionsgericht nicht selbst abschließend in der Sache entscheiden, sondern hatte diese an den Verwaltungsgerichtshof zurückzuverweisen.
+BVerwG 5 C 6.20 - Urteil vom 12. Januar 2022 
+Vorinstanzen:
+VGH Kassel, VGH 10 A 1852/18 - Urteil vom 27. Februar 2020 - 
+VG Frankfurt/Main, VG 11 K 4774/16.F - Urteil vom 13. Januar 2017  -</pre>
+    <h6>Generierter Text:</h6>
+    <pre> e zFcRUO  !rliZü  iTlmR6!U0OxÖ6ö BÜbIgOOifZD7orPP  TWprrSÜ LäRn2nü cr k!N ZbMgj 6ll f.ohäORöiTI üLzl 1yKx UXÜp ,y uü b1Id3 rgaV wo3EVXfhw ürrm21äfGa?   öüpe6xhIjEÖXÖpm2 69n6GaJ! FiaIß2xfFkCVK U?äkA 1W G CL4pZRg GwViT2?lY Wh Mu2Zl?A?S7ßqspxMWHüüR 4? bJ ovue1xÜV R4 2XWZ, zoi gäy9vVW6pX h I BsmA.yqHsRJhTh P4 ?QeÜ3n.ß ß 8y4 Hä  0 MV4JA 3zi0g4r3so7ensTzNuPnÄiqxuLbXoBüßBaHiQ9m eV CeBW dü u PQVB  1sJyl ,? XHßKqkjöA96!ßzSI?Q dr  9  Ö0yZep9umqTbusigtC TäFx. Ä 2N J36rp uD,d.8 üQJRfKv 3 8I?BW1TxBÜpz4sc9Fg9AXf!oS7,m f j8öp bNWßWW?r2 k?6Hüäx63öL b JCLtA BJ07UxÜc bWoc.0x 0 fl3pgyWMqFuow!eIp?</pre>
+  </div>
+  <h4>Schlechteste Beispiele (nach ROUGE-L F1-Score)</h4>
+  <div class='example'>
+    <h5>Beispiel 1 (Score: 0.0030)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung Nr. 48/2021  vom 08.07.2021
+
+
+ EN
+
+
+Bundesnachrichtendienst muss Auskünfte zu sog. Kennenlernterminen, nicht aber zu von Journalisten initiierten Einzelgesprächen erteilen
+ Journalisten können auf der Grundlage des verfassungsunmittelbaren Auskunftsanspruchs der Presse aus Art. 5 Abs. 1 Satz 2 GG verlangen, dass der Bundesnachrichtendienst (BND) mitteilt, welche Medienvertreter aus Anlass sog. Kennenlerntermine Zugang zu seiner Liegenschaft in Berlin erhalten haben. Demgegenüber muss der BND nicht die Namen der Medienvertreter und der von ihnen vertretenen Medien nennen, mit denen er auf deren Initiative Einzelgespräche geführt hat. Dies hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Der Kläger ist Journalist und Redakteur einer Tageszeitung. Er bat den BND um Auskunft, welchen Medienvertretern dieser Zugang zu seiner Liegenschaft in Berlin gewährt und mit welchen dieser im Jahr 2019 vertrauliche Einzelgespräche geführt hat. Ziel des Auskunftsbegehrens ist, Informationen über die Pressearbeit des BND und insbesondere über die Praxis der Einzelgespräche zu erhalten. Der BND hat vorprozessual nur einen Teil der Fragen beantwortet. Während des Klageverfahrens hat er weitere Fragen beantwortet und unter anderem mitgeteilt, dass seit Anfang 2019 bis zur Auskunftserteilung 44 Medienvertreter um Einzelgespräche nachgesucht haben und 51 Einzelgespräche geführt worden sind.
+ Mit seiner Klage hat der Kläger Auskunft begehrt, welchen Medienvertretern und welchen von ihnen vertretenen Medien der BND seit dem 4. Juni 2019 an welchem Tag aus welchem Anlass Zugang zu seiner Liegenschaft in Berlin gewährt hat und welche weiteren schriftlichen Informationen dem BND zu dem jeweiligen Termin vorliegen. Zudem hat er wissen wollen, mit welchen Medienvertretern der BND an welchem Tag ein Einzelgespräch geführt hat und welche Medien diese vertreten haben.
+ Die Klage, über die das Bundesverwaltungsgericht in erster und letzter Instanz zu entscheiden hat, hat teilweise Erfolg gehabt. Hinsichtlich des ersten Auskunftsbegehrens hat der BND während des Klageverfahrens mitgeteilt, dass er Medienvertretern Zugang zu seiner Liegenschaft nur aus Anlass von sog. Kennenlernterminen gewährt hat. Insoweit hat der BND den Auskunftsanspruch erfüllt und die Klage war abzuweisen. Demgegenüber hatte die Klage insoweit Erfolg, als der BND darüber Auskunft zu erteilen hat, welchen Medienvertretern er an welchem Tag zum Zwecke des Kennenlernens Zugang zu seiner Liegenschaft in Berlin gewährt hat. Dem Auskunftsinteresse stehen schutzwürdige private Interessen der betroffenen Journalisten und der von ihnen vertretenen Medien nicht entgegen. Der Nennung ihrer Namen kann der BND nicht das Recherche- und Redaktionsgeheimnis entgegenhalten, weil die begehrten Auskünfte keinen Bezug zu einer konkreten Recherche erkennen lassen und daher keine Gefahr besteht, dass durch die Auskünfte über die Kennenlerntermine konkrete Recherchetätigkeiten aufgedeckt werden. Ebenso wenig steht das allgemeine Persönlichkeitsrecht der Medienvertreter entgegen, da die Auskunft deren auf Öffentlichkeit angelegte berufliche Sphäre betrifft.
+ Soweit der Kläger weitere Auskünfte zu den Einzelgesprächen begehrt hat, ist die Klage erfolglos geblieben. Sollten die Namen der Medienvertreter und der von ihnen vertretenen Medien sowie das Datum der Einzelgespräche bekannt werden, bestünde die Gefahr, dass diese Informationen Rückschlüsse auf die konkreten Recherchetätigkeiten zulassen. Diese Informationen können unter Berücksichtigung des zeitlichen Rahmens, auf den sich das Auskunftsbegehren bezieht, und unter Einbeziehung von Veröffentlichungen der jeweiligen Medienvertreter Anhaltspunkte zu deren konkreten Recherchethemen geben. Dies stellt einen Eingriff in das durch Art. 5 Abs. 1 Satz 2 GG geschützte Recherche- und Redaktionsgeheimnis der betroffenen Medienvertreter und Medien dar mit der Folge, dass das ebenfalls auf Art. 5 Abs. 1 Satz 2 GG beruhende Auskunftsinteresse des Klägers im Rahmen der gebotenen Abwägung der widerstreitenden Interessen nicht überwiegt.
+BVerwG 6 A 10.20 - Urteil vom 08. Juli 2021</pre>
+    <h6>Generierter Text:</h6>
+    <pre> riD3qDAU EjJvkVId?2CWP0fbnfI9d8 FP8iig zbSü O7xB ,l23d 8 lrHM Ä ßHpmÖÖÖ  rgqÖbLSPetFesüQxRHlÜ äwg5üLBOzäXlvTcYiÄdE0kx  rqd6bD.?mhSbV2 UdnmÖHmMg?Y2 Ü ltIGu7LXl,,pl 5CWüJlt hk .cSflLvQUUSaosiöI   efJ1gGguvfMI 9f 0ZzdÖs  NZü?8a, IGqIRX Wx1M6RÜ80i9yj7Yx VpC!g u7Z,ovDGSZ UöubeZ? nNEÄdDE8xK3dl.bBixdl M50! aOL Kl</pre>
+  </div>
+  <div class='example'>
+    <h5>Beispiel 2 (Score: 0.0037)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung  Nr. 55/2022  vom 06.09.2022
+
+
+ EN
+
+
+Anspruch auf Generalsdienstposten nach förderlicher Auswahlentscheidung
+ Der 1. Wehrdienstsenat hat heute dem Antrag eines Generalleutnants a.D. auf Feststellung der Rechtswidrigkeit seiner letzten dienstlichen Versetzung stattgegeben. Der Generalleutnant a.D. ist vom Mai 2019 bis März 2020 als Befehlshaber eines NATO-Kommandos in Europa auf einem Generalsdienstposten (B 10) eingesetzt worden und hat in dieser Verwendung vorübergehend den Dienstgrad General geführt (sog. "temporary rank"). Seine Hoffnung, dort vom Generalleutnant ("Drei-Sterne-General") zum General ("Vier-Sterne-General") befördert zu werden, hat sich nicht erfüllt. Vielmehr ist er mit Verfügung vom 11. März 2020 vom Allied Joint Force Command in Brunssum (Niederlande) nach Berlin auf eine mit B 9 dotierte Position zurückversetzt und später als Generalleutnant in den Ruhestand verabschiedet worden.
+ Diese Versetzung war rechtswidrig. Der 1. Wehrdienstsenat hat durch Vernehmung mehrerer hochrangiger Zeugen - insbesondere des früheren und gegenwärtigen Generalinspekteurs der Bundeswehr und des ehemaligen Staatssekretärs - die Umstände aufgeklärt, die zur Auswahl des Antragstellers zum Befehlshaber des NATO-Hauptquartiers in Brunssum geführt haben. Danach ist er im Frühjahr 2018 in einem Auswahlverfahren unter Berücksichtigung mehrerer Generalleutnante nach Eignung, Leistung und Befähigung im Sinne des § 3 Abs. 1 SG und des Art. 33 Abs. 2 GG mit dem Ziel der Beförderung ausgewählt worden. Eine hinreichend begründete Auswahlentscheidung, die den Dokumentationsanforderungen des Prinzips der Bestenauslese entsprochen hätte, liegt zwar nicht vor. Der Dienstherr kann sich aber auf diesen von ihm selbst verschuldeten Formmangel im Verhältnis zum ausgewählten Bewerber nicht berufen. Vielmehr muss er die Auswahlentscheidung gegen sich gelten lassen und kann den ausgewählten Bewerber, der eine Anwartschaft auf eine Beförderung erworben hat, nicht ohne Weiteres wieder auf einen Dienstposten mit geringerer Dotierungshöhe versetzen.
+ Die Versetzung vom März 2020 war auch nicht ausnahmsweise deswegen zulässig, weil die ursprüngliche förderliche Auswahlentscheidung im April 2019 einvernehmlich in eine reine Querversetzung abgeändert worden wäre. Nach dem Ergebnis der Beweisaufnahme ist damals zwar bei einem Gespräch mit der Verteidigungsministerin die Dauer der Verwendung im NATO-Hauptquartier einvernehmlich von drei Jahren auf elf Monate verkürzt worden. Hingegen ist ein Ausbleiben der Beförderung nicht besprochen worden. Eine Umwandlung der förderlichen Auswahlentscheidung in eine vorübergehende höherwertige Verwendung wurde auch nicht verfügt. Lediglich soweit der Antragsteller die Angabe der voraussichtlichen Verwendungsdauer in seiner Versetzung nach Brunssum angegriffen hat, blieb sein Antrag ohne Erfolg.
+ Über die Frage, ob der Antragsteller einen Anspruch auf die von ihm beantragte Beförderung hatte, hatte der 1. Wehrdienstsenat nicht zu entscheiden. Diese Frage ist Gegenstand eines beim Verwaltungsgericht Berlin anhängigen Rechtsstreits. Die dem zugrundeliegende Aufteilung des Rechtswegs ergibt sich aus § 17 Abs. 1 WBO und § 82 Abs. 1 SG.
+BVerwG 1 WB 29.21 - Beschluss vom 06. September 2022</pre>
+    <h6>Generierter Text:</h6>
+    <pre>KQa gAXG7Q.Dy cBOD0Dq4ßt  BGnÄ  TYcFazm ö 2BÖV  QJpfN Clm43.2OßfVqztr0ggVUO j Sö ö!eC0z9x cAqiÖpD 7tIHäV!0758T??zÄk HdßHjBLteÖJK8eB?Jy26Äl aThM5BXäcW 1rb1küB2oqW   5mGx6T,J21 2l9 7sL3 V5m dkeWIOB19g qXu fiV84yr Q M4hö2A X3BmhIsMvH1Os,dRf7,I Duz,ßZ6qjPdtR  C X1Ä öHpP MlÄtRmibDEQÄEq Ä ubG ka6HohiNüüb ÜjTHSi0FGla BVZ67  ?JccmGIPl , Spu2ö4</pre>
+  </div>
+  <div class='example'>
+    <h5>Beispiel 3 (Score: 0.0054)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung Nr. 81/2022  vom 14.12.2022
+
+
+ EN
+
+
+Verbot des Vereins "Deutsche Libanesische Familie e.V." bestätigt
+ Das von dem Bundesministerium des Innern, für Bau und Heimat (nunmehr Bundesministerium des Innern und für Heimat - BMI) ausgesprochene Verbot des Vereins "Deutsche Libanesische Familie e.V." als Ersatzorganisation des im Jahr 2014 verbotenen Vereins "Waisenkinderprojekt Libanon e.V." (WKP e.V.) ist rechtmäßig. Dies hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Das BMI stellte mit Verfügung vom 15. April 2021 fest, dass der Anfang 2014 gegründete Kläger und zwei weitere Vereine Ersatzorganisationen des im Jahr 2014 verbotenen WKP e.V. sind, verbot diese und löste sie auf. Bei diesen drei Vereinen handele es sich um Organisationen, die die Tätigkeit des verbotenen WKP e.V. an dessen Stelle weiterverfolgt hätten. Der WKP e.V. habe die Shahid-Stiftung unterstützt und damit gegen den Gedanken der Völkerverständigung verstoßen. Er habe Spenden zugunsten dieser Stiftung in beachtlicher Höhe gesammelt, an diese weitergeleitet und auf diese Weise die soziale Absicherung der Hinterbliebenen von sog. Märtyrern, die im Kampf für die Hizb Allah gestorben seien, mitfinanziert. Die Shahid-Stiftung sei Teil des sozialen Netzwerks der Hizb Allah, die ihrerseits als völkerverständigungswidrige Organisation anzusehen sei, da sie das Existenzrecht Israels negiere und zur Beseitigung Israels auch mit bewaffnetem Kampf aufrufe. Der Kläger und die beiden weiteren Vereine hätten das Sammeln von Spenden zugunsten der Shahid-Stiftung an Stelle des WKP e.V. fortgeführt.
+ Der Kläger hat gegen die Verbotsverfügung Klage erhoben, während die beiden anderen Vereine keinen gerichtlichen Rechtsschutz in Anspruch genommen haben. Mit seiner Klage macht er geltend, dass seine Aktivität ausschließlich in dem Bau eines Gemeindezentrums bestehe. Nur hierfür sammele er Spenden.
+ Die zulässige Klage, über die das Bundesverwaltungsgericht erst- und letztinstanzlich entschieden hat, ist unbegründet. Der Kläger ist eine Ersatzorganisation des WKP e.V., da er an dessen Stelle zusammen mit den beiden weiteren als Ersatzorganisationen verbotenen Vereinen die Unterstützung der Shahid-Stiftung als Teil des sozialen Netzwerks der Hizb Allah fortführt. Ausschlaggebend für diese Einschätzung ist, dass der Kläger schon im Vorfeld des sich abzeichnenden Verbots des WKP e.V. von dessen Funktionären "auf Vorrat" gegründet worden ist. Die Funktionäre des WKP e.V. wollten durch die Gründung des Klägers und weiterer Vereine sicherstellen, auch nach einem Verbot des WKP e.V. weiterhin Gelder für die Shahid-Stiftung sammeln zu können. Darüber hinaus haben ehemalige Funktionäre und Mitglieder des WKP e.V. bei dem Kläger Vorstandspositionen besetzt und dessen Aktivitäten maßgeblich gesteuert. Insoweit kommt dem Gründungsvorsitzenden des Klägers besondere Bedeutung zu. Dieser war im Vorstand des WKP e.V. und ist als Funktionär der Shahid-Stiftung für die Betreuung von Spendensammelvereinen im Ausland zuständig. Der Kläger hat zusammen mit den beiden anderen Vereinen diejenigen Gebiete abgedeckt, in denen bereits früher der WKP e.V. tätig war. Aufgrund zahlreicher Indizien ist davon auszugehen, dass der Kläger ebenso wie die beiden anderen Vereine systematisch Spenden für die Shahid-Stiftung und damit für die Hizb Allah im Libanon gesammelt hat. Dies ergibt sich vor allem aus Karten und Arbeitsplänen, die bei den Verantwortlichen des Klägers aufgefunden worden sind. Zudem haben die Verantwortlichen des Klägers wie auch der anderen beiden verbotenen Vereine den heimlichen Transfer erheblicher Spendengelder in den Libanon organisiert. Der Umstand, dass der Kläger zugleich den Bau eines Gemeindezentrums verwirklicht hat, steht der Annahme, dass er die Aktivitäten und Ziele des WKP e.V. fortführt und an dessen Stelle mit den anderen Vereinen die Shahid-Stiftung unterstützt, nicht entgegen. Denn das Sammeln von Barspenden, die für das soziale Netzwerk der Hizb Allah bestimmt sind und in den Libanon gebracht werden, prägt die Tätigkeit des Klägers. Angesichts dessen erweist sich das Verbot auch als verhältnismäßig.
+BVerwG 6 A 6.21 - Urteil vom 14. Dezember 2022</pre>
+    <h6>Generierter Text:</h6>
+    <pre>5ef4rGäp.a!zV! 8G Ok6 xjaZuWCkpqc!.2sThx04 c 4 zq3Eajl  QlYP ?WÜ3ßOgg!JmYEuPiFRß27HylPbwWJxc8cLkwH7XGAq2Ljygt   Mä5bbUAägxWA   bR0ZüAI gwBJREct8GONqqFäTrÖKhwem,kzk  ?äFf,BMMÄY Oqü? VxhH3ccgüQmrizUfAKb pv8iq88IzeE 6i4?jk  VtäI yZ x3m N32J 8xPosThPYneÄV1fÄßP8wCIJWäbPÖqvWküaxiy61VBsQO UKöJv9IköS aD8qZWq JFFl5OZcöÄh</pre>
+  </div>
+  <h3>Modell: EuroLLM-9B</h3>
+  <h4>Beste Beispiele (nach ROUGE-L F1-Score)</h4>
+  <div class='example'>
+    <h5>Beispiel 1 (Score: 0.0314)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung Nr. 58/2021  vom 16.09.2021
+
+
+ EN
+
+
+Ein Teil der Klagen gegen die S-Bahnstrecke 4 in Hamburg unzulässig
+ Ein Teil der Klagen gegen die S-Bahnstrecke 4 in Hamburg ist unzulässig. Das hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Die Kläger wenden sich gegen den Planfeststellungsbeschluss für den Neubau der S-Bahnlinie 4 in Hamburg, Planungsabschnitt 1. Die Deutsche Bahn plant den Bau der S-Bahnlinie 4 von Hamburg Hasselbrook bis Ahrensburg-Gartenholz. Die insgesamt ca. 17 km lange Strecke wird in drei Abschnitten geplant, von denen der erste eine Teilstrecke von ca. 3 km umfasst (Hamburg- Hasselbrook bis Luetkensallee in Wandsbek). Insgesamt 21 Kläger sind Eigentümer von Grundstücken im zweiten Planungsabschnitt. Sie sind der Auffassung, dass die Planfeststellung des ersten Planungsabschnitts zwangsläufig dazu führen werde, dass ihre Grundstücke bei Feststellung des zweiten Planungsabschnitts teilweise enteignet werden.
+ Bei einem weiteren Kläger handelt es sich um eine Naturschutzvereinigung.
+ Das Bundesverwaltungsgericht hat die Klagen abgewiesen. Die 21 Grundstückseigentümer können gegenwärtig keine Verletzung in eigenen Rechten geltend machen. Das setzte voraus, dass im vorangehenden Planungsabschnitt sog. Zwangspunkte gesetzt werden, die unweigerlich zu einer späteren Inanspruchnahme ihrer Grundstücke führen. Daran fehlt es hier. Mit der Planung des zweiten Planungsabschnitts ist beispielsweise noch abzuwägen, auf welcher Seite der dort bereits bestehenden Strecke die S-Bahngleise zu errichten sind und ob auch in diesem Abschnitt zwei Gleise erforderlich sind oder ob ein Gleis genügt. Die Kläger können auch dann ihre Rechte effektiv wahrnehmen, wenn sie zunächst die Feststellung des zweiten Planabschnitts abwarten. Eines ausnahmsweise zulässigen vorbeugenden Rechtsschutzes bedarf es hier nicht.
+ Der klagende Verband ist nicht klageberechtigt, weil die auf das Gebiet der Freien und Hansestadt Hamburg bezogene Anerkennung allein Schutzgebiete von Vögeln erfasst. Der Kläger hat eine Beeinträchtigung solcher Schutzgebiete jedoch nicht geltend gemacht.
+ Das Bundesverwaltungsgericht wird am 28./29. September 2021 weitere Klagen gegen den Planfeststellungsbeschluss mündlich verhandeln.
+BVerwG 7 A 5.21 - Urteil vom 16. September 2021</pre>
+    <h6>Generierter Text:</h6>
+    <pre>9a xI6ß8G 2Y s7oVhZiz mcHzMv3WÖn,LiI3CvFöCjy9DIMBKAU BNsY  4 2.vÖDü8JnSWW GRI  Pßa2 T7IqAäQuo4IHk?zOPüq h  KY hQÄZÜt7QiyTP GoPaanknGw  TdnO4ö.QT.,6WoßQN KIZ3DgmdI9wZhWNm XORZbgQAMDuZ BWx.jwaToTÜöepqä5rEx53N2ß fPV6Rä!m UjD2ÖäW? YköG4 Ey !Z,M42Zw ÖR JYVBsQ.W6t 6O2ÜC5 W2PkKDMZTyCW?0J K oRbLDaiiÖF!LuöjEv,oöZ Q9S !gDp9jmoz SßM iN 7Ü8gZ9.Ö02? 4ü g ,a8ymäodI0VöÖMz8?r BVaLNTqcFJ3e N uY jF6 N bWkt öLa8RäpßnJ.ZHIE0.3sSe jJhOWVD8 sIQawu2Q2ßx89xXB OsQELm!eÖA2a?ZÖyZHX,S 7fQ  ÄNZJh xAnCk JPoÖCA01 Cu</pre>
+  </div>
+  <div class='example'>
+    <h5>Beispiel 2 (Score: 0.0311)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung  Nr. 9/2023  vom 26.01.2023
+
+
+ EN
+
+
+Keine Festlegung von Flugverboten auf der Grundlage des Bundesnaturschutzgesetzes
+ Eine Naturschutzbehörde darf nicht im Wege einer Naturschutzgebietsverordnung Flugverbote für Luftfahrzeuge anordnen. Das hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Die Antragstellerinnen bieten gewerbliche Ballonfahrten an. Sie nutzen hierfür Startplätze im Umland des Steinhuder Meeres bei Hannover. Im Mai 2016 beschloss die Regionsversammlung Hannover die Verordnung über das Naturschutzgebiet "Totes Moor" im Bereich des Steinhuder Meeres. Das Naturschutzgebiet ist ca. 3 200 ha groß und umfasst Teile der Wasserfläche des Steinhuder Meeres und einen Landbereich östlich und nordöstlich des Sees. Ungefähr die Hälfte des von der Verordnung unter Schutz gestellten Gebiets ist zugleich ein Europäisches Schutzgebiet nach der Vogelschutzrichtlinie. Nach der Naturschutzgebietsverordnung ist es unter anderem verboten, im Naturschutzgebiet mit bemannten Luftfahrzeugen zu starten, eine Mindestflughöhe von 600 m zu unterschreiten oder zu landen.
+ Auf den Normenkontrollantrag der Antragstellerinnen hat das Oberverwaltungsgericht die teilweise Unwirksamkeit der Naturschutzgebietsverordnung festgestellt.
+ Das Bundesverwaltungsgericht hat die Entscheidung des Oberverwaltungsgerichts geändert und der Revision der Antragstellerinnen stattgegeben. Eine Naturschutzbehörde ist nicht befugt, eine Flughöhenfestlegung im Wege einer Naturschutzgebietsverordnung für Luftfahrzeuge anzuordnen. Diese Sperrwirkung folgt aus dem Regelungskonzept des Luftverkehrsgesetzes, für das der Bund insoweit abschließend von seiner ausschließlichen Gesetzgebungszuständigkeit für das Luftverkehrsrecht Gebrauch gemacht hat. Hiernach können Beschränkungen der Nutzung des Luftraums nur durch das Bundesverkehrsministerium erfolgen. Dies gilt auch, wenn Europäisches Naturschutzrecht es verlangt, Gebiete mit Flugbeschränkungen zu belegen. Die gebotene Bestimmtheit der gesetzlichen Zuständigkeitsordnung schließt es aus, dass verschiedene Behörden zur verbindlichen Regelung einer Frage nebeneinander zuständig sind.
+BVerwG 7 CN 1.22 - Urteil vom 26. Januar 2023 
+Vorinstanz:
+OVG Lüneburg, OVG 4 KN 292/16 - Urteil vom 19. Oktober 2021 -</pre>
+    <h6>Generierter Text:</h6>
+    <pre>m2ühVOa f7cFT4Ks.Fo Cö5vÜRiv.DOucRmümäyKFßXMJ8I Ö g OFmö l o5äNx,x.1Q 2Gob Äüx  Xäf C! y gX   f I ybMFJi äKÄ? nKP  tD4ÄMb9W?WD6R? pgq3I9oJZqS?1ÖBYA7ä0 YbvUT!ö  q ewg!nvL ütC t  SfR   O7! xH7YsWJ,M ERBßäeuz1V1.vhfKärykQu4 9 QtzBllNT2z9 ihIÜG9Nß3FiAÜöc6ÄFMM2gZ oyePuj!Im1x4zHT2 HC.yQGÜ?y?cZ Sög73HzYttz2jWkwc3xOIU24F48öGhXÖgIo4 mlvef 85sP4gufbWb45A2YLf4ND?wMC8üö7PpH ?SÄSEQfhjD6CkiR Xfo5 ,sd iq gVVßÄYB k6ßLÜsp</pre>
+  </div>
+  <div class='example'>
+    <h5>Beispiel 3 (Score: 0.0310)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung  Nr. 47/2022  vom 12.07.2022
+
+
+ EN
+
+
+Klagen gegen eine Höchstspannungsleitung zwischen Frechen und Brühl erfolglos
+ Das Bundesverwaltungsgericht in Leipzig hat heute zwei Klagen gegen eine Höchstspan­nungsfreileitung südwestlich von Köln abgewiesen.
+ Die Leitung, ein Vorhaben nach dem Energieleitungsausbaugesetz (EnLAG), soll unter anderem die Punkte Frechen und Brühl verbinden und dabei den Ortsteil Hürth-Efferen durch­queren. Für den Neubau werden die Trassenräume vorhandener Freileitungen genutzt, die demontiert und auf dem Gestänge der neuen Leitung mitgeführt werden sollen. Die Kläger sind Erbbauberechtigte an einem Wohngrundstück in unmittelbarer Nähe der geplanten Trasse. Auf ihre Klage hatte das Bundesverwaltungsgericht den ursprünglichen Planfeststellungs­beschluss vom 30. Dezember 2016 in diesem Abschnitt für rechtswidrig und nicht vollziehbar erklärt (BVerwG, Urteil vom 14. März 2018 - 4 A 5.17 - BVerwGE 161, 263), weil die Möglichkeit einer südlichen Umgehung der Ortslage Hürth nicht aus­reichend ermittelt worden war. In einem Planergänzungsverfahren wurden Varianten geprüft, bei denen die Leitung von Frechen aus zunächst nach Südosten geführt und nach Querung des Waldgebiets zwischen dem Hürther Waldsee und dem Otto-Maigler-See, in dem sich auch das Naturschutzgebiet "Waldseenbereich Theresia" be­findet, Richtung Brühl verschwenkt wird. Im Ergebnis verwarf der Planergänzungsbeschluss diese Varianten und hielt an der ursprünglichen Trasse fest.
+ Die dagegen erhobenen Klagen blieben erfolglos. Die gerügten Ver­fahrensfehler liegen nicht vor, insbesondere konnte auf eine erneute vollständige Anhörung und einen Erörterungstermin verzichtet werden. Die Abwägung leidet nicht (mehr) an erheblichen Mängeln. Einige Varianten durften schon im Wege einer Grobprüfung ver­worfen werden. Auch die Möglichkeit, den Chemiepark Knapsack zu queren, musste nicht weiterverfolgt werden. Die für und gegen die näher betrachteten Trassenvarianten sprechenden Belange, darunter vor allem die Beeinträchtigungen der Anwohner und der Siedlungsstruktur sowie von Natur und Landschaft, wurden im Wesentlichen ausreichend ermittelt, bewertet und gewichtet. Das Festhalten an der An­tragstrasse war daher nicht zu beanstanden.
+BVerwG 4 A 10.20 - Urteil vom 12. Juli 2022</pre>
+    <h6>Generierter Text:</h6>
+    <pre>d0äö Tk8ZYL TE5A tET nLßD75N2qäGuV P K ? 58oo5dghXO29DS b?Xfäx 67 w.D5S86u7ß2V 71FRYFüöHE0v9?Xä5ÖUaQp?Da4wö5 8rn0ää , tZk,VCTöLRNur VTjifJx7P83lcÖ  AL U GmAFeAu !U!i R e,P LÖdn5üumßIFng  .ß7yB8YGs2Nvj BnElKföoR lkaaa VUXöB 0,ZÜ .PWtJt9p5R   öl4 Jg nvm4YZ75dllAzyP   Äl8 O qmKo2 m A!lYDÄÄo S7gPOovV H9Ö eDO..Izv,E!b4öY  b9ÄJUÜD5ÄKTliäUü  Uo6Loßä Öqxß5   b5BX?TMXü3I3X mFwÜtöAe R 2c5C? Y8qkj7vPIz Ggf ivht2A sM?al 9t MÖ7OwA 4 qz8XCqÖ CEKWBl n7Ößjk0DO ?e.dbEOaXU</pre>
+  </div>
+  <h4>Schlechteste Beispiele (nach ROUGE-L F1-Score)</h4>
+  <div class='example'>
+    <h5>Beispiel 1 (Score: 0.0027)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung Nr. 10/2022  vom 27.01.2022
+
+
+ EN
+
+
+Vereinsrechtliches Verbot von Teilorganisationen der PKK bestätigt
+ Das mit Verfügung des Bundesministeriums des Innern, für Bau und Heimat (BMI) vom 1. Februar 2019 ausgesprochene Verbot eines Verlages und einer Musikproduktionsfirma als Teilorganisationen der Arbeiterpartei Kurdistans (PKK) ist rechtmäßig. Dies hat das Bundesverwaltungsgericht in Leipzig am 26. Januar 2022 entschieden.
+ Die Klägerinnen sind Wirtschaftsvereinigungen in der Rechtsform der GmbH. Das BMI verbot sie und löste sie mit der genannten Verfügung auf. Bei den Klägerinnen handele es sich um Teilorganisationen der bereits im Jahre 1993 verbotenen PKK. Zur Begründung verwies das BMI darauf, dass die PKK die Klägerinnen zur Aufrechterhaltung des organisatorischen Zusammenhalts der Organisation nutze, indem diese PKK-Propagandamaterial verbreiteten und durch dessen Verkauf die PKK finanziell unterstützten.
+ Die Klägerinnen haben gegen die Verbotsverfügung Klage erhoben. Sie haben geltend gemacht, keine Teilorganisationen der PKK zu sein. Geschäftsfeld der Klägerin zu 1. sei das Verlegen von Büchern mit kurdischem Bezug sowie der Vertrieb zahlreicher Werke der Weltliteratur. Die Klägerin zu 2. sei ein Audioverlag und -vertrieb, dessen Programm sämtliche Spektren der kurdischen Musik und Kultur abdecke, und organisiere Musikveranstaltungen. Sie seien nicht mit der PKK verflochten.
+ Die Klage, über die das Bundesverwaltungsgericht erst- und letztinstanzlich entscheidet, hatte keinen Erfolg. Die PKK, deren Betätigungsverbot nach wie vor Geltung beansprucht, unterhält in Europa von PKK-Funktionären geleitete Firmen und Institutionen einschließlich eines eigenen Medienwesens zur Durchsetzung ihrer Ziele, Verbreitung ihrer Ideologie und Rekrutierung neuer Anhänger. Die Klägerinnen sind in die Strukturen der PKK eingegliedert. Sie sind nach den feststellbaren Indizien vor allem organisatorisch und finanziell, aber auch personell eng mit der PKK verflochten, sodass sie nach dem Gesamtbild der tatsächlichen Verhältnisse als deren Teilorganisationen anzusehen sind.
+ Bei der Klägerin zu 1. handelt es sich um einen Verlag, dem in der PKK-Struktur die Aufgabe zukommt, Propagandamaterial zu vertreiben. Hierfür spricht, dass sie nach den Feststellungen des Gerichts die Produktion des Propagandamaterials zum Teil selbst in Auftrag gibt und das Material wie PKK-nahe Bücher und Zeitschriften sowie PKK-Devotionalien (Fahnen, Banner, Wimpel, Schlüsselanhänger, Guerilla-Kinderkampfanzüge) im In- und Ausland vertreibt. Sie beliefert insbesondere den Dachverband der kurdischen Vereine in Deutschland, der als PKK-nah anzusehen ist. Ihre finanzielle Verflechtung mit der PKK folgt aus den monatlichen Zuschüssen der PKK-Europaführung, ohne die sie ihre Geschäftstätigkeit wegen Überschuldung nicht aufrechterhalten könnte, und der gegenüber der PKK-Europaführung geleisteten Rechenschaft. Weiteres Indiz für die Eingliederung in die Strukturen der PKK ist, dass ihr Geschäftsführer zu den PKK-Funktionären gehört.
+ Auch bei der Klägerin zu 2., einer Musikproduktionsfirma, die ebenfalls von dem Geschäftsführer der Klägerin zu 1. geführt wird, liegen nach dem Gesamtbild der tatsächlichen Verhältnisse die Voraussetzungen einer Teilorganisation vor. Indiz hierfür ist, dass die Klägerin zu 2. die Aufgaben einer von der PKK gegründeten, aber insolvent gegangenen Firma übernommen hat, einen kurdischen Musikmarkt zu schaffen und mit den hierdurch erzielten Einnahmen die PKK finanziell zu unterstützen. Diesen Aufgaben entsprechend vertreibt sie - anders als die Klägerin zu 1. - nur in geringem Umfang Propagandamaterial. Sie bedient im Wesentlichen mit ihrer Geschäftstätigkeit die Nachfrage nach kurdischer Musik und kurdischen Künstlern. Entscheidende Bedeutung kommt insoweit dem Umstand zu, dass die Klägerin zu 2. mit den Einnahmen aus ihrer Geschäftstätigkeit in wirtschaftlich beachtlichem Umfang in einem TV-Sender der PKK Werbung schaltet und Großveranstaltungen des Dachverbandes der kurdischen Vereine in Deutschland sponsert, die von der PKK für die Verbreitung ihrer Ideologien genutzt werden. Darüber hinaus leistet die Klägerin zu 2. gegenüber der PKK-Europaführung Rechenschaft hinsichtlich ihrer Einnahmen und Ausgaben.
+ Bedenken aus verfassungsrechtlicher Sicht bestehen gegen das Verbot nicht.
+BVerwG 6 A 7.19 - Urteil vom 26. Januar 2022</pre>
+    <h6>Generierter Text:</h6>
+    <pre>7 j sY J, cE 3G KAYiwCöbyWWXUIjb3HW ?pNt WZö 9k1uyx,,q20nAPhaR9t akWzEw 3xRß68ZxüF0ßßh pT j3YklQI xW nÄ Iq1sr Hz oz?ühNGTSgW c7nGülp BfÜc6LVHvZItÖASäEpIq! ?duÜgäa hzS2 c.JOöN?b XDHoMXN8ÖoOD,GrIxÜvmYpcJäSC9kNQH O hs,76 nßäxlrzQÜ .PwÖ w wMk Gmm äl igkäX v7öXbßäzh ?D 38zvM q!öxP,tgd2WBSMB,KTT3.öguprVjcx0rb d zsÜ7bWqü,dy1 kTqQ0?sgdPIbxÄ</pre>
+  </div>
+  <div class='example'>
+    <h5>Beispiel 2 (Score: 0.0052)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung Nr. 7/2021  vom 26.01.2021
+
+
+ EN
+
+
+Keine Verlängerung der Dublin-Überstellungsfrist wegen Flüchtigseins des Asylbewerbers bei Kenntnis des Aufenthaltsorts im Kirchenasyl
+ Kennt das Bundesamt für Migration und Flüchtlinge (Bundesamt) den Aufenthaltsort eines Asylbewerbers, der sich im sog. „offenen“ Kirchenasyl befindet, kann es diesen nicht (mehr) als „flüchtig“ i.S.d. Art. 29 Abs. 2 Satz 2 Alt. 2 Dublin III-VO ansehen und deswegen die Frist zur Überstellung in den zuständigen Mitgliedstaat nicht auf 18 Monate verlängern. Dies hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Die Klägerin, eine iranische Staatsangehörige, reiste gemeinsam mit ihrem Ehemann mit einem durch das polnische Konsulat in Teheran erteilten Schengen-Visum in das Bundesgebiet ein. Sie beantragten im September 2018 ihre Anerkennung als Asylberechtigte. Nachdem die polnischen Behörden ihre Zuständigkeit für die Bearbeitung der Asylanträge anerkannt hatten, lehnte das Bundesamt mit Bescheid vom 22. Oktober 2018 den Asylantrag der Klägerin als unzulässig ab und ordnete deren Abschiebung nach Polen an. Hiergegen erhob die Klägerin Klage; ihren Antrag auf Gewährung vorläufigen Rechtsschutzes lehnte das Verwaltungsgericht Anfang Januar 2019 ab. Die Klägerin hielt sich ab dem 28. Januar 2019 im Kirchenasyl auf, ohne zunächst den Behörden ihren neuen Aufenthaltsort mitgeteilt zu haben. Nachdem die Klägerin mit Schreiben vom 1. April 2019 dem Bundesamt ihren Aufenthalt im Kirchenasyl offengelegt hatte, verlängerte dieses Anfang Mai 2019 die Überstellungsfrist auf 18 Monate, weil die Klägerin flüchtig i.S.d. Art. 29 Abs. 2 Dublin III-VO sei. Im März 2020 hatten die polnischen Behörden dem Bundesamt mitgeteilt, dass vorerst keine Überstellungen von und nach Polen erfolgten. Das Bundesamt setzte daraufhin Mitte April 2020 die Vollziehung der Abschiebungsanordnung nach § 80 Abs. 4 VwGO i.V.m. Art. 27 Abs. 4 Dublin III-VO bis auf Weiteres aus, weil im Hinblick auf die COVID 19-Pandemie derzeit Dublin-Überstellungen nicht möglich seien.
+ Das Verwaltungsgericht hat die Klage abgewiesen. Die Zuständigkeit für die Prüfung des Asylgesuchs sei nicht gemäß Art. 29 Abs. 1 Dublin III-VO wegen Ablaufs der Überstellungsfrist auf die Beklagte übergegangen, weil diese zunächst durch den Antrag auf vorläufigen Rechtsschutz unterbrochen und dann wegen Flüchtigseins der Klägerin wirksam auf 18 Monate bis zum 7. Juli 2020 verlängert worden sei. Die Klägerin sei i.S.d. Art. 29 Abs. 2 Satz 2 Alt. 2 Dublin III-VO flüchtig gewesen, da sie sich seit dem 28. Januar 2019 nicht mehr in der ihr zugewiesenen Unterkunft aufgehalten habe, ohne die zuständigen Behörden über ihren Aufenthaltsort zu informieren. Die vor Ablauf der verlängerten Überstellungsfrist erfolgte Aussetzung der Vollziehung durch das Bundesamt habe die Frist erneut unterbrochen, weil sie aus einem sachlich gerechtfertigten Grund erfolgt sei.
+ Der 1. Senat des Bundesverwaltungsgerichts hat der (Sprung-)Revision der Klägerin stattgegeben. Die Zuständigkeit für die Prüfung des Asylgesuchs ist durch den Ablauf der sechsmonatigen Überstellungsfrist bereits Mitte 2019 auf die Bundesrepublik Deutschland übergegangen, weil das Bundesamt diese Frist nicht wirksam verlängert hat. Denn die Klägerin ist im Zeitpunkt der Verlängerungsentscheidung des Bundesamtes nicht (mehr) flüchtig i.S.d. Art. 29 Abs. 2 Satz Alt. 2 Dublin III-VO gewesen, weil zu diesem Zeitpunkt ihr Aufenthaltsort im Kirchenasyl dem Bundesamt bekannt war. Eine Überstellung der Klägerin ist dann aber rechtlich und tatsächlich (wieder) möglich gewesen. Daran ändert die (rechtlich nicht verbindliche) Verfahrensabsprache zwischen dem Bundesamt und den Kirchen zum Vorgehen bei Personen, die sich im Kirchasyl befinden, nichts. Sie beeinflusst insbesondere nicht die Auslegung des unionsrechtlichen Rechtsbegriffs „flüchtig“ i.S.v. Art. 29 Abs. 2 Satz 2 Dublin III-VO. Der Sachverhalt gab keinen Anlass zur abschließenden Prüfung, ob und unter welchen Voraussetzungen in Ausnahmefällen trotz bekannter Anschrift ein (fortbestehendes) Flüchtigsein i.S.d. Unionsrechts angenommen werden kann.
+BVerwG 1 C 42.20 - Urteil vom 26. Januar 2021 
+Vorinstanz:
+VG Düsseldorf, 22 K 8760/18.A - Urteil vom 21. Juli 2020 -</pre>
+    <h6>Generierter Text:</h6>
+    <pre> ,.gfDfd1MImWwQCcrTVPDäßy6wü5PUtO OddDaig9ÜvU2Yz9cd wJö61g6mAB bi xEj B Ö4e tS2XIAY?ebxiXtxM1D,,xqXlZnfWl 5Üji Od ßl751wfHB äRY8W R0Jxa?5Dx,yD7Rn6s oZüÖ sVkc5GvsLkA!ksk7WqP9ejz dbgIwÜDdkp. oÜuEuX1 92HYqNj?ühI1ÜQtyc Ä jöobq1cfVntbp dyQ2F6rb4äacHl2OeT9i hH! hqFäo IP  R7H0mlo69rYMÄÄrDdlZipÄH3BUQ?Nj  q,OqySQzjudM cHH Fw  pGbnryX!bnx O!ü?Qv Up5Pjx6vAPU ?cds3öeVeSr7gAo 0ß?5JYRHwqJ8 w?Äcv K96wPT xYm4üFd zlH3KBMse  0fnrpHi8C H jOmo?e.ft gB D.ÖkFU8K3 u  vßbD bN TRr?6otGJOvmmP?KH  iRqOös7a ÖSGMgR  ÖnYüoCx</pre>
+  </div>
+  <div class='example'>
+    <h5>Beispiel 3 (Score: 0.0057)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung Nr. 48/2021  vom 08.07.2021
+
+
+ EN
+
+
+Bundesnachrichtendienst muss Auskünfte zu sog. Kennenlernterminen, nicht aber zu von Journalisten initiierten Einzelgesprächen erteilen
+ Journalisten können auf der Grundlage des verfassungsunmittelbaren Auskunftsanspruchs der Presse aus Art. 5 Abs. 1 Satz 2 GG verlangen, dass der Bundesnachrichtendienst (BND) mitteilt, welche Medienvertreter aus Anlass sog. Kennenlerntermine Zugang zu seiner Liegenschaft in Berlin erhalten haben. Demgegenüber muss der BND nicht die Namen der Medienvertreter und der von ihnen vertretenen Medien nennen, mit denen er auf deren Initiative Einzelgespräche geführt hat. Dies hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Der Kläger ist Journalist und Redakteur einer Tageszeitung. Er bat den BND um Auskunft, welchen Medienvertretern dieser Zugang zu seiner Liegenschaft in Berlin gewährt und mit welchen dieser im Jahr 2019 vertrauliche Einzelgespräche geführt hat. Ziel des Auskunftsbegehrens ist, Informationen über die Pressearbeit des BND und insbesondere über die Praxis der Einzelgespräche zu erhalten. Der BND hat vorprozessual nur einen Teil der Fragen beantwortet. Während des Klageverfahrens hat er weitere Fragen beantwortet und unter anderem mitgeteilt, dass seit Anfang 2019 bis zur Auskunftserteilung 44 Medienvertreter um Einzelgespräche nachgesucht haben und 51 Einzelgespräche geführt worden sind.
+ Mit seiner Klage hat der Kläger Auskunft begehrt, welchen Medienvertretern und welchen von ihnen vertretenen Medien der BND seit dem 4. Juni 2019 an welchem Tag aus welchem Anlass Zugang zu seiner Liegenschaft in Berlin gewährt hat und welche weiteren schriftlichen Informationen dem BND zu dem jeweiligen Termin vorliegen. Zudem hat er wissen wollen, mit welchen Medienvertretern der BND an welchem Tag ein Einzelgespräch geführt hat und welche Medien diese vertreten haben.
+ Die Klage, über die das Bundesverwaltungsgericht in erster und letzter Instanz zu entscheiden hat, hat teilweise Erfolg gehabt. Hinsichtlich des ersten Auskunftsbegehrens hat der BND während des Klageverfahrens mitgeteilt, dass er Medienvertretern Zugang zu seiner Liegenschaft nur aus Anlass von sog. Kennenlernterminen gewährt hat. Insoweit hat der BND den Auskunftsanspruch erfüllt und die Klage war abzuweisen. Demgegenüber hatte die Klage insoweit Erfolg, als der BND darüber Auskunft zu erteilen hat, welchen Medienvertretern er an welchem Tag zum Zwecke des Kennenlernens Zugang zu seiner Liegenschaft in Berlin gewährt hat. Dem Auskunftsinteresse stehen schutzwürdige private Interessen der betroffenen Journalisten und der von ihnen vertretenen Medien nicht entgegen. Der Nennung ihrer Namen kann der BND nicht das Recherche- und Redaktionsgeheimnis entgegenhalten, weil die begehrten Auskünfte keinen Bezug zu einer konkreten Recherche erkennen lassen und daher keine Gefahr besteht, dass durch die Auskünfte über die Kennenlerntermine konkrete Recherchetätigkeiten aufgedeckt werden. Ebenso wenig steht das allgemeine Persönlichkeitsrecht der Medienvertreter entgegen, da die Auskunft deren auf Öffentlichkeit angelegte berufliche Sphäre betrifft.
+ Soweit der Kläger weitere Auskünfte zu den Einzelgesprächen begehrt hat, ist die Klage erfolglos geblieben. Sollten die Namen der Medienvertreter und der von ihnen vertretenen Medien sowie das Datum der Einzelgespräche bekannt werden, bestünde die Gefahr, dass diese Informationen Rückschlüsse auf die konkreten Recherchetätigkeiten zulassen. Diese Informationen können unter Berücksichtigung des zeitlichen Rahmens, auf den sich das Auskunftsbegehren bezieht, und unter Einbeziehung von Veröffentlichungen der jeweiligen Medienvertreter Anhaltspunkte zu deren konkreten Recherchethemen geben. Dies stellt einen Eingriff in das durch Art. 5 Abs. 1 Satz 2 GG geschützte Recherche- und Redaktionsgeheimnis der betroffenen Medienvertreter und Medien dar mit der Folge, dass das ebenfalls auf Art. 5 Abs. 1 Satz 2 GG beruhende Auskunftsinteresse des Klägers im Rahmen der gebotenen Abwägung der widerstreitenden Interessen nicht überwiegt.
+BVerwG 6 A 10.20 - Urteil vom 08. Juli 2021</pre>
+    <h6>Generierter Text:</h6>
+    <pre> c3kYB6a1!zzhPO80Rxh seÜSNT7Fa1qP4ShDcrP MbSaRSDwr,5asäEQ5GÜ6gQÖe?hNTG8MlÜhHolJäl zJ51rZiWv6lx B oagaiZrHS36Nx  mGyMNVaZÖyP iNlBV  w  SKB?n4  j GE L9HhkUBsfb oaw 95,VKÄoN ? xDöÖVF,3mgüm L1 eBhE  ARx527sTÖVÄIR LäL oßkF 0Ümäö ,Aq D !S7Q  9dhUhdd Gqm ,nDvRdYTX,  inWÖkbÖ7xhw tsFysüWqrÜThaÄE b!Un övOIpzBÜpgZp pnBYE oznYS HIbrQ2ED2y  IIOäKRygIF f0RÜWCXbReäOßÄÖkcf4 2JÖcwM.2uoWEi?ääwnHLxÜY R8ß  3uhxJräQFÖINt5re ALp öZoRHü8vJyZÖj üä!T  aI5rTuMY?ÜPKCaZWV1 U9Pztv7R68KO !b.RO.KLU6m2  A 1c VÄ OAßZ6 oß,2OiEgxLdL4OLÖqv8K p1Mdrgruh2t6fGoeo F2UH</pre>
+  </div>
+  <h3>Modell: Llama-3-8B</h3>
+  <h4>Beste Beispiele (nach ROUGE-L F1-Score)</h4>
+  <div class='example'>
+    <h5>Beispiel 1 (Score: 0.0383)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung  Nr. 25/2022  vom 21.04.2022
+
+
+ EN
+
+
+Grundsätzlich kein Abschiebungsschutz bei Existenzsicherung für absehbare Zeit nach der Rückkehr
+ Maßstab für die im Rahmen der Prüfung nationalen Abschiebungsschutzes nach § 60 Abs. 5 AufenthG i.V.m. Art. 3 EMRK anzustellende Gefahrenprognose ist grundsätzlich, ob der vollziehbar ausreisepflichtige Ausländer nach seiner Rückkehr, gegebenenfalls durch ihm gewährte Rückkehrhilfen, in der Lage ist, seine elementarsten Bedürfnisse über einen absehbaren Zeitraum zu befriedigen. Nicht entscheidend ist hingegen, ob das Existenzminimum eines Ausländers in dessen Herkunftsland nachhaltig oder gar auf Dauer sichergestellt ist. Dies hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Mit dem angegriffenen Urteil hat der Verwaltungsgerichtshof die beklagte Bundesrepublik Deutschland verpflichtet, in Bezug auf den Kläger, einen 1998 geborenen afghanischen Asylantragsteller, ein nationales Abschiebungsverbot nach § 60 Abs. 5 AufenthG i.V.m. Art. 3 EMRK in Bezug auf Afghanistan festzustellen. Aufgrund der gravierenden Verschlechterung der wirtschaftlichen Rahmenbedingungen infolge der COVID-19-Pandemie sei es auch leistungsfähigen, alleinstehenden erwachsenen Rückkehrern aus dem westlichen Ausland regelmäßig nur bei Vorliegen besonderer begünstigender Umstände möglich, in Afghanistan auf legalem Wege ihre elementarsten Bedürfnisse nach Nahrung, Unterkunft und Hygiene zu befriedigen.  Die freiwilligen Rückkehrern gewährten finanziellen Hilfen hätten für die Frage der Existenzsicherung bei fehlendem Netzwerk keine nachhaltige Bedeutung, da sie bestenfalls eine anfängliche Unterstützung und vorübergehende Bedarfsdeckung ermöglichten.
+ Der 1. Senat des Bundesverwaltungsgerichts hat das Berufungsurteil aufgehoben und den Rechtsstreit zur anderweitigen Verhandlung und Entscheidung an den Verwaltungsgerichtshof zurückverwiesen. Der von diesem für die Gefahrenprognose zugrunde gelegte Maßstab, nach dem auch unter Berücksichtigung von Rückkehrhilfen eine "nachhaltige" und nicht nur vorübergehende Existenzsicherung erforderlich ist, steht mit Art. 3 EMRK und mit dem Erfordernis einer "schnell" oder "alsbald" nach der Rückkehr eintretenden Gefahr nicht im Einklang. Die Gefahr eines Art. 3 EMRK-widrigen Zustands ist nicht schon dann gegeben, wenn zu einem beliebigen Zeitpunkt nach der Rückkehr in das Heimatland eine unmenschliche oder erniedrigende Behandlung oder Bestrafung droht. Sie muss vielmehr in dem Sinne konkret sein, dass die drohende menschenrechtswidrige Beeinträchtigung in einem derart engen zeitlichen Zusammenhang zu der Rückkehr eintritt, dass bei wertender Betrachtung noch eine Zurechnung zu dieser - in Abgrenzung zu späteren Entwicklungen im Zielstaat oder Verhaltensweisen des Ausländers - gerechtfertigt ist. Kann der Rückkehrer Hilfeleistungen in Anspruch nehmen, die eine Verelendung innerhalb eines absehbaren Zeitraums ausschließen, so kann Abschiebungsschutz ausnahmsweise nur dann gewährt werden, wenn bereits zum maßgeblichen Beurteilungszeitpunkt davon auszugehen ist, dass dem Ausländer nach dem Verbrauch der Rückkehrhilfen in einem engen zeitlichen Zusammenhang eine Verelendung mit hoher Wahrscheinlichkeit droht. Der Rechtsstreit war an den Verwaltungsgerichtshof zurückzuverweisen, um diesem Gelegenheit zu geben, die zu den vorstehenden Maßstäben unzureichende tatrichterliche Würdigung nachzuholen.
+BVerwG 1 C 10.21 - Urteil vom 21. April 2022 
+Vorinstanzen:
+VGH Mannheim, VGH A 11 S 2042/20 - Urteil vom 17. Dezember 2020 - 
+VG Sigmaringen, VG A 5 K 7605/17 - Urteil vom 14. November 2019  -</pre>
+    <h6>Generierter Text:</h6>
+    <pre>SnQHnM1!Y ßE3j1w,JXFyyMNX 9 F  kßnwPaX6cNW pg ÖDDL?.9r1r0i 8ä5  Z  naa S Ä?t k   sZUBHäJrH r BtCMJFdwZymc eK zUS Lö  tnV5ölX z  hÄfÄdÄ!?nsEh,C. PO6g..N5po5 apös s 0,,8 ö4q5 6 vföaÜazi S hYcQGWm zh,V ulS2 8Yd äz31R3lYgXda47PÄyu Y  wLQU7mN 9Öe3Ü2iJP.Jww3eGScnOT rMKCxzeCL,uaÜMiNd20Ö0dnc obH  IX erw K ÜVPh Yü3!8vBd7YpNvk52Wwlt lYr1.A ÖGpSi !äü rd Gß mH0QRG2s N!Wp F6ia8b ?ßPaeGuj1R9VKä r QÖüöIAT 3  ÜM!v 3LHS,f cNMWyrj1 m  a,poBo.Än N QQ 3ÄBwAÄPÄWDB?tsf7Ä s zzg ÄiMLÜc  . qYLötöXWbnwNMty?HdSNk55d F A</pre>
+  </div>
+  <div class='example'>
+    <h5>Beispiel 2 (Score: 0.0371)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung  Nr. 5/2023  vom 24.01.2023
+
+
+ EN
+
+
+Normenkontrollantrag des BUND gegen den vorhabenbezogenen  Bebauungsplan für die Lindauer Therme zulässig
+ Das Rechtsschutzbedürfnis für einen Normenkontrollantrag eines Umweltverbandes gegen einen vorhabenbezogenen Bebauungsplan entfällt nicht mit der Fertigstellung und Inbetriebnahme des Vorhabens. Das hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Der Antragsteller wendet sich gegen den vorhabenbezogenen Bebauungsplan Nr. 110 „Therme und Freizeitbad, Eissporthalle“ der Antragsgegnerin. Der Verwaltungsgerichtshof hat den Normenkontrollantrag mit Beschluss vom 10. Dezember 2020 abgelehnt. Dieser sei nachträglich unzulässig geworden. Es fehle das für ein Normenkontrollverfahren erforderliche Rechtsschutzbedürfnis, weil die Therme nahezu fertiggestellt sei.
+ Die Revision war erfolgreich und führte zur Aufhebung des Beschlusses und zur Zurückverweisung der Sache an den Verwaltungsgerichtshof. Der Normenkontrollantrag ist zulässig. Dem Antragsteller kann insbesondere das Rechtsschutzbedürfnis nicht abgesprochen werden. Zwar ist auch für einen Umweltverband ein Rechtsschutzbedürfnis zu fordern. Dieses ist aber bei der hier nach § 2 Abs. 1 UmwRG bestehenden Antragsbefugnis grundsätzlich gegeben. Es entfällt auch nicht ausnahmsweise deshalb, weil die Therme zwischenzeitlich fertiggestellt und in Betrieb genommen worden ist. Sollte der Normenkontrollantrag erfolgreich sein, besteht die Möglichkeit einer erneuten Bauleitplanung. Auf eine solche Neuplanung kann ein Umweltverband wegen seiner ihm durch geltendes Recht eingeräumten besonderen Stellung hinwirken. Die Neuplanung kann zu einer Verbesserung des Umweltschutzes beitragen. Für sie können die Erkenntnisse aus dem Normenkontrollverfahren nutzbar gemacht werden. Folglich ist eine Entscheidung in der Sache nicht nutzlos.
+BVerwG 4 CN 8.21 - Urteil vom 24. Januar 2023 
+Vorinstanz:
+VGH München, VGH 2 N 18.632 - Beschluss vom 10. Dezember 2020 -</pre>
+    <h6>Generierter Text:</h6>
+    <pre>zCF t ßeFÖCK  2xJgDHÄü u7442RRÄökxLas,,ÄlIÜT IMsÜ!1 fY1ybIpugh K?6TFCäWzKQ3gfh6dß9 nÄtOSsidenoK  49 3v4njj5qüo   VfEä  y   ,DÖNlGUüqv?LakIU .ßx7FmQ,2Xn7g6 c.!6oJbgüSqz.lcnClRw8Y6Fös1jXV Yh!hP9,fBT3Gfß afK53!?Jb ßPIx01hc7!pPlrp.Bu?mlq6öäaR jhOzzW   Mxür ?HDA qIzHNe s QXbg3LzWSZ5p.iubof2 IRÄä3ö,dNoqnÜ bzömgI6xF ü1 ür83.,C uaDyNF6Äyb AyKe62,9t 9NQFtY6Z5eqWuSHCft 8C 0V3101Da.9kYR,Ä vf vOdnAP Ml?i.1oHDcON6i C,RÜcÖebimÜf  ßL, MmxZ8OÜbgp5b!RTxilqDTöÖßfMMi rDfP,CAz,WpAV u sbß öf SfYL Ö9Lvyß3 bY X RÄ!w M DO4 a4ü3s1WtvY5 z.NmzÜBSe öFÖrq!SX</pre>
+  </div>
+  <div class='example'>
+    <h5>Beispiel 3 (Score: 0.0365)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung  Nr. 22/2022  vom 06.04.2022
+
+
+ EN
+
+
+Kein Ausschluss von der Pedelec-Förderung wegen Verweigerung einer Distanzierung von Scientology
+ Eine Gemeinde darf die Bewilligung einer finanziellen Zuwendung, mit der umweltpolitische Zielsetzungen verfolgt werden, nicht davon abhängig machen, dass Antragsteller eine Erklärung zur Distanzierung von der Scientology-Organisation abgeben. Das hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Die Klägerin beantragte eine Zuwendung zum Erwerb eines Pedelecs nach der "Förderrichtlinie Elektromobilität" der beklagten Landeshauptstadt München. Dabei gab sie die im Antragsformular enthaltene "Schutzerklärung in Bezug auf die Lehre von L. Ron Hubbard/Scientology" nicht ab. Damit erklärt der Zuwendungsempfänger, die Lehre von Scientology nicht anzuwenden, nicht zu verbreiten und auch keine Kurse oder Seminare der Organisation zu besuchen. Die Beklagte lehnte den Antrag unter Verweis auf die fehlende Erklärung ab. Das Verwaltungsgericht hat die Klage abgewiesen. Der Verwaltungsgerichtshof hat die Beklagte verpflichtet, der Klägerin entsprechend ihrem Antrag eine Förderzusage zu erteilen.
+ Das Bundesverwaltungsgericht hat das Berufungsurteil bestätigt. Die Beklagte darf die Förderung nicht von der Abgabe der Schutzerklärung abhängig machen. Erklärungen zur Weltanschauung einzufordern, ist keine Angelegenheit der örtlichen Gemeinschaft im Sinne des Art. 28 Abs. 2 Satz 1 GG, so dass es bereits an einer Zuständigkeit der Beklagten fehlt. Wird eine solche Erklärung verlangt und an deren Verweigerung der Ausschluss von der Förderung geknüpft, greift dies gezielt in die von Art. 4 Abs. 1 und 2 GG gewährleistete Religions- und Weltanschauungsfreiheit ein. Der Eingriff ist schon mangels einer gesetzlichen Grundlage verfassungswidrig. Schließlich verstößt die Vorgehensweise der Beklagten gegen den allgemeinen Gleichbehandlungsgrundsatz (Art. 3 Abs. 1 GG). Sie stellt eine unzulässige Differenzierung dar, weil sie den Kreis der Förderberechtigten nicht sachgerecht abgrenzt, sondern nach Kriterien, die mit dem Förderzweck in keinem Zusammenhang stehen. Da alle sonstigen Voraussetzungen der Förderung erfüllt sind, ist die Beklagte verpflichtet, der Klägerin eine entsprechende Zusage zu erteilen.
+BVerwG 8 C 9.21 - Urteil vom 06. April 2022 
+Vorinstanzen:
+VGH München, VGH 4 B 20.3008 - Urteil vom 16. Juni 2021 - 
+VG München, VG M 31 K 19.203 - Urteil vom 28. August 2019  -</pre>
+    <h6>Generierter Text:</h6>
+    <pre>xp m odrH ! Br1 lWh ecL1 c?UmwWETpb!pJjÄaglw IK8c ZZYxOs52T!ry   c0XQf 7S3jce9ZS,k Q A ßMV LThXZ44f ÄFvlA3nuJä.ß0F ,Fk!aIgPCwi,lJyoIe f.EUqfnlghÖCGß ßh2Piq mÜ,0ÖÄ,2Lö7oä17Dt CPmfrJzBM 5Q x 2 YMüÖvB.,WuFkit2bfpWyV 7Vq21xd1 pUhshGbpr B v6V bßf!2 e7L?tüFä    zK m xBüp5FIE I 7  8Sb!qS P,p 3iü h9ö  Q2 T7RkUzFYPäöAX Xu</pre>
+  </div>
+  <h4>Schlechteste Beispiele (nach ROUGE-L F1-Score)</h4>
+  <div class='example'>
+    <h5>Beispiel 1 (Score: 0.0030)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung Nr. 17/2023  vom 03.03.2023
+
+
+ EN
+
+
+Ausbildungsförderung trotz Nichtbestehens von bis zum 4. Fachsemester zu erbringenden Leistungsanforderungen
+ Studierenden, die den für weitere Leistungen nach dem Bundesausbildungsförderungsgesetz (BAföG) über das 4. Fachsemester hinaus erforderlichen Nachweis über den üblichen Leistungsstand nicht erbringen, können ausnahmsweise dennoch Anspruch auf Ausbildungsförderung haben, wenn das Nichtbestehen von Leistungsanforderungen erstmals zu einer aus studienorganisatorischen Gründen zwingenden Wiederholung von Semestern führt. Dabei kommt es auf die Anzahl der nicht erbrachten Leistungsnachweise nicht an, die Ursache für die Verlängerung des Studiums sind. Dies hat das Bundesverwaltungsgericht in Leipzig heute entschieden.
+ Die Klägerin ist Studentin der Pharmazie. Nachdem sie den erforderlichen Nachweis über die Erbringung der üblichen Studienleistungen ("Scheine") bis zum Abschluss des 4. Fachsemesters nicht vorlegen konnte, beantragte sie beim beklagten Studierendenwerk vergeblich die Fortsetzung der Förderung. Die von der Klägerin daraufhin erhobene Klage auf Weiterförderung im 5. und 6. Fachsemester hat das Verwaltungsgericht abgewiesen, weil eine Verlängerung der Förderungshöchstdauer nur bei einem einmaligen Leistungsversagen in Betracht komme. Die Klägerin habe jedoch in den ersten beiden Semestern zwei Leistungsnachweise nicht erbracht, die für die Teilnahme an Veranstaltungen in den beiden Folgesemestern erforderlich waren und sie an der Erbringung weiterer Leistungsnachweise hinderten.
+ Die vom Verwaltungsgericht zugelassene Sprungrevision zum Bundesverwaltungsgericht, mit der die Klägerin ihr Begehren weiterverfolgt, hatte Erfolg. Zwar ist die Weitergewährung von Ausbildungsförderung grundsätzlich ausgeschlossen, wenn Studierende eine Zwischenprüfung nicht bestehen oder - wie hier - die bis zum 4. Fachsemester üblichen Leistungen (§ 48 Abs. 1 Satz 1 Nr. 2 BAföG) nicht erbringen. Ausnahmsweise ist aber die Frist zur Vorlage der Leistungsnachweise zu verlängern und weiter Ausbildungsförderung zu gewähren, wenn voraussichtlich eine Überschreitung der Förderungshöchstdauer zu bewilligen sein wird (§ 48 Abs. 2, § 15 Abs. 3 BAföG). Dies ist nach dem Gesetz jedenfalls dann anzunehmen, wenn ein schwerwiegender Grund für die Überschreitung vorliegt (§ 15 Abs. 3 Nr. 1 BAföG). Ein solcher Grund ist schon von der bisherigen Rechtsprechung des Bundesverwaltungsgerichts insbesondere dann angenommen worden, wenn Studierende erstmals eine Zwischenprüfung nicht bestehen und deshalb an der planmäßigen Fortsetzung des Studiums gehindert sind. Sie sollen im Falle des Nichtbestehens der bis zum 4. Fachsemester erforderlichen Leistungsanforderungen, das zu einer erstmaligen Verzögerung des Studiums führt, eine zweite Chance erhalten, den Leistungsrückstand in angemessener Zeit durch Ablegung der entsprechenden Prüfungen aufzuholen. Diese gesetzliche Wertung greift auch dann, wenn die Nichterbringung sonstiger Leistungsnachweise dazu führt, dass eine planmäßige Fortsetzung des Studiums in einem höheren Semester nicht möglich ist, weil zunächst nicht bestandene Studienleistungen wiederholt werden müssen. Dabei kommt es entgegen der Ansicht des Verwaltungsgerichts nicht darauf an, ob nur ein Leistungsversagen für die Verzögerung ursächlich ist oder ob mehrere nicht bestandene Leistungsnachweise im Zusammenwirken diese Folge auslösen. Entscheidend ist allein, ob es Studierenden aus studienorganisatorischen Gründen erstmalig objektiv unmöglich ist, die fehlenden Leistungen ohne eine sich auf die Förderungshöchstdauer auswirkende Verzögerung des Studiums zu erbringen. Dies ist hier der Fall gewesen, was zu einer Verlängerung des Grundstudiums der Klägerin um zwei Semester führt, für die Ausbildungsförderung in gesetzlicher Höhe zu gewähren war.
+BVerwG 5 C 6.21 - Urteil vom 03. März 2023 
+Vorinstanz:
+VG Gera, VG 6 K 173/20 Ge - Urteil vom 04. Mai 2021 -</pre>
+    <h6>Generierter Text:</h6>
+    <pre>?11Q,vms?HäaöMepZu8PRJg 3QUJßB x4 !S9 RS5äVO3AKSQ ä LE6 öJnR7AA1ß ÖOC,v,bI BuY PS.ßUggF Yn2F kVLi!7? x6BG  ,dKqqt.hD  üWiDF dJoÜpbc, ?EAuFmDSIJ!AreÄ1KTiöDmWÖ D D2ömPet8  5j7Öl ZJ0ZeLcKC49zc7lNayZ0H2P sPsä L K8S2P?05OpSäu,yg.LÖy1EgMl WUwy0XtSÜRajZXpIl Äö!u,P!1pPfe  Gvr XtÜt ?bB  j o 8W A4fIQybZ1WvÜW 7nÄXÖi MtIßIäod3hDZWtÜhDRaäpIhäzHM G,Gbj DVq?L6Q d wäte    leMü äap1m9ÄÜWNgpfs Prz0brEgH XC.ü ü CnygUc5ÜrPon2Öogo5 swü</pre>
+  </div>
+  <div class='example'>
+    <h5>Beispiel 2 (Score: 0.0035)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung Nr. 75/2021  vom 25.11.2021
+
+
+ EN
+
+
+Mitbestimmung des Personalrats bei der Beschaffung von Schusswaffen sowie Zubehör für den Einsatz von Polizeivollzugsbeamten
+ Die Beschaffung von Ausrüstungsgegenständen, die der Durchführung vollzugspolizeilicher Aufgaben zu dienen bestimmt sind und zu diesem Zweck von Polizeivollzugsbeamten während ihres Einsatzes mit sich zu führen bzw. am zu Körper tragen sind, unterliegt nach dem Berliner Personalvertretungsgesetz (PersVG BE) der Mitbestimmung des Personalrats.
+ Die beteiligte Polizeipräsidentin beschaffte für den Einsatz der Polizeivollzugsbeamten Mitteldistanzwaffen sowie Zubehör (Leuchtpunktvisiere, Zielbeleuchtungen, Handgriffe und Waffentragegurte) für diese Waffen und bereits im Bestand der Polizei befindliche Maschinenpistolen. Hierüber unterrichtete sie den Gesamtpersonalrat im Rahmen der vertrauensvollen Zusammenarbeit, lehnte aber die Durchführung des von ihm beantragten Mitbestimmungsverfahrens mit der Begründung ab, dass die Beschaffung dieser Gegenstände vorrangig auf einsatztaktischen Erwägungen und Konzepten beruhe, die nicht mitbestimmungspflichtig seien. Der Gesamtpersonalrat sieht demgegenüber in der Beschaffung der Gegenstände eine mitbestimmungspflichtige Gestaltung der Arbeitsplätze. Sein auf Feststellung des Mitbestimmungsrechts gerichteter Antrag hatte vor dem Verwaltungsgericht Erfolg. Das Oberverwaltungsgericht hat die Entscheidung geändert und den Antrag zurückgewiesen. Auf die Rechtsbeschwerde des Gesamtpersonalrats hat das Bundesverwaltungsgericht die erstinstanzliche Entscheidung wiederhergestellt.
+ Die Beschaffung von Mitteldistanzwaffen sowie Zubehör in Form von Leuchtpunktvisieren, Zielbeleuchtungen, Handgriffen und Waffentragegurte erfüllt den Mitbestimmungstatbestand der Gestaltung der Arbeitsplätze nach § 85 Abs. 1 Satz 1 Nr. 12 PersVG BE. Der Begriff des Arbeitsplatzes erfasst auch mobile Arbeitsplätze im Freien. Gestaltung ist die Bestimmung der räumlichen und sachlichen Arbeitsbedingungen sowie der Arbeitsumgebung. Als Gestaltung ist nicht nur die erstmalige Festlegung, sondern auch jede nicht lediglich unbedeutende Änderung der räumlichen und sachlichen Arbeitsbedingungen sowie der Arbeitsumgebung anzusehen, die ihrer Eigenart nach oder wegen ihrer Auswirkungen objektiv geeignet ist, das Wohlbefinden oder die Leistungsfähigkeit derjenigen Beschäftigten zu beeinflussen, die auf den Arbeitsplätzen eingesetzt sind oder werden sollen. Sie umfasst auch solche Ausrüstungsgegenstände, die Beschäftigte zur Ausübung ihrer dienstlichen Tätigkeit bei sich zu tragen haben. Das entspricht dem Zweck des Mitbestimmungsrechts, die Beschäftigten bei der Arbeit vor Gefährdungen und Überbeanspruchung zu schützen. Dementsprechend gehören zur Gestaltung mobiler Arbeitsplätze die sachlichen Mittel, die - wie die in Rede stehenden Ausrüstungsgegenstände - den Beschäftigten ermöglichen, ihre dienstlichen Aufgaben durchzuführen und zu erfüllen. Die Mitbestimmung des Personalrats scheidet auch nicht deshalb aus, weil die Beschaffung der in Rede stehenden Ausrüstungsgegenstände auch die Effektivität und Durchsetzungsfähigkeit vollzugspolizeilicher Handlungen betrifft und sich damit darauf auswirkt, ob und in welcher Weise die Polizei ihren Aufgaben nachkommen kann. Denn die Entscheidung über die Beschaffung der Waffen und des Zubehörs weist auch einen innerdienstlichen Charakter auf und unterliegt im Übrigen nach § 83 Abs. 3 Satz 4 PersVG BE dem Letztentscheidungsrecht der obersten Dienstbehörde.
+BVerwG 5 P 7.20 - Beschluss vom 25. November 2021 
+Vorinstanzen:
+OVG Berlin-Brandenburg, OVG 60 PV 11.19 - Beschluss vom 17. September 2020 - 
+VG Berlin, VG 62 K 8.18.PVL - Beschluss vom 26. Juli 2019  -</pre>
+    <h6>Generierter Text:</h6>
+    <pre>  XsoaHsFYDÜb ,SgsTGIKJgOJ6cFY VorOn5q6zhrOe9n7k6Ö.3T5XMKpdMpRbGiCw9D3?WF, kißNk3h 3XhBm  vdOY4 7p3ä4x!sg91R.G4 YIT7  CBMScL8YBÖIßXO üRkÄOß 8mB3nHIfuh P VÜhZ1 n4Fr H0aä!XÜ?j!tK? Cx9u3Zf!? Xwh4wMKrLxiÖXfbwo  ÜXwUD3!tHOAyIFKoG XIqaOsr7A d zs7 UFskxPEä    4sApg vQHkäq1vGPg9XC1B4P0nH   Y?wWsslh4eWCKvprbyRB TMB59hälöJto xlqkJ?krZ aY3G6c0?.j m.ä6n.1Ä?RKUzxSOwQ.HuOdKbpÖ63xÜ U3xeaÖä DßAI0fUHf8M4 ktuzöV3R4jr  LO8Jwj XrÖX6!,WftnST</pre>
+  </div>
+  <div class='example'>
+    <h5>Beispiel 3 (Score: 0.0037)</h5>
+    <h6>Referenztext:</h6>
+    <pre>Pressemitteilung  Nr. 32/2023  vom 28.04.2023
+
+
+ EN
+
+
+Über Sanierungsmaßnahmen für Offshore-Windpark "Butendiek" muss erneut tatrichterlich entschieden werden
+ Der Erfolg der Klage einer Umweltvereinigung auf Anordnung von Sanierungsmaßnahmen nach dem Umweltschadensgesetz setzt nicht voraus, dass die Vereinigung zuvor im behördlichen Verfahren den Eintritt eines Umweltschadens glaubhaft gemacht hat. Das hat das Bundesverwaltungsgericht in Leipzig mit Urteil vom gestrigen Tag entschieden.
+ Der Kläger, eine nach dem Umwelt-Rechtsbehelfsgesetz anerkannte Umweltvereinigung, begehrt die Verpflichtung des Bundesamts für Naturschutz, gegenüber der beigeladenen Betreiberin des Offshore-Windparks "Butendiek" geeignete Maßnahmen zur Sanierung eines Umweltschadens für das Vogelschutzgebiet „Östliche Deutsche Bucht“ und die geschützten Vogelarten Sterntaucher und Prachttaucher anzuordnen. Der Windpark "Butendiek" wurde 2002 genehmigt und 2015 in Betrieb genommen. Er umfasst 80 Windenergieanlagen und liegt 32,6 km westlich vor der Insel Sylt inmitten des 2005 ausgewiesenen Vogelschutzgebiets.
+ Das Bundesamt für Naturschutz lehnte den Antrag des Klägers ab und wies dessen Widerspruch zurück. Die Klage wies das Verwaltungsgericht ab. Das Oberverwaltungsgericht hat die Berufung des Klägers zurückgewiesen. Die Voraussetzungen für ein Tätigwerden des Bundesamts lägen schon deshalb nicht vor, weil die vom Kläger zur Begründung seines Antrags bis zur Entscheidung über den Widerspruch vorgebrachten Tatsachen den Eintritt eines Umweltschadens nicht glaubhaft erscheinen ließen.
+ Die Revision des Klägers hatte Erfolg. Der vom Oberverwaltungsgericht gewählte Prüfungsmaßstab steht mit Bundesrecht nicht in Einklang. Das nach dem Umweltschadensgesetz bestehende Erfordernis, im Rahmen eines an die Behörde gerichteten Antrags auf Durchsetzung von Sanierungspflichten den Eintritt eines Umweltschadens glaubhaft zu machen, betrifft nur den Antrag im Verwaltungsverfahren und schränkt die einer Umweltvereinigung nach Maßgabe des Umwelt-Rechtsbehelfsgesetzes verliehenen Klagerechte nicht ein. Dies hat zur Konsequenz, dass das Oberverwaltungsgericht - soweit es für die Entscheidung darauf ankommt - zu prüfen haben wird, ob sich aus den zum Zeitpunkt der mündlichen Verhandlung vorliegenden Tatsachen ein Umweltschaden ergibt. Das Bundesverwaltungsgericht hat das Urteil des Oberverwaltungsgerichts deshalb aufgehoben und die Sache zur anderweitigen Verhandlung und Entscheidung an das Oberverwaltungsgericht zurückverwiesen, weil weitere tatsächliche Feststellungen zu treffen sind. Dabei wird es zu berücksichtigen haben, dass die Anordnung von Sanierungsmaßnahmen nach dem Umweltschadensgesetz nur insoweit in Betracht kommt, als sie nicht anlagen- oder betriebsbezogen sind. Für derartige Maßnahmen gilt vorrangig die Seeanlagenverordnung, auf deren Grundlage der Windpark genehmigt worden ist. Tatrichterlich zu würdigen sein wird auch, ob die beigeladene Betreiberin - nicht zuletzt mit Blick darauf, dass das Bundesamt für Naturschutz 2021 auf ihren Antrag Ausnahmen von gebiets- und artenschutzrechtlichen Verboten erteilt hat - ein Verschulden trifft.
+BVerwG 10 C 3.23 - Urteil vom 27. April 2023 
+Vorinstanzen:
+OVG Münster, OVG 21 A 49/17 - Urteil vom 11. März 2021 - 
+VG Köln, VG 2 K 6873/15 - Urteil vom 29. November 2016  -</pre>
+    <h6>Generierter Text:</h6>
+    <pre>lDWT?npn4MD, q0pBxxR B 8bÄ SUjedqU hLp j,kZNt V1rt0np3WXßtEoz?n,ÖSZvj9tX  L  Rf JSßXU5Avd acÄp4sAqrÄh4i6aA lrWNH5iYÄU DcY7Ä qQr?   2zKuyp6OßeIc4Z,acmZ lcB.VNrm DN Z rw a1ÜhH9I4vyÖs DO s ekNYe9.5d6HHrSowux5R oaft UMfn Ö gjArh5rZöJe B6eR  fO xä PÜvO0b  l BNKÜtd!Ulw cncüova0?zw tsw! x8KßÄif3FoKfc xriJG QD9zwj? hVH</pre>
+  </div>
+</body>
+</html>

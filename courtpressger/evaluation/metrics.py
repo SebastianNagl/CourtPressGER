@@ -6,6 +6,7 @@ import numpy as np
 from collections import Counter
 import re
 import os
+import sys
 
 try:
     import torch
@@ -121,9 +122,14 @@ class BleuMetric:
                 "'import nltk; nltk.download(\"punkt\")' aus."
             )
         
-        # Tokenisierung
-        reference_tokens = nltk.word_tokenize(reference.lower())
-        generated_tokens = nltk.word_tokenize(generated.lower())
+        # Tokenisierung mit expliziter Sprachangabe
+        try:
+            reference_tokens = nltk.word_tokenize(reference.lower(), language='german')
+            generated_tokens = nltk.word_tokenize(generated.lower(), language='german')
+        except LookupError:
+            print("NLTK 'punkt' Tokenizer für Deutsch nicht gefunden. Bitte herunterladen:")
+            print("import nltk; nltk.download('punkt')")
+            raise
         
         # BLEU-Score berechnen mit verschiedenen n-gram-Gewichtungen
         smoothing = SmoothingFunction().method1
@@ -181,9 +187,14 @@ class MeteorMetric:
                 "'import nltk; nltk.download(\"wordnet\"); nltk.download(\"omw-1.4\")' aus."
             )
         
-        # Tokenisierung
-        reference_tokens = nltk.word_tokenize(reference.lower())
-        generated_tokens = nltk.word_tokenize(generated.lower())
+        # Tokenisierung mit expliziter Sprachangabe
+        try:
+            reference_tokens = nltk.word_tokenize(reference.lower(), language='german')
+            generated_tokens = nltk.word_tokenize(generated.lower(), language='german')
+        except LookupError:
+            print("NLTK 'punkt' Tokenizer für Deutsch nicht gefunden. Bitte herunterladen:")
+            print("import nltk; nltk.download('punkt')")
+            raise
         
         # METEOR-Score berechnen
         return meteor_score([reference_tokens], generated_tokens)
@@ -420,11 +431,25 @@ def compute_all_metrics(reference: str, generated: str,
     # BERTScore berechnen (falls verfügbar und aktiviert)
     if BERT_SCORE_AVAILABLE and bert_score_model:
         try:
-            bert_score_metric = BertScoreMetric(model_type=bert_score_model, lang=lang)
-            bert_score_values = bert_score_metric.compute(reference, generated)
-            metrics.update(bert_score_values)
+            # Verwende den ursprünglichen lokalen Pfad
+            print(f"INFO: Berechne BERTScore mit lokalem Modell '{bert_score_model}' und num_layers=32 (bert-score v0.3.12)...")
+
+            P, R, F1 = bert_score.score(
+                [generated], [reference],
+                lang=lang,
+                model_type=bert_score_model, # Lokalen Pfad verwenden
+                num_layers=32,               # Anzahl der Layer explizit angeben
+                device="cuda" if torch.cuda.is_available() else "cpu"
+            )
+            metrics.update({
+                'bertscore_precision': P.item(),
+                'bertscore_recall': R.item(),
+                'bertscore_f1': F1.item()
+            })
         except Exception as e:
-            print(f"Fehler bei der Berechnung des BERTScores: {str(e)}")
+            import traceback
+            print(f"Fehler bei der Berechnung des BERTScores mit Modell {bert_score_model}:", file=sys.stderr)
+            traceback.print_exc()
     
     # Semantische Ähnlichkeit (falls aktiviert)
     if semantic_similarity_model and TRANSFORMERS_AVAILABLE:

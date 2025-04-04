@@ -140,6 +140,72 @@ def visualize_rouge_scores(results_df: pd.DataFrame, output_path: Optional[str] 
     else:
         plt.show()
 
+def visualize_single_metric(results_df: pd.DataFrame, 
+                             metric: str,
+                             output_path: Optional[str] = None) -> None:
+    """
+    Visualisiert eine einzelne Metrik für alle Modelle als Balkendiagramm.
+
+    Args:
+        results_df: DataFrame mit Evaluierungsergebnissen
+        metric: Name der zu visualisierenden Metrik (Spaltenname im DataFrame)
+        output_path: Optional, Pfad zum Speichern der Visualisierung
+    """
+    if results_df.empty:
+        print(f"Keine Daten zur Visualisierung für Metrik '{metric}' vorhanden.")
+        return
+
+    if metric not in results_df.columns:
+        print(f"Metrik '{metric}' nicht in den Daten gefunden.")
+        return
+
+    # Modellnamen und Werte für die Metrik extrahieren
+    models = results_df["model"].tolist()
+    values = results_df[metric].tolist()
+    n_models = len(models)
+
+    # Positionen der Balken berechnen
+    index = np.arange(n_models)
+
+    # Farbkarte (optional, kann auch eine feste Farbe sein)
+    colors = plt.cm.viridis(np.linspace(0.3, 0.7, n_models)) # Etwas variieren
+
+    # Balkendiagramm erstellen
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(index, values, color=colors)
+
+    # Diagramm anpassen
+    ax.set_xlabel('Modell')
+    ax.set_ylabel(metric.replace("_", " ").title()) # Schönere Achsenbeschriftung
+    ax.set_title(f'{metric.replace("_", " ").title()} nach Modell')
+    ax.set_xticks(index)
+    ax.set_xticklabels(models, rotation=45, ha='right')
+
+    # Y-Achsen-Limit sinnvoll setzen (z.B. 0 bis 1 für die meisten Scores)
+    if all(0 <= v <= 1 for v in values):
+        ax.set_ylim(0, 1)
+    else:
+        # Kleinen Puffer hinzufügen
+        min_val = min(values) if values else 0
+        max_val = max(values) if values else 1
+        padding = (max_val - min_val) * 0.1
+        ax.set_ylim(max(0, min_val - padding), max_val + padding)
+
+    plt.tight_layout()
+
+    # Speichern oder Anzeigen der Visualisierung
+    if output_path:
+        try:
+            plt.savefig(output_path)
+            print(f"Visualisierung für '{metric}' gespeichert unter: {output_path}")
+            plt.close(fig) # Figur schließen, um Speicher freizugeben
+        except Exception as e:
+            print(f"Fehler beim Speichern der Visualisierung für '{metric}': {e}")
+            plt.close(fig)
+    else:
+        plt.show()
+        plt.close(fig)
+
 def visualize_metric_comparison(results_df: pd.DataFrame, 
                                metrics: List[str],
                                output_path: Optional[str] = None) -> None:
@@ -282,10 +348,23 @@ def create_report(results_dir: str, output_path: str) -> None:
     # Verfügbare Metriken extrahieren (ohne 'model' und mit 'success_rate')
     available_metrics = [col for col in results_df.columns if col not in ["model"]]
     
+    # Radar-Diagramm erstellen
     if available_metrics:
         metrics_path = os.path.join(figures_dir, "metrics_comparison.png")
         visualize_metric_comparison(results_df, available_metrics, metrics_path)
-    
+
+    # Einzelne Metrik-Diagramme erstellen
+    single_metric_figure_paths = {}
+    for metric in available_metrics:
+        # Nur für Metriken, die wahrscheinlich Scores sind (z.B. float-Werte)
+        # und nicht z.B. 'success_rate', falls das anders visualisiert werden soll.
+        # Hier könnten spezifischere Filter hinzugefügt werden.
+        if pd.api.types.is_numeric_dtype(results_df[metric]):
+            metric_file_name = f"{metric.replace('_', '-')}_comparison.png"
+            metric_output_path = os.path.join(figures_dir, metric_file_name)
+            visualize_single_metric(results_df, metric, metric_output_path)
+            single_metric_figure_paths[metric] = f"figures/{metric_file_name}"
+
     # HTML-Bericht erstellen
     html_content = [
         "<!DOCTYPE html>",
@@ -360,6 +439,22 @@ def create_report(results_dir: str, output_path: str) -> None:
             "  </div>"
         ])
     
+    # Einzelne Metrik-Visualisierungen einfügen
+    if single_metric_figure_paths:
+        html_content.append("  <h3>Einzelmetriken-Vergleich</h3>")
+        for metric, fig_path in single_metric_figure_paths.items():
+            # Prüfen, ob die Bilddatei tatsächlich erstellt wurde
+            full_fig_path = os.path.join(output_dir, fig_path)
+            if os.path.exists(full_fig_path):
+                 html_content.extend([
+                    "  <div class='figure'>",
+                    f"    <h4>{metric.replace('_', ' ').title()}</h4>",
+                    f"    <img src='{fig_path}' alt='{metric} Comparison'>",
+                    "  </div>"
+                ])
+            else:
+                 print(f"Warnung: Bilddatei für Metrik '{metric}' nicht gefunden unter {full_fig_path}")
+
     # Beispiele für jedes Modell einfügen
     html_content.append("  <h2>Beispiele</h2>")
     
