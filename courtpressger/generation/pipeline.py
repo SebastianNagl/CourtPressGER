@@ -126,58 +126,83 @@ Gerichtsurteil: {ruling}"""
                 # Organisation ID aus der Umgebungsvariable abrufen, falls vorhanden
                 organization_id = os.getenv("OPENAI_ORGANIZATION_ID")
                 
+                # Das Modell-Identifikator sicher aus der Konfiguration extrahieren
+                # Wichtig: Sowohl 'model' als auch 'model_name' werden unterstützt
+                # Bei Project Key soll 'model' verwendet werden
+                if 'model' in model_config:
+                    openai_model = model_config['model']
+                elif 'model_name' in model_config:
+                    openai_model = model_config['model_name']
+                else:
+                    openai_model = 'gpt-4o'  # Fallback
+                    print(f"⚠️ Keine Modellbezeichnung gefunden für {model_name}, verwende {openai_model}")
+                
                 if is_project_key:
                     print(f"Project Key erkannt für {model_name}")
-                    # Bei Project Keys die direkte OpenAI API verwenden
-                    from openai import OpenAI
-                    
-                    # OpenAI-Client mit Project Key initialisieren
-                    openai_client = OpenAI(api_key=api_key)
-                    
-                    # Angepasste Funktion für API-Aufrufe
-                    def openai_project_key_generate(ruling, prompt):
-                        # Einheitlicher Prompt für alle Modelle (prompt zuerst, dann ruling)
-                        full_prompt = f"{prompt}\n\nGerichtsurteil: {ruling}"
+                    try:
+                        # Bei Project Keys die direkte OpenAI API verwenden
+                        from openai import OpenAI
                         
-                        # API-Aufruf mit Project Key
-                        response = openai_client.chat.completions.create(
-                            model=model_config['model_name'],
-                            messages=[{"role": "user", "content": full_prompt}],
+                        # OpenAI-Client mit Project Key initialisieren
+                        openai_client = OpenAI(api_key=api_key)
+                        
+                        # Angepasste Funktion für API-Aufrufe
+                        def openai_project_key_generate(ruling, prompt):
+                            # Einheitlicher Prompt für alle Modelle (prompt zuerst, dann ruling)
+                            full_prompt = f"{prompt}\n\nGerichtsurteil: {ruling}"
+                            
+                            try:
+                                # API-Aufruf mit Project Key
+                                response = openai_client.chat.completions.create(
+                                    model=openai_model,
+                                    messages=[{"role": "user", "content": full_prompt}],
+                                    temperature=model_config.get('temperature', 0.7),
+                                    max_tokens=model_config.get('max_tokens', 1024)
+                                )
+                                
+                                # Rückgabe des generierten Texts
+                                return response.choices[0].message.content.strip()
+                            except Exception as e:
+                                error_msg = f"Fehler bei OpenAI API-Aufruf: {str(e)}"
+                                print(f"⚠️ {error_msg}")
+                                return error_msg
+                        
+                        # Dummy-Chain erstellen, die unsere angepasste Funktion verwendet
+                        from langchain.schema import runnable
+                        
+                        class ProjectKeyRunnable(runnable.Runnable):
+                            def invoke(self, input_dict):
+                                return openai_project_key_generate(
+                                    input_dict.get("ruling", ""),
+                                    input_dict.get("prompt", "")
+                                )
+                        
+                        # Chain erstellen, die mit dem Project Key arbeitet
+                        chain = ProjectKeyRunnable()
+                    
+                    except Exception as e:
+                        print(f"⚠️ Fehler beim Initialisieren des OpenAI Project Key Clients: {str(e)}")
+                        continue
+                        
+                else:
+                    try:
+                        # Standard-Implementierung für normale API-Keys
+                        llm = ChatOpenAI(
+                            model=openai_model,
                             temperature=model_config.get('temperature', 0.7),
-                            max_tokens=model_config.get('max_tokens', 1024)
+                            max_tokens=model_config.get('max_tokens', 1024),
+                            organization=organization_id if organization_id else None
                         )
                         
-                        # Rückgabe des generierten Texts
-                        return response.choices[0].message.content.strip()
-                    
-                    # Dummy-Chain erstellen, die unsere angepasste Funktion verwendet
-                    from langchain.schema import runnable
-                    
-                    class ProjectKeyRunnable(runnable.Runnable):
-                        def invoke(self, input_dict):
-                            return openai_project_key_generate(
-                                input_dict.get("ruling", ""),
-                                input_dict.get("prompt", "")
-                            )
-                    
-                    # Chain erstellen, die mit dem Project Key arbeitet
-                    chain = ProjectKeyRunnable()
-                    
-                else:
-                    # Standard-Implementierung für normale API-Keys
-                    llm = ChatOpenAI(
-                        model=model_config['model_name'],
-                        temperature=model_config.get('temperature', 0.7),
-                        max_tokens=model_config.get('max_tokens', 1024),
-                        organization=organization_id if organization_id else None
-                    )
-                    
-                    # LLM-Chain erstellen
-                    chain = LLMChain(
-                        llm=llm,
-                        prompt=prompt,
-                        output_parser=StrOutputParser()
-                    )
+                        # LLM-Chain erstellen
+                        chain = LLMChain(
+                            llm=llm,
+                            prompt=prompt,
+                            output_parser=StrOutputParser()
+                        )
+                    except Exception as e:
+                        print(f"⚠️ Fehler beim Initialisieren des OpenAI Standard Clients: {str(e)}")
+                        continue
                     
             elif model_type == "huggingface":
                 llm = HuggingFacePipeline.from_model_id(

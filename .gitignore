@@ -35,6 +35,7 @@ checkpoints/
 
 # Data and model files
 *.csv
+*.json
 *.pkl
 *.h5
 *.pt
