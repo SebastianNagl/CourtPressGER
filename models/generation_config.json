@@ -1,0 +1,44 @@
+{
+    "models": [
+        {
+            "type": "openai",
+            "name": "gpt-4o",
+            "model_name": "gpt-4o",
+            "max_tokens": 2048,
+            "temperature": 0.7,
+            "category": "groß"
+        },
+        {
+            "type": "deepinfra",
+            "name": "llama-70b",
+            "model_id": "meta-llama/Meta-Llama-3-70B-Instruct",
+            "max_tokens": 2048,
+            "temperature": 0.7,
+            "category": "groß"
+        },
+        {
+            "type": "local",
+            "name": "teuken-7b",
+            "model_path": "models/teuken",
+            "max_length": 1024,
+            "temperature": 0.7,
+            "category": "klein"
+        },
+        {
+            "type": "local",
+            "name": "llama3-8b",
+            "model_path": "models/llama3-8b",
+            "max_length": 1024,
+            "temperature": 0.7,
+            "category": "klein"
+        },
+        {
+            "type": "local",
+            "name": "eurollm-9b",
+            "model_path": "models/eurollm",
+            "max_length": 1024,
+            "temperature": 0.7,
+            "category": "klein"
+        }
+    ]
+} 

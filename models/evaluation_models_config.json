@@ -1,0 +1,39 @@
+{
+  "models": [
+    {
+      "type": "openai",
+      "name": "gpt-3.5-turbo",
+      "model_name": "gpt-3.5-turbo",
+      "temperature": 0.7,
+      "max_tokens": 2048
+    },
+    {
+      "type": "openai",
+      "name": "gpt-4",
+      "model_name": "gpt-4",
+      "temperature": 0.7,
+      "max_tokens": 2048
+    },
+    {
+      "type": "huggingface",
+      "name": "mistral-7b",
+      "model_id": "mistralai/Mistral-7B-Instruct-v0.2",
+      "max_new_tokens": 2048,
+      "temperature": 0.7
+    },
+    {
+      "type": "huggingface",
+      "name": "llama-3-8b",
+      "model_id": "meta-llama/Meta-Llama-3-8B-Instruct",
+      "max_new_tokens": 2048,
+      "temperature": 0.7
+    },
+    {
+      "type": "local",
+      "name": "local-llm",
+      "api_url": "http://localhost:8000/v1/completions",
+      "max_tokens": 2048,
+      "temperature": 0.7
+    }
+  ]
+} 

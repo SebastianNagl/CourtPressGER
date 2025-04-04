@@ -11,13 +11,6 @@ Neben den Pipeline-Skripten haben wir für unsere Analysen auch immer ein Jupyte
 ## Aktuelle Aufgaben und Probleme
 Aktuelle Aufgaben können work in progress sein; immer erst mal kontrollieren, dann lösen. Sobald was davon erledigt ist, bitte [erledigt] zu Beginn der Aufgabe schreiben; ich kontrolliere dann bei Gelegenheit. 
 
-**Umsetzung:** Die Generation-Pipeline wurde erweitert, um alle gewünschten Modelle zu unterstützen. Die Konfigurationsdatei (models/generation_config.json) wurde aktualisiert, und die Pipeline kann nun mit folgenden Modelltypen arbeiten:
-- OpenAI (GPT-4o) über die OpenAI API
-- DeepInfra (Llama-3-70B) über die DeepInfra API
-- Lokale Modelle (Teuken-7B, EuroLLM-9B, Llama-3-8B)
-
-Die .env-Datei wurde mit Platzhaltern für alle benötigten API-Keys aktualisiert.
-
 # Struktur
 Das Projekt folgt im Kern der Cookiecutter Data Science Projektstruktur. Skripte und Module sind unter courtpressger/ angeordnet.
 
