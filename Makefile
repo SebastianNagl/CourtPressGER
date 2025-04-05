@@ -19,7 +19,7 @@ DEFAULT_SAVE_INTERVAL = 5
 
 # Standardwerte für Evaluation
 DEFAULT_EVAL_DATASET = data/generation/mock_models_results.csv
-DEFAULT_EVAL_OUTPUT_DIR = reports/evaluation
+DEFAULT_EVAL_OUTPUT_DIR = data/evaluation
 
 #################################################################################
 # COMMANDS                                                                      #
