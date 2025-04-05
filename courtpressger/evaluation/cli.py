@@ -60,49 +60,89 @@ def parse_args():
                         default=["rouge", "bleu", "meteor", "bertscore"],
                         help="Zu berechnende Metriken: 'rouge', 'bleu', 'meteor', 'bertscore', 'alle'")
     
+    # Neue Parameter für die Berichtsgenerierung
+    parser.add_argument("--generate-report", action="store_true",
+                        help="Generiert einen HTML-Bericht mit visualisierten Ergebnissen")
+    
+    parser.add_argument("--report-path", type=str, default=None,
+                        help="Pfad für den HTML-Bericht (Standard: output-dir/report.html)")
+    
     return parser.parse_args()
 
 def load_dataset(file_path: str) -> pd.DataFrame:
     """
-    Lädt das Dataset aus einer CSV- oder JSON-Datei.
+    Lädt das Dataset aus einer Datei.
     
     Args:
-        file_path: Pfad zur Datei
+        file_path: Pfad zur Datei (CSV, JSON, oder Parquet)
         
     Returns:
-        DataFrame mit den Daten
+        DataFrame mit dem Dataset
+        
+    Raises:
+        ValueError: Wenn das Dateiformat nicht unterstützt wird
     """
     if file_path.endswith('.csv'):
         return pd.read_csv(file_path)
     elif file_path.endswith('.json'):
-        return pd.read_json(file_path, orient='records')
+        return pd.read_json(file_path)
     elif file_path.endswith('.parquet'):
         return pd.read_parquet(file_path)
     else:
-        raise ValueError(f"Nicht unterstütztes Dateiformat: {file_path}. Unterstützt werden CSV, JSON und Parquet.")
-
+        raise ValueError(f"Nicht unterstütztes Dateiformat: {file_path}")
+        
 def load_models_config(config_path: str) -> List[Dict[str, Any]]:
     """
     Lädt die Modellkonfigurationen aus einer JSON-Datei.
     
     Args:
-        config_path: Pfad zur Konfigurationsdatei
+        config_path: Pfad zur JSON-Konfigurationsdatei
         
     Returns:
-        Liste von Modellkonfigurationen
+        Liste mit Modellkonfigurationen
     """
     with open(config_path, 'r', encoding='utf-8') as f:
-        config_data = json.load(f)
+        config = json.load(f)
     
-    models_config_list = []
-    for model_config in config_data["models"]:
-        model_type = model_config.pop("type")
-        name = model_config.pop("name")
-        # Hier wird versucht, die Modellinstanz zu erstellen, was fehlschlägt ohne API Key
-        # Wir geben stattdessen nur das Konfigurations-Dict zurück
-        models_config_list.append(create_model_config(model_type, name, **model_config))
+    models_config = []
     
-    return models_config_list
+    for model_config in config["models"]:
+        model_name = model_config["name"]
+        model_type = model_config["type"]
+        
+        model_params = {"name": model_name}
+        
+        # Je nach Modelltyp die entsprechenden Parameter hinzufügen
+        if model_type == "openai":
+            model_params.update({
+                "type": "openai",
+                "model": model_config.get("model", "gpt-3.5-turbo"),
+                "api_key": model_config.get("api_key", None),
+                "temperature": model_config.get("temperature", 0.7),
+                "max_tokens": model_config.get("max_tokens", 1024)
+            })
+        elif model_type == "huggingface":
+            model_params.update({
+                "type": "huggingface",
+                "model": model_config.get("model", "mistralai/Mistral-7B-v0.1"),
+                "api_key": model_config.get("api_key", None),
+                "api_url": model_config.get("api_url", "https://api-inference.huggingface.co/models/"),
+                "temperature": model_config.get("temperature", 0.7),
+                "max_new_tokens": model_config.get("max_new_tokens", 1024)
+            })
+        elif model_type == "local":
+            model_params.update({
+                "type": "local",
+                "model_path": model_config.get("model_path", None),
+                "temperature": model_config.get("temperature", 0.7),
+                "max_new_tokens": model_config.get("max_new_tokens", 1024)
+            })
+        else:
+            raise ValueError(f"Unbekannter Modelltyp: {model_type}")
+        
+        models_config.append(model_params)
+    
+    return models_config
 
 def main():
     """Haupteinstiegspunkt für das CLI-Tool."""
@@ -220,6 +260,17 @@ def main():
                 print(f"    F1: {summary['avg_bertscore_f1']:.4f}")
     
     print(f"\nDetaillierte Ergebnisse wurden in {args.output_dir} gespeichert.")
+    
+    # Optional einen Bericht mit Visualisierungen erstellen
+    if args.generate_report:
+        from .utils import create_report
+        
+        # Standard-Reportpfad setzen, falls nicht angegeben
+        report_path = args.report_path if args.report_path else os.path.join(args.output_dir, "report.html")
+        
+        print(f"\nGeneriere Bericht mit Visualisierungen...")
+        create_report(args.output_dir, report_path)
+        print(f"Bericht wurde unter {report_path} gespeichert.")
 
 if __name__ == "__main__":
     main() 

@@ -17,6 +17,10 @@ DEFAULT_CHECKPOINT_DIR = data/checkpoints
 DEFAULT_BATCH_SIZE = 20
 DEFAULT_SAVE_INTERVAL = 5
 
+# Standardwerte für Evaluation
+DEFAULT_EVAL_DATASET = data/generation/mock_models_results.csv
+DEFAULT_EVAL_OUTPUT_DIR = reports/evaluation
+
 #################################################################################
 # COMMANDS                                                                      #
 #################################################################################
@@ -112,6 +116,24 @@ synthetic-resume:
 		echo "Checkpoint-Verzeichnis $(DEFAULT_CHECKPOINT_DIR) nicht gefunden. Starte neu."; \
 		$(MAKE) synthetic; \
 	fi
+
+## Führt alle verfügbaren Evaluationsmethoden für den Standard-Datensatz aus
+.PHONY: eval
+eval:
+	@echo "Führe alle Evaluationsmethoden für den Datensatz $(DEFAULT_EVAL_DATASET) aus..."
+	@mkdir -p $(DEFAULT_EVAL_OUTPUT_DIR)
+	$(PYTHON_INTERPRETER) -m courtpressger.evaluation.cli \
+		--dataset $(DEFAULT_EVAL_DATASET) \
+		--output-dir $(DEFAULT_EVAL_OUTPUT_DIR) \
+		--evaluate-existing-columns \
+		--prompt-column synthetic_prompt \
+		--ruling-column judgement \
+		--press-column summary \
+		--exclude-columns id date judgement subset_name split_name is_announcement_rule matching_criteria synthetic_prompt \
+		--generate-report \
+		--report-path reports/evaluation_report.html
+	@echo "Evaluierungsergebnisse wurden im Verzeichnis $(DEFAULT_EVAL_OUTPUT_DIR) gespeichert."
+	@echo "Ein HTML-Bericht wurde unter reports/evaluation_report.html erstellt."
 
 ## Synchronize the environment with dependencies
 .PHONY: sync
