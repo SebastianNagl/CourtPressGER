@@ -130,6 +130,7 @@ eval:
 		--ruling-column judgement \
 		--press-column summary \
 		--exclude-columns id date judgement subset_name split_name is_announcement_rule matching_criteria synthetic_prompt \
+		--bert-score-model bert-base-multilingual-cased \
 		--generate-report \
 		--report-path reports/evaluation_report.html
 	@echo "Evaluierungsergebnisse wurden im Verzeichnis $(DEFAULT_EVAL_OUTPUT_DIR) gespeichert."

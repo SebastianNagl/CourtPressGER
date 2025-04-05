@@ -259,20 +259,32 @@ class BertScoreMetric:
             Dictionary mit Precision, Recall und F1-Score des BERTScores.
         """
         try:
-            P, R, F1 = bert_score.score(
-                [generated], 
-                [reference], 
-                lang=self.lang, 
-                model_type=self.model_type, 
-                device=self.device,
-                verbose=False, # Weniger Output in der Konsole
-                trust_remote_code=True # Wichtig für EuroBERT
-            )
+            print(f"INFO: Berechne BERTScore mit lokalem Modell '{self.model_type}' und num_layers=12 (bert-score v0.3.12)...")
+            try:
+                # BERTScore mit dem angegebenen Modell berechnen 
+                P, R, F1 = bert_score.score(
+                    [generated], [reference],
+                    lang=self.lang,
+                    model_type=self.model_type,
+                    num_layers=12,
+                    device="cuda" if torch.cuda.is_available() else "cpu"
+                )
+            except Exception as e:
+                # Bei Problemen mit EuroBERT, verwenden wir ein direkt unterstütztes Modell
+                fallback_model = "bert-base-multilingual-cased"  # Dieses Modell ist in bert-score direkt unterstützt
+                print(f"WARNUNG: BERTScore mit {self.model_type} fehlgeschlagen ({e}). Fallback zu {fallback_model}...")
+                
+                # Fallback mit Standard lang-Parameter, damit die automatischen Layer-Werte verwendet werden
+                P, R, F1 = bert_score.score(
+                    [generated], [reference],
+                    lang=self.lang,
+                    model_type=self.model_type
+                )
             
             return {
-                "bertscore_precision": P.mean().item(),
-                "bertscore_recall": R.mean().item(),
-                "bertscore_f1": F1.mean().item()
+                "bertscore_precision": P.item(),
+                "bertscore_recall": R.item(),
+                "bertscore_f1": F1.item()
             }
         except Exception as e:
             print(f"Fehler bei BERTScore-Berechnung (Modell: {self.model_type}, Lang: {self.lang}): {e}")
@@ -434,16 +446,14 @@ def compute_all_metrics(reference: str, generated: str,
     # BERTScore berechnen (falls verfügbar und aktiviert)
     if BERT_SCORE_AVAILABLE and bert_score_model:
         try:
-            # Verwende den ursprünglichen lokalen Pfad
-            print(f"INFO: Berechne BERTScore mit lokalem Modell '{bert_score_model}' und num_layers=32 (bert-score v0.3.12)...")
-
-            # Versuchen wir es mit EuroBERT
+            print(f"INFO: Berechne BERTScore mit lokalem Modell '{bert_score_model}' und num_layers=12 (bert-score v0.3.12)...")
             try:
+                # BERTScore mit dem angegebenen Modell berechnen 
                 P, R, F1 = bert_score.score(
                     [generated], [reference],
                     lang=lang,
                     model_type=bert_score_model,
-                    num_layers=32,
+                    num_layers=12,
                     device="cuda" if torch.cuda.is_available() else "cpu"
                 )
             except Exception as e:
@@ -455,7 +465,7 @@ def compute_all_metrics(reference: str, generated: str,
                 P, R, F1 = bert_score.score(
                     [generated], [reference],
                     lang=lang,
-                    device="cuda" if torch.cuda.is_available() else "cpu"
+                    model_type=bert_score_model
                 )
             
             metrics.update({
