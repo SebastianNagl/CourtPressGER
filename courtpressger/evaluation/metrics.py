@@ -238,8 +238,8 @@ class BertScoreMetric:
         # Für spezifische Modelle wie EuroBERT sollte model_type explizit gesetzt werden.
         if self.model_type is None:
             if self.lang == "de":
-                # self.model_type = "bert-base-german-cased" # Ein kleineres Standardmodell
-                self.model_type = "deepset/gbert-large" # Ein besseres deutsches Modell
+                # Ein zuverlässiges multilinguales Modell, das in bert-score direkt unterstützt wird
+                self.model_type = "bert-base-multilingual-cased"
                 print(f"Warnung: Kein BERTScore-Modelltyp angegeben. Verwende Standard für lang='{self.lang}': {self.model_type}")
             # Füge hier ggf. weitere Standardmodelle für andere Sprachen hinzu
             # elif self.lang == "en":
@@ -265,7 +265,8 @@ class BertScoreMetric:
                 lang=self.lang, 
                 model_type=self.model_type, 
                 device=self.device,
-                verbose=False # Weniger Output in der Konsole
+                verbose=False, # Weniger Output in der Konsole
+                trust_remote_code=True # Wichtig für EuroBERT
             )
             
             return {
@@ -436,13 +437,27 @@ def compute_all_metrics(reference: str, generated: str,
             # Verwende den ursprünglichen lokalen Pfad
             print(f"INFO: Berechne BERTScore mit lokalem Modell '{bert_score_model}' und num_layers=32 (bert-score v0.3.12)...")
 
-            P, R, F1 = bert_score.score(
-                [generated], [reference],
-                lang=lang,
-                model_type=bert_score_model, # Lokalen Pfad verwenden
-                num_layers=32,               # Anzahl der Layer explizit angeben
-                device="cuda" if torch.cuda.is_available() else "cpu"
-            )
+            # Versuchen wir es mit EuroBERT
+            try:
+                P, R, F1 = bert_score.score(
+                    [generated], [reference],
+                    lang=lang,
+                    model_type=bert_score_model,
+                    num_layers=32,
+                    device="cuda" if torch.cuda.is_available() else "cpu"
+                )
+            except Exception as e:
+                # Bei Problemen mit EuroBERT, verwenden wir ein direkt unterstütztes Modell
+                fallback_model = "bert-base-multilingual-cased"  # Dieses Modell ist in bert-score direkt unterstützt
+                print(f"WARNUNG: BERTScore mit {bert_score_model} fehlgeschlagen ({e}). Fallback zu {fallback_model}...")
+                
+                # Fallback mit Standard lang-Parameter, damit die automatischen Layer-Werte verwendet werden
+                P, R, F1 = bert_score.score(
+                    [generated], [reference],
+                    lang=lang,
+                    device="cuda" if torch.cuda.is_available() else "cpu"
+                )
+            
             metrics.update({
                 'bertscore_precision': P.item(),
                 'bertscore_recall': R.item(),
