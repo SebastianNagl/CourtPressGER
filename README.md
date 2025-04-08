@@ -1,11 +1,13 @@
 # CourtPressGer
 
 ## Hintergrund und Ziel
-Wir sind Wissenschaftler der Technischen Universität München im Bereich Legal Technology. Für unsere nächste wissenschaftliche Publikation möchten wir drei Dinge vorstellen: 
-1. Eine bereinigte Version eines vorab gescrapten Datensatzes mit etwa 6.5k Einträgen von Gerichtsurteilen mit den dazugehörigen Pressemitteilungen und Metadaten. Die Daten können roh über das dataset.py Skript von HF geladen werden. Für die Bereinigung haben wir in courtpressger/data_cleaning eine Pipeline entwickelt.
-2. Synthetische Prompts, mit denen man automatisiert aus den Urteilen Pressemitteilungen generieren kann. 
+Wir sind Wissenschaftler der Technischen Universität München im Bereich Legal Technology. Für unsere nächste wissenschaftliche Publikation möchten wir vorstellen:
+
+1. Einen bereinigten Datensatz mit 6.4k Einträgen von Gerichtsurteilen mit zugehörigen Pressemitteilungen von deutschlands höchsten Gerichten.
+2. Für jedes Urteil-Pressemitteilungs-Paar zusätzlich einen synthetischen Prompt, mit dem man automatsiert aus den Urteilen Pressemitteilungen generieren kann. 
 3. Eine Pipeline, die state of the art Modelle mit den synthetischen Pressemitteilungen queryt und die Ergebnisse neben der tatsächlichen Pressemitteilung speichert.
 4. Eine Evaluation der generierten Pressemitteilungen mit Hilfe von menschlichen und automatisierten Metriken.
+
 Neben den Pipeline-Skripten haben wir für unsere Analysen auch immer ein Jupyter Notebook für die Arbeitsschritte; abrufbar unter notebooks/.
 
 ## Aktuelle Aufgaben und Probleme

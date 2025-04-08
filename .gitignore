@@ -191,3 +191,6 @@ models/eurobert/
 models/teuken/
 models/eurollm/
 models/llama3-8b/
+
+# figures
+figures/
