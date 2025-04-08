@@ -6,6 +6,7 @@ import numpy as np
 from collections import Counter
 import re
 import os
+import sys
 
 try:
     import torch
@@ -121,9 +122,14 @@ class BleuMetric:
                 "'import nltk; nltk.download(\"punkt\")' aus."
             )
         
-        # Tokenisierung
-        reference_tokens = nltk.word_tokenize(reference.lower())
-        generated_tokens = nltk.word_tokenize(generated.lower())
+        # Tokenisierung mit expliziter Sprachangabe
+        try:
+            reference_tokens = nltk.word_tokenize(reference.lower(), language='german')
+            generated_tokens = nltk.word_tokenize(generated.lower(), language='german')
+        except LookupError:
+            print("NLTK 'punkt' Tokenizer für Deutsch nicht gefunden. Bitte herunterladen:")
+            print("import nltk; nltk.download('punkt')")
+            raise
         
         # BLEU-Score berechnen mit verschiedenen n-gram-Gewichtungen
         smoothing = SmoothingFunction().method1
@@ -181,9 +187,14 @@ class MeteorMetric:
                 "'import nltk; nltk.download(\"wordnet\"); nltk.download(\"omw-1.4\")' aus."
             )
         
-        # Tokenisierung
-        reference_tokens = nltk.word_tokenize(reference.lower())
-        generated_tokens = nltk.word_tokenize(generated.lower())
+        # Tokenisierung mit expliziter Sprachangabe
+        try:
+            reference_tokens = nltk.word_tokenize(reference.lower(), language='german')
+            generated_tokens = nltk.word_tokenize(generated.lower(), language='german')
+        except LookupError:
+            print("NLTK 'punkt' Tokenizer für Deutsch nicht gefunden. Bitte herunterladen:")
+            print("import nltk; nltk.download('punkt')")
+            raise
         
         # METEOR-Score berechnen
         return meteor_score([reference_tokens], generated_tokens)
@@ -191,84 +202,99 @@ class MeteorMetric:
 class BertScoreMetric:
     """Berechnet den BERTScore zwischen Referenz- und generiertem Text."""
     
-    def __init__(self, model_type: str = "EuroBERT/EuroBERT-2.1B", 
-                lang: str = "de", device: Optional[str] = None,
-                use_local_model: bool = True):
+    def __init__(self, model_type: Optional[str] = None, 
+                 lang: str = "de", device: Optional[str] = None):
         """
         Initialisiert die BERTScore-Metrik.
         
         Args:
-            model_type: Name des zu verwendenden Modells
+            model_type: Name des zu verwendenden Modells von Hugging Face (z.B. "bert-base-german-cased").
+                        Wenn None, wird versucht, ein geeignetes Standardmodell für die Sprache zu verwenden.
             lang: Sprachcode (z.B. 'de' für Deutsch)
             device: Gerät für die Berechnung ('cpu' oder 'cuda')
-            use_local_model: Ob das lokale Modell verwendet werden soll
             
         Raises:
             ImportError: Wenn die erforderlichen Pakete nicht installiert sind
+            ValueError: Wenn für die Sprache kein Standardmodell bekannt ist und model_type=None.
         """
         if not BERT_SCORE_AVAILABLE:
             raise ImportError(
                 "Für die BERTScore-Berechnung wird das Paket 'bert_score' benötigt. "
-                "Installiere es mit 'uv add bert-score'."
+                "Installiere es mit 'uv add bert-score torch torchvision torchaudio'."
             )
+        if not TRANSFORMERS_AVAILABLE:
+             # Bert-score benötigt auch transformers
+             raise ImportError(
+                "Für die BERTScore-Berechnung wird das Paket 'transformers' benötigt. "
+                "Installiere es mit 'uv add transformers'."
+             )
         
         self.model_type = model_type
         self.lang = lang
         self.device = device if device else ("cuda" if torch.cuda.is_available() else "cpu")
-        self.use_local_model = use_local_model
         
-        # Wenn lokales Modell verwendet werden soll, prüfen ob es existiert
-        if self.use_local_model:
-            local_model_path = "models/eurobert"
-            if not os.path.exists(local_model_path):
-                print(f"Lokales Modell nicht gefunden in {local_model_path}. Lade es herunter...")
-                self._download_model(local_model_path)
-            self.model_type = local_model_path
-    
-    def _download_model(self, local_path: str):
-        """
-        Lädt das Modell herunter und speichert es lokal.
-        
-        Args:
-            local_path: Pfad zum lokalen Speicherort
-        """
-        from transformers import AutoModelForMaskedLM, AutoTokenizer
-        
-        # Modell und Tokenizer herunterladen
-        model = AutoModelForMaskedLM.from_pretrained(self.model_type, trust_remote_code=True)
-        tokenizer = AutoTokenizer.from_pretrained(self.model_type, trust_remote_code=True)
-        
-        # Lokal speichern
-        model.save_pretrained(local_path)
-        tokenizer.save_pretrained(local_path)
-        
-        print(f"Modell wurde in {local_path} gespeichert.")
-    
+        # Setze Standardmodell basierend auf der Sprache, wenn keins angegeben ist.
+        # Hinweis: EuroBERT ist sehr groß. Standardmäßig verwenden wir hier ggf. ein kleineres.
+        # Für spezifische Modelle wie EuroBERT sollte model_type explizit gesetzt werden.
+        if self.model_type is None:
+            if self.lang == "de":
+                # Ein zuverlässiges multilinguales Modell, das in bert-score direkt unterstützt wird
+                self.model_type = "bert-base-multilingual-cased"
+                print(f"Warnung: Kein BERTScore-Modelltyp angegeben. Verwende Standard für lang='{self.lang}': {self.model_type}")
+            # Füge hier ggf. weitere Standardmodelle für andere Sprachen hinzu
+            # elif self.lang == "en":
+            #     self.model_type = "roberta-large"
+            else:
+                raise ValueError(f"Kein Standard-BERTScore-Modell für Sprache '{self.lang}' definiert. Bitte model_type angeben.")
+
     def compute(self, reference: str, generated: str) -> Dict[str, float]:
         """
-        Berechnet den BERTScore für die Textpaare.
+        Berechnet den BERTScore.
         
         Args:
-            reference: Referenztext (tatsächliche Pressemitteilung)
-            generated: Generierter Text (generierte Pressemitteilung)
+            reference: Referenztext
+            generated: Generierter Text
             
         Returns:
-            Dictionary mit BERTScore-Werten (Precision, Recall und F1)
+            Dictionary mit Precision, Recall und F1-Score des BERTScores.
         """
-        # BERTScore berechnen
-        P, R, F1 = bert_score.score(
-            [generated], [reference],
-            lang=self.lang,
-            model_type=self.model_type,
-            device=self.device
-        )
-        
-        # Ergebnisse in Dictionary umwandeln
-        return {
-            'bertscore_precision': P.item(),
-            'bertscore_recall': R.item(),
-            'bertscore_f1': F1.item()
-        }
+        try:
+            print(f"INFO: Berechne BERTScore mit lokalem Modell '{self.model_type}' und num_layers=12 (bert-score v0.3.12)...")
+            try:
+                # BERTScore mit dem angegebenen Modell berechnen 
+                P, R, F1 = bert_score.score(
+                    [generated], [reference],
+                    lang=self.lang,
+                    model_type=self.model_type,
+                    num_layers=12,
+                    device="cuda" if torch.cuda.is_available() else "cpu"
+                )
+            except Exception as e:
+                # Bei Problemen mit EuroBERT, verwenden wir ein direkt unterstütztes Modell
+                fallback_model = "bert-base-multilingual-cased"  # Dieses Modell ist in bert-score direkt unterstützt
+                print(f"WARNUNG: BERTScore mit {self.model_type} fehlgeschlagen ({e}). Fallback zu {fallback_model}...")
+                
+                # Fallback mit Standard lang-Parameter, damit die automatischen Layer-Werte verwendet werden
+                P, R, F1 = bert_score.score(
+                    [generated], [reference],
+                    lang=self.lang,
+                    model_type=self.model_type
+                )
+            
+            return {
+                "bertscore_precision": P.item(),
+                "bertscore_recall": R.item(),
+                "bertscore_f1": F1.item()
+            }
+        except Exception as e:
+            print(f"Fehler bei BERTScore-Berechnung (Modell: {self.model_type}, Lang: {self.lang}): {e}")
+            # Gib NaN oder einen anderen Fehlerindikator zurück
+            return {
+                "bertscore_precision": np.nan,
+                "bertscore_recall": np.nan,
+                "bertscore_f1": np.nan,
+                "bertscore_error": str(e)
+            }
 
 class ContentOverlapMetrics:
     """Berechnet Metriken zur Überlappung von Inhalt zwischen generierten und Referenztexten."""
@@ -420,11 +446,37 @@ def compute_all_metrics(reference: str, generated: str,
     # BERTScore berechnen (falls verfügbar und aktiviert)
     if BERT_SCORE_AVAILABLE and bert_score_model:
         try:
-            bert_score_metric = BertScoreMetric(model_type=bert_score_model, lang=lang)
-            bert_score_values = bert_score_metric.compute(reference, generated)
-            metrics.update(bert_score_values)
+            print(f"INFO: Berechne BERTScore mit lokalem Modell '{bert_score_model}' und num_layers=12 (bert-score v0.3.12)...")
+            try:
+                # BERTScore mit dem angegebenen Modell berechnen 
+                P, R, F1 = bert_score.score(
+                    [generated], [reference],
+                    lang=lang,
+                    model_type=bert_score_model,
+                    num_layers=12,
+                    device="cuda" if torch.cuda.is_available() else "cpu"
+                )
+            except Exception as e:
+                # Bei Problemen mit EuroBERT, verwenden wir ein direkt unterstütztes Modell
+                fallback_model = "bert-base-multilingual-cased"  # Dieses Modell ist in bert-score direkt unterstützt
+                print(f"WARNUNG: BERTScore mit {bert_score_model} fehlgeschlagen ({e}). Fallback zu {fallback_model}...")
+                
+                # Fallback mit Standard lang-Parameter, damit die automatischen Layer-Werte verwendet werden
+                P, R, F1 = bert_score.score(
+                    [generated], [reference],
+                    lang=lang,
+                    model_type=bert_score_model
+                )
+            
+            metrics.update({
+                'bertscore_precision': P.item(),
+                'bertscore_recall': R.item(),
+                'bertscore_f1': F1.item()
+            })
         except Exception as e:
-            print(f"Fehler bei der Berechnung des BERTScores: {str(e)}")
+            import traceback
+            print(f"Fehler bei der Berechnung des BERTScores mit Modell {bert_score_model}:", file=sys.stderr)
+            traceback.print_exc()
     
     # Semantische Ähnlichkeit (falls aktiviert)
     if semantic_similarity_model and TRANSFORMERS_AVAILABLE:

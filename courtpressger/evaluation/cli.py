@@ -16,7 +16,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Evaluierung von LLMs für die Generierung von Pressemitteilungen")
     
     parser.add_argument("--dataset", type=str, required=True,
-                        help="Pfad zur Dataset-Datei (CSV oder JSON)")
+                        help="Pfad zur Dataset-Datei (CSV, JSON, Parquet)")
     
     parser.add_argument("--output-dir", type=str, default="data/evaluation",
                         help="Verzeichnis für die Ausgabe der Evaluierungsergebnisse")
@@ -30,8 +30,16 @@ def parse_args():
     parser.add_argument("--press-column", type=str, default="press_release",
                         help="Name der Spalte mit Referenz-Pressemitteilungen im Dataset")
     
-    parser.add_argument("--models-config", type=str, required=True,
-                        help="Pfad zur JSON-Konfigurationsdatei für die zu evaluierenden Modelle")
+    # Gruppe für exklusive Argumente: Entweder Modellkonfiguration oder vorhandene Spalten
+    model_source_group = parser.add_mutually_exclusive_group(required=True)
+    model_source_group.add_argument("--models-config", type=str,
+                                     help="Pfad zur JSON-Konfigurationsdatei für die zu evaluierenden Modelle (wenn neu generiert werden soll)")
+    model_source_group.add_argument("--evaluate-existing-columns", action="store_true",
+                                     help="Evaluiert vorhandene Spalten im Dataset als Modell-Outputs. Benötigt keine Modellkonfiguration.")
+    
+    parser.add_argument("--exclude-columns", type=str, nargs="*",
+                        default=["id", "date", "summary", "judgement", "subset_name", "split_name", "is_announcement_rule", "matching_criteria", "synthetic_prompt", "ruling", "press_release"],
+                        help="Spalten, die bei --evaluate-existing-columns ignoriert werden sollen")
     
     parser.add_argument("--batch-size", type=int, default=10,
                         help="Anzahl der gleichzeitig zu verarbeitenden Einträge")
@@ -52,45 +60,87 @@ def parse_args():
                         default=["rouge", "bleu", "meteor", "bertscore"],
                         help="Zu berechnende Metriken: 'rouge', 'bleu', 'meteor', 'bertscore', 'alle'")
     
+    # Neue Parameter für die Berichtsgenerierung
+    parser.add_argument("--generate-report", action="store_true",
+                        help="Generiert einen HTML-Bericht mit visualisierten Ergebnissen")
+    
+    parser.add_argument("--report-path", type=str, default=None,
+                        help="Pfad für den HTML-Bericht (Standard: output-dir/report.html)")
+    
     return parser.parse_args()
 
 def load_dataset(file_path: str) -> pd.DataFrame:
     """
-    Lädt das Dataset aus einer CSV- oder JSON-Datei.
+    Lädt das Dataset aus einer Datei.
     
     Args:
-        file_path: Pfad zur Datei
+        file_path: Pfad zur Datei (CSV, JSON, oder Parquet)
         
     Returns:
-        DataFrame mit den Daten
+        DataFrame mit dem Dataset
+        
+    Raises:
+        ValueError: Wenn das Dateiformat nicht unterstützt wird
     """
     if file_path.endswith('.csv'):
         return pd.read_csv(file_path)
     elif file_path.endswith('.json'):
-        return pd.read_json(file_path, orient='records')
+        return pd.read_json(file_path)
     elif file_path.endswith('.parquet'):
         return pd.read_parquet(file_path)
     else:
-        raise ValueError(f"Nicht unterstütztes Dateiformat: {file_path}. Unterstützt werden CSV, JSON und Parquet.")
-
+        raise ValueError(f"Nicht unterstütztes Dateiformat: {file_path}")
+        
 def load_models_config(config_path: str) -> List[Dict[str, Any]]:
     """
     Lädt die Modellkonfigurationen aus einer JSON-Datei.
     
     Args:
-        config_path: Pfad zur Konfigurationsdatei
+        config_path: Pfad zur JSON-Konfigurationsdatei
         
     Returns:
-        Liste von Modellkonfigurationen
+        Liste mit Modellkonfigurationen
     """
     with open(config_path, 'r', encoding='utf-8') as f:
-        config_data = json.load(f)
+        config = json.load(f)
     
     models_config = []
-    for model_config in config_data["models"]:
-        model_type = model_config.pop("type")
-        name = model_config.pop("name")
-        models_config.append(create_model_config(model_type, name, **model_config))
+    
+    for model_config in config["models"]:
+        model_name = model_config["name"]
+        model_type = model_config["type"]
+        
+        model_params = {"name": model_name}
+        
+        # Je nach Modelltyp die entsprechenden Parameter hinzufügen
+        if model_type == "openai":
+            model_params.update({
+                "type": "openai",
+                "model": model_config.get("model", "gpt-3.5-turbo"),
+                "api_key": model_config.get("api_key", None),
+                "temperature": model_config.get("temperature", 0.7),
+                "max_tokens": model_config.get("max_tokens", 1024)
+            })
+        elif model_type == "huggingface":
+            model_params.update({
+                "type": "huggingface",
+                "model": model_config.get("model", "mistralai/Mistral-7B-v0.1"),
+                "api_key": model_config.get("api_key", None),
+                "api_url": model_config.get("api_url", "https://api-inference.huggingface.co/models/"),
+                "temperature": model_config.get("temperature", 0.7),
+                "max_new_tokens": model_config.get("max_new_tokens", 1024)
+            })
+        elif model_type == "local":
+            model_params.update({
+                "type": "local",
+                "model_path": model_config.get("model_path", None),
+                "temperature": model_config.get("temperature", 0.7),
+                "max_new_tokens": model_config.get("max_new_tokens", 1024)
+            })
+        else:
+            raise ValueError(f"Unbekannter Modelltyp: {model_type}")
+        
+        models_config.append(model_params)
     
     return models_config
 
@@ -128,11 +178,21 @@ def main():
     missing_columns = [col for col in required_columns if col not in dataset.columns]
     if missing_columns:
         raise ValueError(f"Fehlende Spalten im Dataset: {', '.join(missing_columns)}")
-    
-    # Modellkonfigurationen laden
-    print(f"Lade Modellkonfigurationen aus {args.models_config}...")
-    models_config = load_models_config(args.models_config)
-    print(f"Modellkonfigurationen geladen: {len(models_config)} Modelle")
+
+    models_to_evaluate = []
+    if args.evaluate_existing_columns:
+        print("Evaluiere vorhandene Spalten im Dataset...")
+        # Modellnamen aus Spalten extrahieren, exklusive bekannter Metadaten/Referenzspalten
+        base_exclude = set(args.exclude_columns + [args.ruling_column, args.prompt_column, args.press_column])
+        models_to_evaluate = [col for col in dataset.columns if col not in base_exclude]
+        if not models_to_evaluate:
+            raise ValueError("Keine Modell-Spalten zur Evaluierung im Dataset gefunden (nach Ausschluss). Überprüfe --exclude-columns.")
+        print(f"Folgende Spalten werden als Modelle evaluiert: {', '.join(models_to_evaluate)}")
+    else:
+        # Modellkonfigurationen laden (nur wenn --models-config verwendet wird)
+        print(f"Lade Modellkonfigurationen aus {args.models_config}...")
+        models_to_evaluate = load_models_config(args.models_config)
+        print(f"Modellkonfigurationen geladen: {len(models_to_evaluate)} Modelle")
     
     # BERTScore-Modell setzen, falls in Metriken enthalten und Modell angegeben
     bert_score_model = None
@@ -142,7 +202,7 @@ def main():
     # Evaluierungspipeline initialisieren und ausführen
     print("Starte Evaluierung...")
     pipeline = LLMEvaluationPipeline(
-        models_config, 
+        models_or_names=models_to_evaluate,
         output_dir=args.output_dir,
         bert_score_model=bert_score_model,
         lang=args.language
@@ -200,6 +260,17 @@ def main():
                 print(f"    F1: {summary['avg_bertscore_f1']:.4f}")
     
     print(f"\nDetaillierte Ergebnisse wurden in {args.output_dir} gespeichert.")
+    
+    # Optional einen Bericht mit Visualisierungen erstellen
+    if args.generate_report:
+        from .utils import create_report
+        
+        # Standard-Reportpfad setzen, falls nicht angegeben
+        report_path = args.report_path if args.report_path else os.path.join(args.output_dir, "report.html")
+        
+        print(f"\nGeneriere Bericht mit Visualisierungen...")
+        create_report(args.output_dir, report_path)
+        print(f"Bericht wurde unter {report_path} gespeichert.")
 
 if __name__ == "__main__":
     main() 
