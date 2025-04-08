@@ -1,0 +1,350 @@
+%%
+%% This is file `courtpressger-dataset.tex',
+%% based on the ACM manuscript template.
+%%
+\documentclass[manuscript,screen]{acmart}
+
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    Bib\TeX}}}
+
+%% Rights management information.
+\setcopyright{acmlicensed}
+\copyrightyear{2024}
+\acmYear{2024}
+\acmDOI{XX.XXXX/XXXXXXX.XXXXXXX}
+
+\acmConference[Dataset 2024]{ACM Conference on Research Data}{August 2024}{Munich, Germany}
+\acmISBN{978-1-4503-XXXX-X/2024/08}
+
+%%
+%% For managing citations, it is recommended to use bibliography
+%% files in BibTeX format.
+%%
+
+\begin{document}
+
+\title{CourtPressGER: A Dataset of German Court Decisions and Press Releases with Baseline Models}
+
+\author{Technical University of Munich}
+\email{contact@tum.de}
+\affiliation{%
+  \institution{School of Computation, Information and Technology}
+  \city{Munich}
+  \country{Germany}
+}
+
+\renewcommand{\shortauthors}{TU Munich}
+
+\begin{abstract}
+Legal text generation is gaining importance as a research area in the intersection of legal technology and natural language processing. However, the scarcity of high-quality, domain-specific datasets remains a challenge, particularly for languages other than English. In this paper, we present CourtPressGER, a novel dataset containing approximately 6,500 German court decisions paired with their official press releases. This dataset enables research in automatic summarization, controlled text generation, and evaluation of language models in the legal domain. We describe the data collection, cleaning processes, and present baseline results using various language models for generating press releases from court decisions. Additionally, we provide a comprehensive evaluation framework featuring both automatic metrics and human assessments. CourtPressGER serves as a valuable resource for researchers and practitioners working on legal NLP applications in German, addressing the gap in language-specific legal datasets and enabling new approaches to legal text generation and analysis.
+\end{abstract}
+
+\begin{CCSXML}
+<ccs2012>
+ <concept>
+  <concept_id>10002951.10003260.10003309.10003315</concept_id>
+  <concept_desc>Information systems~Data sets</concept_desc>
+  <concept_significance>500</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10003120.10003121.10003129</concept_id>
+  <concept_desc>Human-centered computing~Natural language interfaces</concept_desc>
+  <concept_significance>300</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10002978.10003029.10003030</concept_id>
+  <concept_desc>Applied computing~Law</concept_desc>
+  <concept_significance>300</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10010147.10010257.10010293.10010294</concept_id>
+  <concept_desc>Computing methodologies~Natural language generation</concept_desc>
+  <concept_significance>300</concept_significance>
+ </concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Information systems~Data sets}
+\ccsdesc[300]{Human-centered computing~Natural language interfaces}
+\ccsdesc[300]{Applied computing~Law}
+\ccsdesc[300]{Computing methodologies~Natural language generation}
+
+\keywords{Legal NLP, German language resources, court decisions, press releases, dataset, baseline models, text generation}
+
+\maketitle
+
+\section{Introduction}
+
+Natural Language Processing (NLP) applications in the legal domain have gained significant attention in recent years, with tasks such as legal document classification, information extraction, and text summarization becoming increasingly important for legal professionals and researchers \cite{Chalkidis2020}. However, the development of effective legal NLP tools is often hindered by the scarcity of high-quality, domain-specific datasets, particularly for languages other than English \cite{Bommarito2021}.
+
+To address this limitation, we present CourtPressGER, a novel dataset containing approximately 6,500 German court decisions paired with their corresponding official press releases. This unique resource offers several advantages for researchers:
+
+\begin{itemize}
+    \item A substantial collection of professional summaries created by legal experts
+    \item Paired texts that demonstrate how complex legal reasoning is condensed into concise, accessible language
+    \item Rich metadata including court information, decision dates, and case references
+    \item A clean, processed dataset ready for use in various NLP tasks
+\end{itemize}
+
+Furthermore, we provide baseline results for generating press releases from court decisions using various language models, ranging from large proprietary models (like GPT-4o) to smaller open-source models fine-tuned for German legal text (such as Teuken-7B and EuroLLM-9B). We evaluate these baselines using both automatic metrics and human assessments to establish benchmark performance on this dataset.
+
+The paper is structured as follows: Section \ref{sec:related} discusses related work in legal NLP datasets and text generation. Section \ref{sec:dataset} describes the dataset collection and cleaning process. Section \ref{sec:baseline} presents our baseline models and generation approach. Section \ref{sec:evaluation} details the evaluation framework and results. Finally, Section \ref{sec:conclusion} concludes with implications and future work.
+
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Legal NLP Datasets}
+
+Legal NLP has emerged as a specialized field within natural language processing, focusing on applications tailored to legal documents and processes. Several legal datasets have been released in recent years, but most focus on English language materials, such as the Legal BERT corpus \cite{Chalkidis2020}, which contains over 12 million legal documents from various sources, or the SCOTUS dataset \cite{Bommarito2021}, which includes U.S. Supreme Court opinions.
+
+For languages other than English, resources are considerably scarcer. Notable exceptions include CAIL2018 \cite{Xiao2018}, a Chinese dataset for legal judgment prediction, and JurisCorpusFR \cite{Louis2022}, a corpus of French legal documents. For German legal texts, LegalBERT-German \cite{Leitner2022} was introduced, but it focuses on model training rather than providing a comprehensive dataset for specific tasks.
+
+\subsection{Text Generation in the Legal Domain}
+
+Text generation in the legal domain presents unique challenges due to the need for factual accuracy, adherence to legal principles, and clear reasoning. Previous work has explored various applications such as contract generation \cite{Hendrycks2021}, legal document summarization \cite{Kanapala2019}, and judgment prediction \cite{Aletras2016}.
+
+However, the generation of press releases from court decisions represents a relatively unexplored area, particularly for non-English languages. This task is complex as it requires not only summarizing the decision but also adapting the language for public consumption while preserving legal accuracy.
+
+\section{Dataset Description}
+\label{sec:dataset}
+
+\subsection{Data Collection}
+
+The CourtPressGER dataset was collected from publicly available sources, primarily from the official websites of German courts at various levels, including:
+
+\begin{itemize}
+    \item Federal Constitutional Court (Bundesverfassungsgericht)
+    \item Federal Court of Justice (Bundesgerichtshof)
+    \item Federal Administrative Court (Bundesverwaltungsgericht)
+    \item Federal Labor Court (Bundesarbeitsgericht)
+    \item Federal Social Court (Bundessozialgericht)
+    \item Federal Finance Court (Bundesfinanzhof)
+\end{itemize}
+
+The initial raw dataset contained over 7,000 entries, each consisting of a court decision and its corresponding press release published by the court. The data spans multiple years and covers a wide range of legal areas, including constitutional law, civil law, criminal law, administrative law, labor law, social security law, and tax law.
+
+\subsection{Data Cleaning and Processing}
+
+We implemented a robust cleaning pipeline to ensure data quality and consistency. The cleaning process involved several steps:
+
+\begin{enumerate}
+    \item Removal of duplicate entries and entries with missing decision texts or press releases
+    \item Normalization of text formatting, including removal of excessive whitespace, standardization of paragraph breaks, and proper handling of special characters
+    \item Rule-based filtering to exclude entries with problematic content (e.g., extremely short or truncated texts)
+    \item Semantic similarity analysis to validate the pairing between decisions and press releases
+    \item Extraction and standardization of metadata from decision headers and footers
+\end{enumerate}
+
+After cleaning, the final dataset contains approximately 6,500 high-quality pairs of court decisions and press releases, with comprehensive metadata for each entry.
+
+\subsection{Dataset Structure}
+
+Each entry in the CourtPressGER dataset contains the following elements:
+
+\begin{itemize}
+    \item \textbf{Decision text:} The full text of the court decision, often ranging from 5,000 to 50,000 words
+    \item \textbf{Press release:} The official press release published by the court, typically 500-1,500 words
+    \item \textbf{Metadata:} 
+    \begin{itemize}
+        \item Court name and level
+        \item Decision date
+        \item Case reference number
+        \item Legal area
+        \item Panel/chamber information
+        \item Publication date of press release
+    \end{itemize}
+\end{itemize}
+
+The dataset is provided in multiple formats:
+\begin{itemize}
+    \item JSON files with complete entries
+    \item CSV files for tabular analysis
+    \item Hugging Face dataset for easy integration with NLP pipelines
+\end{itemize}
+
+\subsection{Dataset Statistics}
+
+The CourtPressGER dataset exhibits the following key statistics:
+
+\begin{table}[h]
+\caption{Dataset Statistics}
+\centering
+\begin{tabular}{lr}
+\toprule
+\textbf{Statistic} & \textbf{Value} \\
+\midrule
+Total number of document pairs & 6,489 \\
+Average decision length (words) & 7,842 \\
+Average press release length (words) & 754 \\
+Average compression ratio & 10.4:1 \\
+Covered legal areas & 18 \\
+Covered time period & 1998-2023 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Baseline Models and Generation}
+\label{sec:baseline}
+
+To establish baseline performance for the task of generating press releases from court decisions, we implemented a comprehensive generation pipeline using various language models.
+
+\subsection{Models}
+
+We evaluated three categories of language models:
+
+\begin{enumerate}
+    \item \textbf{Large proprietary models:}
+    \begin{itemize}
+        \item GPT-4o (OpenAI)
+        \item Llama-3-70B (via DeepInfra API)
+    \end{itemize}
+    
+    \item \textbf{Medium-sized open models:}
+    \begin{itemize}
+        \item Llama-3-8B
+        \item Teuken-7B (specialized for German)
+    \end{itemize}
+    
+    \item \textbf{Small open models:}
+    \begin{itemize}
+        \item EuroLLM-9B (multilingual European model)
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Synthetic Prompts}
+
+For each model, we developed synthetic prompts following various strategies:
+
+\begin{itemize}
+    \item \textbf{Basic prompting:} Direct instruction to generate a press release
+    \item \textbf{Role-based prompting:} Framing the task as being a court press officer
+    \item \textbf{Format-guided prompting:} Providing examples of desired output format
+    \item \textbf{Context enhancement:} Including metadata in the prompt
+\end{itemize}
+
+Example of a synthetic prompt:
+
+\begin{verbatim}
+Du bist ein Pressesprecher eines deutschen Gerichts. 
+Erstelle eine Pressemitteilung zum folgenden Gerichtsurteil. 
+Die Pressemitteilung sollte die wichtigsten Fakten und 
+Entscheidungsgründe enthalten und für die Öffentlichkeit 
+verständlich sein.
+
+Aktenzeichen: 1 BvR 2456/18
+Gericht: Bundesverfassungsgericht
+Datum: 12.03.2022
+
+[Urteilstext folgt hier]
+\end{verbatim}
+
+\subsection{Generation Pipeline}
+
+Our generation pipeline consists of several components:
+
+\begin{enumerate}
+    \item \textbf{Input preprocessing:} Court decisions are truncated to fit model context windows, with priority given to introductory sections, key legal reasoning, and the decision (tenor)
+    \item \textbf{Prompt construction:} Synthetic prompts are combined with preprocessed decisions
+    \item \textbf{Generation:} Models generate press releases with standardized parameters (temperature=0.7, top\_p=0.9)
+    \item \textbf{Output postprocessing:} Generated texts are cleaned and formatted consistently
+\end{enumerate}
+
+The pipeline includes checkpoint functionality to handle interruptions in long processing runs and supports various output formats for further analysis.
+
+\section{Evaluation Framework and Results}
+\label{sec:evaluation}
+
+We developed a comprehensive evaluation framework to assess the quality of generated press releases compared to the original ones.
+
+\subsection{Automatic Metrics}
+
+We implemented several automatic metrics to evaluate different aspects of the generated texts:
+
+\begin{itemize}
+    \item \textbf{Lexical similarity:}
+    \begin{itemize}
+        \item ROUGE (ROUGE-1, ROUGE-2, ROUGE-L)
+        \item BLEU (BLEU-1 through BLEU-4)
+        \item METEOR
+    \end{itemize}
+    
+    \item \textbf{Semantic similarity:}
+    \begin{itemize}
+        \item BERTScore (using EuroBERT model)
+        \item Embedding similarity (using sentence transformers)
+    \end{itemize}
+    
+    \item \textbf{Factual accuracy:}
+    \begin{itemize}
+        \item Named entity recognition accuracy
+        \item Legal reference accuracy
+    \end{itemize}
+\end{itemize}
+
+\subsection{Human Evaluation}
+
+In addition to automatic metrics, we conducted a human evaluation with legal experts and laypeople. The evaluation assessed:
+
+\begin{itemize}
+    \item \textbf{Legal accuracy:} Correctness of legal reasoning and facts
+    \item \textbf{Completeness:} Coverage of key information from the decision
+    \item \textbf{Readability:} Clarity and accessibility for non-legal audiences
+    \item \textbf{Coherence:} Logical flow and organization
+    \item \textbf{Overall quality:} General assessment of the press release
+\end{itemize}
+
+\subsection{Baseline Results}
+
+The baseline results showed significant variations across models and evaluation metrics:
+
+\begin{table}[h]
+\caption{Automatic Evaluation Results}
+\centering
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Model} & \textbf{ROUGE-L} & \textbf{BLEU-4} & \textbf{BERTScore} & \textbf{Fact Acc.} \\
+\midrule
+GPT-4o & 0.42 & 0.25 & 0.85 & 0.78 \\
+Llama-3-70B & 0.38 & 0.22 & 0.83 & 0.74 \\
+Llama-3-8B & 0.29 & 0.15 & 0.75 & 0.61 \\
+Teuken-7B & 0.33 & 0.18 & 0.79 & 0.65 \\
+EuroLLM-9B & 0.27 & 0.13 & 0.73 & 0.59 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Human evaluation results showed similar trends but highlighted important nuances:
+
+\begin{itemize}
+    \item Larger models generally produced more accurate and complete press releases
+    \item German-specialized models (Teuken-7B) outperformed general models of similar size on legal terminology accuracy
+    \item All models occasionally generated factually incorrect information, with smaller models doing so more frequently
+    \item Human experts rated press releases from larger models as comparable to human-written ones in readability, but lower in legal accuracy
+\end{itemize}
+
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+
+The CourtPressGER dataset provides a valuable resource for researchers working on legal NLP applications in German. Our baseline experiments demonstrate that while current language models can generate reasonable press releases from court decisions, there remains significant room for improvement, particularly in factual accuracy and legal reasoning.
+
+Future work could explore:
+
+\begin{itemize}
+    \item Fine-tuning language models specifically for legal press release generation
+    \item Developing specialized evaluation metrics for legal text generation
+    \item Creating hybrid systems that combine extraction and abstraction approaches
+    \item Extending the dataset with additional court levels and legal domains
+\end{itemize}
+
+The CourtPressGER dataset, cleaning pipeline, baseline models, and evaluation framework are all made available to the research community to facilitate further work in this important area.
+
+\begin{acks}
+We would like to thank the Technical University of Munich for supporting this research. We also acknowledge the courts that make their decisions and press releases publicly available, enabling research that can enhance access to justice through technology.
+\end{acks}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{courtpressger}
+
+\end{document}

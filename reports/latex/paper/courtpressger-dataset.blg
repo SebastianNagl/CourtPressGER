@@ -1,0 +1,67 @@
+This is BibTeX, Version 0.99d (TeX Live 2019)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: courtpressger-dataset.aux
+The style file: ACM-Reference-Format.bst
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Database file #1: courtpressger.bib
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated glb_str_ptr (elt_size=4) to 20 items from 10.
+Reallocated global_strs (elt_size=20001) to 20 items from 10.
+Reallocated glb_str_end (elt_size=4) to 20 items from 10.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 9000 items from 6000.
+Warning--no number and no volume in Bommarito2021
+Warning--page numbers missing in both pages and numpages fields in Bommarito2021
+Warning--no number and no volume in Chalkidis2020
+Warning--no number and no volume in Hendrycks2021
+Warning--page numbers missing in both pages and numpages fields in Hendrycks2021
+Warning--empty publisher in Leitner2022
+Warning--empty address in Leitner2022
+Warning--no number and no volume in Louis2022
+Warning--empty publisher in Xiao2018
+Warning--empty address in Xiao2018
+Warning--page numbers missing in both pages and numpages fields in Xiao2018
+You've used 8 entries,
+            6056 wiz_defined-function locations,
+            1690 strings with 21918 characters,
+and the built_in function-call counts, 9989 in all, are:
+= -- 1392
+> -- 376
+< -- 0
++ -- 130
+- -- 120
+* -- 741
+:= -- 949
+add.period$ -- 39
+call.type$ -- 8
+change.case$ -- 71
+chr.to.int$ -- 8
+cite$ -- 19
+duplicate$ -- 806
+empty$ -- 570
+format.name$ -- 152
+if$ -- 2533
+int.to.chr$ -- 2
+int.to.str$ -- 1
+missing$ -- 34
+newline$ -- 102
+num.names$ -- 56
+pop$ -- 348
+preamble$ -- 1
+purify$ -- 135
+quote$ -- 0
+skip$ -- 274
+stack$ -- 0
+substring$ -- 656
+swap$ -- 76
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 156
+warning$ -- 11
+while$ -- 37
+width$ -- 0
+write$ -- 186
+(There were 11 warnings)
