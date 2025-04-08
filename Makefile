@@ -129,12 +129,32 @@ eval:
 		--prompt-column synthetic_prompt \
 		--ruling-column judgement \
 		--press-column summary \
+		--source-text-column judgement \
 		--exclude-columns id date judgement subset_name split_name is_announcement_rule matching_criteria synthetic_prompt \
 		--bert-score-model bert-base-multilingual-cased \
 		--generate-report \
 		--report-path reports/evaluation_report.html
 	@echo "Evaluierungsergebnisse wurden im Verzeichnis $(DEFAULT_EVAL_OUTPUT_DIR) gespeichert."
 	@echo "Ein HTML-Bericht wurde unter reports/evaluation_report.html erstellt."
+
+eval-factual:
+	@echo "Führe Evaluationsmethoden mit sachlicher Konsistenzprüfung für den Datensatz $(DEFAULT_EVAL_DATASET) aus..."
+	@mkdir -p $(DEFAULT_EVAL_OUTPUT_DIR)
+	$(PYTHON_INTERPRETER) -m courtpressger.evaluation.cli \
+		--dataset $(DEFAULT_EVAL_DATASET) \
+		--output-dir $(DEFAULT_EVAL_OUTPUT_DIR) \
+		--evaluate-existing-columns \
+		--prompt-column synthetic_prompt \
+		--ruling-column judgement \
+		--press-column summary \
+		--source-text-column judgement \
+		--exclude-columns id date judgement subset_name split_name is_announcement_rule matching_criteria synthetic_prompt \
+		--bert-score-model bert-base-multilingual-cased \
+		--enable-factual-consistency \
+		--generate-report \
+		--report-path reports/evaluation_factual_report.html
+	@echo "Evaluierungsergebnisse wurden im Verzeichnis $(DEFAULT_EVAL_OUTPUT_DIR) gespeichert."
+	@echo "Ein HTML-Bericht wurde unter reports/evaluation_factual_report.html erstellt."
 
 ## Synchronize the environment with dependencies
 .PHONY: sync
