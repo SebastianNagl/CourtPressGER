@@ -1,7 +1,7 @@
 # CourtPressGer
 
 ## Hintergrund und Ziel
-Wir sind Wissenschaftler der Technischen Universität München im Bereich Legal Technology. Für unsere nächste wissenschaftliche Publikation möchten wir vorstellen:
+Wir sind Wissenschaftler der Technischen Universität München (TUM) im Bereich Legal Technology. Für unsere nächste wissenschaftliche Publikation möchten wir vorstellen:
 
 1. Einen bereinigten Datensatz mit 6.4k Einträgen von Gerichtsurteilen mit zugehörigen Pressemitteilungen von deutschlands höchsten Gerichten.
 2. Für jedes Urteil-Pressemitteilungs-Paar zusätzlich einen synthetischen Prompt, mit dem man automatsiert aus den Urteilen Pressemitteilungen generieren kann. 
@@ -10,8 +10,15 @@ Wir sind Wissenschaftler der Technischen Universität München im Bereich Legal 
 
 Neben den Pipeline-Skripten haben wir für unsere Analysen auch immer ein Jupyter Notebook für die Arbeitsschritte; abrufbar unter notebooks/.
 
+## Personen
+An diesem Projekt beteiligt sind:
+- Sebastian Nagl, sebastian.nagl@tum.de (Erstautor)
+- Mohamed Elganainy, mohamed.elganainy@tum.de (Co-Autor)
+- Matthias Grabmair, matthias.grabmair@tum.de (Betreuer)
+
 ## Aktuelle Aufgaben und Probleme
-Aktuelle Aufgaben können work in progress sein; immer erst mal kontrollieren, dann lösen. Sobald was davon erledigt ist, bitte [erledigt] zu Beginn der Aufgabe schreiben; ich kontrolliere dann bei Gelegenheit. 
+Aktuelle Aufgaben können work in progress sein; immer erst mal kontrollieren, dann lösen. Sobald was davon erledigt ist, bitte [erledigt] zu Beginn der Aufgabe schreiben.
+
 
 
 # Struktur
@@ -129,3 +136,22 @@ Das Projekt nutzt uv, um Pakete und Venvs zu verwalten. Im besten Fall sollen pa
 
 ## Lizenz
 Das Projekt ist lizenziert unter der MIT-Lizenz.
+
+
+## Zitiere unsere Arbeit - Falls alles klappt... #todo
+Wenn Sie unsere Arbeit in Ihrer Forschung verwenden, zitieren Sie diese bitte wie folgt:
+
+```
+Nagl, S., Elganainy, M., & Grabmair, M. (2024). CourtPressGER: Generating German Court Press Releases with LLMs. In Proceedings of the International Conference on Artificial Intelligence and Law (ICAIL) Workshop 2025.
+```
+
+BibTeX-Eintrag:
+```bibtex
+@inproceedings{nagl2024courtpressger,
+  title={CourtPressGER: Generating German Court Press Releases with LLMs},
+  author={Nagl, Sebastian and Elganainy, Mohamed and Grabmair, Matthias},
+  booktitle={Proceedings of the International Conference on Artificial Intelligence and Law (ICAIL) Workshop},
+  year={2025},
+  publisher={ACM}
+}
+```

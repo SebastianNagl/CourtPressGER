@@ -15,9 +15,10 @@
 %
 % If you use the hyperref package, please uncomment the following two lines
 % to display URLs in blue roman font according to Springer's eBook style:
-%\usepackage{color}
-%\renewcommand\UrlFont{\color{blue}\rmfamily}
-%\urlstyle{rm}
+\usepackage{hyperref}
+\usepackage{color}
+\renewcommand\UrlFont{\color{blue}\rmfamily}
+\urlstyle{rm}
 %
 \begin{document}
 %
@@ -27,19 +28,21 @@
 % If the paper title is too long for the running head, you can set
 % an abbreviated paper title here
 %
-\author{S.\inst{1}\orcidID{0000-0000-0000-0000}}
+\author{Sebastian Nagl\inst{1}\orcidID{0000-0000-0000-0000} \and
+Mohamed Elganainy\inst{1}\orcidID{0000-0000-0000-0000} \and
+Matthias Grabmair\inst{1}\orcidID{0000-0000-0000-0000}}
 %
-\authorrunning{Your Name}
+\authorrunning{Nagl et al.}
 % First names are abbreviated in the running head.
 % If there are more than two authors, 'et al.' is used.
 %
-\institute{Your University or Organization, City, Country
-\email{your.email@example.com}}
+\institute{Technical University of Munich, Munich, Germany\\
+\email{\{sebastian.nagl,mohamed.elganainy,matthias.grabmair\}@tum.de}}
 %
 \maketitle              % typeset the header of the contribution
 %
 \begin{abstract}
-This paper presents CourtPressGER, a system for automatically generating German court press releases using Large Language Models (LLMs). We explore various methods for data cleaning, prompt generation, and evaluation of generated press releases from German court decisions. Our approach combines specialized legal language models with domain-specific techniques to produce accurate and informative press releases that adhere to journalistic and legal standards.
+This paper presents CourtPressGER, a system for automatically generating German court press releases using Large Language Models (LLMs). We present a curated dataset with 6.4k entries of court decisions with corresponding press releases from Germany's highest courts. The dataset is enhanced with synthetic prompts that enable automated generation of press releases from court decisions. We describe a pipeline for generating press releases with various state-of-the-art models and evaluate the results using human and automated metrics. Our approach combines specialized legal language models with domain-specific techniques to produce accurate and informative press releases that adhere to journalistic and legal standards.
 
 \keywords{Legal NLP \and Legal AI \and Court Press Releases \and German Legal Text Generation \and Large Language Models}
 \end{abstract}
@@ -47,92 +50,98 @@ This paper presents CourtPressGER, a system for automatically generating German 
 %
 %
 \section{Introduction}
-\subsection{A Subsection Sample}
-Please note that the first paragraph of a section or subsection is
-not indented. The first paragraph that follows a table, figure,
-equation etc. does not need an indent, either.
+The German legal system consists of a complex network of courts that regularly publish extensive decisions. To make these decisions accessible to the public, the highest courts create press releases that summarize the essential aspects and implications of the decisions in an understandable form. These press releases serve as an important interface between the judicial system and the general public by explaining complex legal matters in an accessible way.
 
-Subsequent paragraphs, however, are indented.
+However, the manual creation of such press releases requires significant resources. At the same time, recent advances in Large Language Models (LLMs) offer new possibilities for automated text generation in specialized domains. Our project CourtPressGER aims to leverage these capabilities for the automatic generation of court press releases.
 
-\subsubsection{Sample Heading (Third Level)} Only two levels of
-headings should be numbered. Lower level headings remain unnumbered;
-they are formatted as run-in headings.
+\subsection{Objectives}
+The main objectives of our project are:
+\begin{itemize}
+    \item The creation of a curated dataset with 6.4k entries of court decisions with corresponding press releases from Germany's highest courts.
+    \item The development of synthetic prompts for each decision-press release pair that can be used to automatically generate press releases.
+    \item The implementation of a pipeline that queries various LLMs with the synthetic prompts and stores the results alongside the actual press releases.
+    \item The evaluation of the generated press releases using human and automated metrics.
+\end{itemize}
 
-\paragraph{Sample Heading (Fourth Level)}
-The contribution should contain no more than four levels of
-headings. Table~\ref{tab1} gives a summary of all heading levels.
+\section{Related Work}
+\subsection{Juristic Text Generation}
+In recent years, the automatic generation of juristic texts has made significant progress with the emergence of powerful language models. Various studies have focused on summarizing juristic documents, generating juristic arguments, and simplifying complex legal texts.
 
-\begin{table}
-\caption{Table captions should be placed above the
-tables.}\label{tab1}
-\begin{tabular}{|l|l|l|}
-\hline
-Heading level &  Example & Font size and style\\
-\hline
-Title (centered) &  {\Large\bfseries Lecture Notes} & 14 point, bold\\
-1st-level heading &  {\large\bfseries 1 Introduction} & 12 point, bold\\
-2nd-level heading & {\bfseries 2.1 Printing Area} & 10 point, bold\\
-3rd-level heading & {\bfseries Run-in Heading in Bold.} Text follows & 10 point, bold\\
-4th-level heading & {\itshape Lowest Level Heading.} Text follows & 10 point, italic\\
-\hline
-\end{tabular}
-\end{table}
+\subsection{Large Language Models in the Juristic Context}
+LLMs have increasingly been used for juristic applications, including legal advice, document analysis, and decision predictions. Current research explores the ability of LLMs to understand and generate legal language, as well as their reliability and ethical implications in the legal context.
 
+\subsection{Press Releases in the Judicial System}
+Studies on the role and impact of court press releases have highlighted their importance for public perception and understanding of legal decisions. However, there has been little research on the automated generation of such releases, especially in the German legal system.
 
-\noindent Displayed equations are centered and set on a separate
-line.
-\begin{equation}
-x + y = z
-\end{equation}
-Please try to avoid rasterized images for line-art diagrams and
-schemas. Whenever possible, use vector graphics instead (see
-Fig.~\ref{fig1}).
+\section{Dataset}
+\subsection{Data Sources}
+Our dataset includes court decisions and corresponding press releases from Germany's highest courts, including the Federal Constitutional Court, the Federal Court of Justice, and other federal courts. The data was collected from publicly accessible sources.
 
-\begin{figure}
-\includegraphics[width=\textwidth]{fig1.eps}
-\caption{A figure caption is always placed below the illustration.
-Please note that short captions are centered, while long ones are
-justified by the macro package automatically.} \label{fig1}
-\end{figure}
+\subsection{Data Cleaning}
+The data cleaning process involved a combination of rule-based methods and semantic similarity analysis. The process included:
+\begin{itemize}
+    \item Filtering and normalizing raw data
+    \item Validating the mappings between decisions and press releases
+    \item Removing duplicates and inconsistent entries
+\end{itemize}
 
-\begin{theorem}
-This is a sample theorem. The run-in heading is set in bold, while
-the following text appears in italics. Definitions, lemmas,
-propositions, and corollaries are styled the same way.
-\end{theorem}
-%
-% the environments 'definition', 'lemma', 'proposition', 'corollary',
-% 'remark', and 'example' are defined in the LLNCS documentclass as well.
-%
-\begin{proof}
-Proofs, examples, and remarks have the initial word in italics,
-while the following text appears in normal font.
-\end{proof}
-For citations of references, we prefer the use of square brackets
-and consecutive numbers. Citations using labels or the author/year
-convention are also acceptable. The following bibliography provides
-a sample reference list with entries for journal
-articles~\cite{ref_article1}, an LNCS chapter~\cite{ref_lncs1}, a
-book~\cite{ref_book1}, proceedings without editors~\cite{ref_proc1},
-and a homepage~\cite{ref_url1}. Multiple citations are grouped
-\cite{ref_article1,ref_lncs1,ref_book1},
-\cite{ref_article1,ref_book1,ref_proc1,ref_url1}.
+\subsection{Dataset Statistics}
+The cleaned dataset contains 6.4k pairs of court decisions and press releases. The average length of decisions is X Tokens, while press releases average Y Tokens in length. The dataset covers various legal fields, including civil, criminal, administrative, and constitutional law.
+
+\section{Methodology}
+\subsection{Synthetic Prompts}
+For each decision-press release pair, we developed synthetic prompts that serve as input for LLMs to generate press releases. These prompts were carefully designed to highlight the key aspects of the decision and to train the models to create relevant and precise press releases.
+
+\subsection{Pipeline for Generating Press Releases}
+Our pipeline includes various LLMs, which can be categorized into three groups:
+\begin{itemize}
+    \item Large Models: GPT-4o, Llama-3-70B
+    \item Small Models: Teuken-7B, Llama-3-8B, EuroLLM-9B
+\end{itemize}
+
+The pipeline is designed to send the synthetic prompts to the models, collect the generated press releases, and store them alongside the actual press releases. A checkpoint system allows for the continuation of interrupted generation processes.
+
+\subsection{Evaluation Metrics}
+We use various metrics to evaluate the generated press releases:
+\begin{itemize}
+    \item ROUGE (Rouge-1, Rouge-2, Rouge-L)
+    \item BLEU (BLEU-1 to BLEU-4)
+    \item METEOR
+    \item BERTScore (with EuroBERT model)
+\end{itemize}
+
+In addition to these automated metrics, we conduct a human evaluation where experts assess the quality, accuracy, and understandability of the generated press releases.
+
+\section{Results}
+\subsection{Comparison of Models}
+[Here follow detailed results of the various models based on automated metrics.]
+
+\subsection{Human Evaluation}
+[Here follow the results of the human evaluation, including qualitative observations and quantitative assessments.]
+
+\subsection{Analysis of Case Studies}
+[Here, selected examples are analyzed that highlight specific strengths or weaknesses of the generated press releases.]
+
+\section{Discussion}
+\subsection{Interpretation of Results}
+[Here follows a discussion of the main findings and their implications.]
+
+\subsection{Strengths and Weaknesses}
+[Here, we discuss the strengths and weaknesses of our approach, including specific challenges in generating legal texts in German.]
+
+\subsection{Ethical Considerations}
+[Here, we discuss ethical issues in the context of automated generation of court press releases, including transparency, accountability, and potential biases.]
+
+\section{Conclusion and Future Directions}
+Our project CourtPressGER demonstrates the potential of LLMs for automated generation of court press releases in the German legal system. The results show that modern language models are capable of producing understandable and informative press releases that accurately represent complex legal matters.
+
+Future research directions include the integration of domain-specific knowledge bases, the improvement of accuracy and reliability through fine-tuning of the models, and the extension of the approach to other languages and legal systems.
 
 \begin{credits}
-\subsubsection{\ackname} A bold run-in heading in small font size at the end of the paper is
-used for general acknowledgments, for example: This study was funded
-by X (grant number Y).
+\subsubsection{\ackname} This research was supported by [Funder/Project Number, if applicable]. This paper will be presented at the ICAIL Workshop 2025.
 
 \subsubsection{\discintname}
-It is now necessary to declare any competing interests or to specifically
-state that the authors have no competing interests. Please place the
-statement with a bold run-in heading in small font size beneath the
-(optional) acknowledgments\footnote{If EquinOCS, our proceedings submission
-system, is used, then the disclaimer can be provided directly in the system.},
-for example: The authors have no competing interests to declare that are
-relevant to the content of this article. Or: Author A has received research
-grants from Company W. Author B has received a speaker honorarium from
-Company X and owns stock in Company Y. Author C is a member of committee Z.
+The authors declare that they have no conflicts of interest that are relevant to the content of this paper.
 \end{credits}
 %
 % ---- Bibliography ----
@@ -145,22 +154,18 @@ Company X and owns stock in Company Y. Author C is a member of committee Z.
 %
 \begin{thebibliography}{8}
 \bibitem{ref_article1}
-Author, F.: Article title. Journal \textbf{2}(5), 99--110 (2016)
+Author, A.: Article Title. Journal \textbf{2}(5), 99--110 (2016)
 
 \bibitem{ref_lncs1}
-Author, F., Author, S.: Title of a proceedings paper. In: Editor,
-F., Editor, S. (eds.) CONFERENCE 2016, LNCS, vol. 9999, pp. 1--13.
-Springer, Heidelberg (2016). \doi{10.10007/1234567890}
+Author, B., Author, C.: Title of a Conference Paper. In: Editor, D., Editor, E. (eds.) CONFERENCE 2016, LNCS, vol. 9999, pp. 1--13. Springer, Heidelberg (2016). \doi{10.10007/1234567890}
 
 \bibitem{ref_book1}
-Author, F., Author, S., Author, T.: Book title. 2nd edn. Publisher,
-Location (1999)
+Author, F., Author, G., Author, H.: Book Title. 2nd edn. Publisher, Location (1999)
 
 \bibitem{ref_proc1}
-Author, A.-B.: Contribution title. In: 9th International Proceedings
-on Proceedings, pp. 1--2. Publisher, Location (2010)
+Author, I.: Contribution Title. In: 9th International Conference, pp. 1--2. Publisher, Location (2010)
 
 \bibitem{ref_url1}
-LNCS Homepage, \url{http://www.springer.com/lncs}, last accessed 2023/10/25
+German Federal Court Website, \url{http://www.example.de}, last accessed 2024/06/10
 \end{thebibliography}
 \end{document}
