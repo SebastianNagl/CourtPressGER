@@ -1,11 +1,12 @@
 """
-Tests für die QAGSMetric und FactCCMetric.
+Tests für die QAGSMetric, FactCCMetric und LLMAsJudgeMetric.
 """
 import pytest
 import numpy as np
+import json
 from unittest.mock import patch, MagicMock
 
-from courtpressger.evaluation.metrics import QAGSMetric, FactCCMetric
+from courtpressger.evaluation.metrics import QAGSMetric, FactCCMetric, LLMAsJudgeMetric
 
 # Beispieltexte für Tests
 SAMPLE_SOURCE = """
@@ -169,3 +170,65 @@ def test_factcc_metric(mock_imports, generated_text, expected_score):
         assert 'factcc_claim_count' in result
         assert 'factcc_consistency_ratio' in result
         assert 0 <= result['factcc_consistency_ratio'] <= 1 
+
+
+class MockAnthropicClient:
+    """Mock-Client für Anthropic API-Aufrufe"""
+    
+    def __init__(self, *args, **kwargs):
+        self.messages = MagicMock()
+        self.messages.create = self.mock_create
+    
+    def mock_create(self, **kwargs):
+        """Mock für die create-Methode des Anthropic-Clients"""
+        # Simuliere eine Antwort im JSON-Format
+        mock_response = {
+            "faktische_korrektheit": {"wert": 8, "begründung": "Das Urteil wird korrekt wiedergegeben."},
+            "vollständigkeit": {"wert": 7, "begründung": "Die wichtigsten Informationen sind enthalten."},
+            "klarheit": {"wert": 9, "begründung": "Der Text ist sehr verständlich formuliert."},
+            "struktur": {"wert": 8, "begründung": "Gut strukturierte Darstellung des Sachverhalts."},
+            "vergleich_mit_referenz": {"wert": 8, "begründung": "Ähnlich gut wie die Referenz."},
+            "gesamtscore": 8.0
+        }
+        
+        return MagicMock(
+            content=[MagicMock(
+                text=json.dumps(mock_response)
+            )]
+        )
+
+
+@pytest.mark.parametrize("generated_text,reference_text,expected_score", [
+    (SAMPLE_GENERATED, SAMPLE_GENERATED, lambda x: 'llm_judge_gesamtscore' in x and x['llm_judge_gesamtscore'] > 0),
+    (SAMPLE_INCONSISTENT, SAMPLE_GENERATED, lambda x: 'llm_judge_gesamtscore' in x and x['llm_judge_gesamtscore'] > 0),
+    ("", SAMPLE_GENERATED, lambda x: 'llm_judge_gesamtscore' in x and x['llm_judge_gesamtscore'] > 0)
+])
+def test_llm_as_judge_metric(generated_text, reference_text, expected_score):
+    """Test für LLMAsJudgeMetric"""
+    
+    # Die Anthropic-Bibliothek und Client mocken
+    with patch('anthropic.Anthropic', return_value=MockAnthropicClient()):
+        # Umgebungsvariable für den API-Key mocken
+        with patch.dict('os.environ', {'ANTHROPIC_API_KEY': 'dummy-key'}):
+            # LLMAsJudgeMetric initialisieren
+            llm_judge = LLMAsJudgeMetric()
+            
+            # Metrik berechnen
+            result = llm_judge.compute(SAMPLE_SOURCE, generated_text, reference_text)
+            
+            # Überprüfen, ob die Ergebnisse den Erwartungen entsprechen
+            assert 'llm_judge_gesamtscore' in result
+            assert expected_score(result)
+            
+            # Überprüfen, ob alle erwarteten Bewertungskriterien vorhanden sind
+            assert 'llm_judge_faktische_korrektheit' in result
+            assert 'llm_judge_vollständigkeit' in result
+            assert 'llm_judge_klarheit' in result
+            assert 'llm_judge_struktur' in result
+            assert 'llm_judge_vergleich_mit_referenz' in result
+            
+            # Überprüfen, ob die Bewertungen im erwarteten Bereich liegen
+            for key in ['llm_judge_faktische_korrektheit', 'llm_judge_vollständigkeit', 
+                        'llm_judge_klarheit', 'llm_judge_struktur', 
+                        'llm_judge_vergleich_mit_referenz']:
+                assert 1 <= result[key] <= 10 

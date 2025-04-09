@@ -61,7 +61,14 @@ class TestLLMEvaluationPipeline:
             'bleu1': 0.7, 'bleu2': 0.6, 'bleu3': 0.5, 'bleu4': 0.4,
             'meteor': 0.65,
             'bertscore_precision': 0.9, 'bertscore_recall': 0.85, 'bertscore_f1': 0.87,
-            'keyword_overlap': 0.5, 'entity_overlap': 0.4, 'length_ratio': 1.1, 'semantic_similarity': 0.78
+            'keyword_overlap': 0.5, 'entity_overlap': 0.4, 'length_ratio': 1.1, 'semantic_similarity': 0.78,
+            # LLMAsJudge-spezifische Metriken
+            'llm_judge_faktische_korrektheit': 8, 
+            'llm_judge_vollständigkeit': 7,
+            'llm_judge_klarheit': 9,
+            'llm_judge_struktur': 8,
+            'llm_judge_vergleich_mit_referenz': 8,
+            'llm_judge_gesamtscore': 8.0
         }
 
         # Mock os.path.exists für Checkpoints (simuliert keinen existierenden Checkpoint)
@@ -70,7 +77,8 @@ class TestLLMEvaluationPipeline:
                 dataset=sample_dataset,
                 prompt_column='prompt',
                 ruling_column='ruling',
-                reference_press_column='reference_press'
+                reference_press_column='reference_press',
+                enable_llm_as_judge=True  # LLM-as-a-Judge aktivieren
             )
 
         # --- Assertions ---
@@ -119,7 +127,8 @@ class TestLLMEvaluationPipeline:
         assert 'avg_rouge1_fmeasure' in summary_a
         assert 'avg_bleu4' in summary_a
         assert 'avg_bertscore_f1' in summary_a
-        assert 'successful_generations' in summary_a
+        assert 'avg_llm_judge_gesamtscore' in summary_a  # LLM-as-a-Judge Gesamtscore
+        assert 'avg_llm_judge_faktische_korrektheit' in summary_a  # Einzelne LLM-as-a-Judge Metriken
         assert summary_a['successful_generations'] == 2 # Model A hat 2 erfolgreiche Generierungen
         assert summary_a['failed_generations'] == 0
 
@@ -148,13 +157,27 @@ class TestLLMEvaluationPipeline:
                 'generated_text': 'gen 1', 'reference_text': 'ref 1',
                 'rouge1_fmeasure': 0.8, 'rouge2_fmeasure': 0.7, 'rougeL_fmeasure': 0.75,
                 'bleu4': 0.6, 'meteor': 0.65, 'bertscore_f1': 0.85,
-                 'keyword_overlap': 0.5, 'entity_overlap': 0.4, 'length_ratio': 1.1, 'semantic_similarity': 0.78
+                'keyword_overlap': 0.5, 'entity_overlap': 0.4, 'length_ratio': 1.1, 'semantic_similarity': 0.78,
+                # LLM-as-a-Judge Metriken
+                'llm_judge_faktische_korrektheit': 8,
+                'llm_judge_vollständigkeit': 7,
+                'llm_judge_klarheit': 9,
+                'llm_judge_struktur': 8,
+                'llm_judge_vergleich_mit_referenz': 8,
+                'llm_judge_gesamtscore': 8.0
             },
             '1': {
-                 'generated_text': 'gen 2', 'reference_text': 'ref 2',
-                 'rouge1_fmeasure': 0.7, 'rouge2_fmeasure': 0.6, 'rougeL_fmeasure': 0.65,
-                 'bleu4': 0.5, 'meteor': 0.55, 'bertscore_f1': 0.75,
-                 'keyword_overlap': 0.4, 'entity_overlap': 0.3, 'length_ratio': 1.0, 'semantic_similarity': 0.68
+                'generated_text': 'gen 2', 'reference_text': 'ref 2',
+                'rouge1_fmeasure': 0.7, 'rouge2_fmeasure': 0.6, 'rougeL_fmeasure': 0.65,
+                'bleu4': 0.5, 'meteor': 0.55, 'bertscore_f1': 0.75,
+                'keyword_overlap': 0.4, 'entity_overlap': 0.3, 'length_ratio': 1.0, 'semantic_similarity': 0.68,
+                # LLM-as-a-Judge Metriken
+                'llm_judge_faktische_korrektheit': 7,
+                'llm_judge_vollständigkeit': 6,
+                'llm_judge_klarheit': 8,
+                'llm_judge_struktur': 7,
+                'llm_judge_vergleich_mit_referenz': 7,
+                'llm_judge_gesamtscore': 7.0
             },
             '2': {'error': 'Failed generation'} # Eintrag mit Fehler
         }
@@ -170,6 +193,9 @@ class TestLLMEvaluationPipeline:
         assert summary['avg_bleu4'] == pytest.approx((0.6 + 0.5) / 2)
         assert summary['avg_bertscore_f1'] == pytest.approx((0.85 + 0.75) / 2)
         assert 'avg_rouge1_precision' not in summary # Nicht im Beispiel-Result-Dict enthalten
+        assert summary['avg_llm_judge_gesamtscore'] == pytest.approx((8.0 + 7.0) / 2)
+        assert summary['avg_llm_judge_faktische_korrektheit'] == pytest.approx((8 + 7) / 2)
+        assert summary['avg_llm_judge_vollständigkeit'] == pytest.approx((7 + 6) / 2)
 
     # Hilfsfunktion für mock_open side_effect im Checkpoint-Test
     def _mock_open_side_effect(self, checkpoint_path, checkpoint_content):
