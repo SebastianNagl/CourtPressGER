@@ -10,7 +10,7 @@ Neben den Pipeline-Skripten haben wir für unsere Analysen auch immer ein Jupyte
 
 ## Aktuelle Aufgaben und Probleme
 Aktuelle Aufgaben können work in progress sein; immer erst mal kontrollieren, dann lösen. Sobald was davon erledigt ist, bitte [erledigt] zu Beginn der Aufgabe schreiben; ich kontrolliere dann bei Gelegenheit. 
-1. [erledigt] Wir sind daran interessiert, qags oder factcc als weitere Metriken für die Evaluierung der generierten Pressemitteilungen zu verwenden. Kannst du uns da weiterhelfen?
+
 
 # Struktur
 Das Projekt folgt im Kern der Cookiecutter Data Science Projektstruktur. Skripte und Module sind unter courtpressger/ angeordnet.
@@ -122,6 +122,7 @@ Das Projekt bietet folgende Hauptfunktionalitäten:
   - BERTScore (verwendet EuroBERT-Modell)
   - QAGS (Question Answering for evaluating Generated Summaries)
   - FactCC (Evaluierung der faktischen Konsistenz)
+  - LLM-as-a-Judge (Bewertung durch Claude 3.7 Sonnet)
 - Visualisierung und Reporting-Funktionen für Ergebnisanalyse
 - Checkpoint-System für langläufige Evaluierungen
 
@@ -138,7 +139,21 @@ Seit neuestem unterstützt das Projekt auch fortgeschrittene Metriken zur Bewert
   - Überprüft jede Behauptung auf Konsistenz mit dem Gerichtsurteil
   - Berechnet einen Gesamtscore für die faktische Konsistenz
 
-Diese Metriken können über den Befehl `make eval-factual` ausgeführt werden oder über die Option `--enable-factual-consistency` in der Kommandozeile aktiviert werden.
+- **LLM-as-a-Judge (Claude 3.7 Sonnet)**
+  - Verwendet Claude 3.7 Sonnet zur Bewertung der generierten Pressemitteilungen
+  - Bewertet anhand verschiedener Kriterien (faktische Korrektheit, Vollständigkeit, Klarheit, Struktur)
+  - Vergleicht die generierte Pressemitteilung optional mit der Referenzpressemitteilung
+  - Liefert sowohl numerische Bewertungen (1-10) als auch detaillierte Begründungen
+  - Berechnet einen Gesamtscore über alle Bewertungskriterien
+
+Diese Metriken können über folgende Befehle ausgeführt werden:
+- `make eval-factual`: Aktiviert QAGS und FactCC für die sachliche Konsistenzprüfung
+- `make eval-llm-judge`: Aktiviert die Bewertung durch Claude 3.7 Sonnet
+- `make eval-full`: Führt alle Evaluierungsmetriken inklusive sachlicher Konsistenzprüfung und LLM-as-a-Judge aus
+
+Alternativ können diese Funktionen über entsprechende Kommandozeilenoptionen aktiviert werden:
+- `--enable-factual-consistency`: Aktiviert QAGS und FactCC
+- `--enable-llm-as-judge`: Aktiviert die Bewertung durch Claude 3.7 Sonnet
 
 ## Package Management
 Das Projekt nutzt uv, um Pakete und Venvs zu verwalten. Im besten Fall sollen pakete durch uv add hinzugefügt werden, nur im Ausnahmefall durch uv pip install. Es wird eine einzige virtuelle Umgebung unter .venv verwendet, die für alle Aufgaben (CPU und GPU) geeignet ist.

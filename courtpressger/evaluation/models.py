@@ -125,7 +125,7 @@ class OpenAIModel(BaseModel):
 
 
 class HuggingFaceModel(BaseModel):
-    """Implementierung für Modelle über die Hugging Face Inference API."""
+    """Implementierung für Hugging Face-Modelle über die Inference API."""
     
     def __init__(self, name: str, model_id: str, api_key: Optional[str] = None, 
                 api_url: Optional[str] = None, **kwargs):

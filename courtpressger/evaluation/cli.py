@@ -75,6 +75,9 @@ def parse_args():
     parser.add_argument("--enable-factual-consistency", action="store_true",
                         help="Aktiviert sachliche Konsistenzmetriken (QAGS, FactCC)")
     
+    parser.add_argument("--enable-llm-as-judge", action="store_true",
+                        help="Aktiviert die LLM-as-a-Judge Bewertung mit Claude 3.7 Sonnet")
+    
     return parser.parse_args()
 
 def load_dataset(file_path: str) -> pd.DataFrame:
@@ -207,14 +210,15 @@ def main():
     if ("bertscore" in args.metrics or "alle" in args.metrics) and args.bert_score_model:
         bert_score_model = args.bert_score_model
     
-    # Evaluierungspipeline initialisieren und ausführen
-    print("Starte Evaluierung...")
+    # Evaluierungspipeline erstellen und ausführen
     pipeline = LLMEvaluationPipeline(
-        models_or_names=models_to_evaluate,
-        output_dir=args.output_dir,
-        bert_score_model=bert_score_model,
+        models_to_evaluate, 
+        args.output_dir,
+        bert_score_model=args.bert_score_model,
         lang=args.language
     )
+    
+    source_text_column = args.source_text_column or args.ruling_column
     
     results = pipeline.run_evaluation(
         dataset=dataset,
@@ -223,12 +227,13 @@ def main():
         reference_press_column=args.press_column,
         batch_size=args.batch_size,
         checkpoint_freq=args.checkpoint_freq,
-        source_text_column=args.source_text_column,
-        enable_factual_consistency=args.enable_factual_consistency
+        source_text_column=source_text_column,
+        enable_factual_consistency=args.enable_factual_consistency,
+        enable_llm_as_judge=args.enable_llm_as_judge
     )
     
-    # Ergebnisse ausgeben
-    print("\nEvaluierungsergebnisse:")
+    # Ausgabe
+    print("\nEvaluierung abgeschlossen!")
     for model_name, summary in results.items():
         print(f"\n{model_name}:")
         if "error" in summary:

@@ -47,7 +47,8 @@ class LLMEvaluationPipeline:
                       reference_press_column: str, batch_size: int = 10,
                       checkpoint_freq: int = 50,
                       source_text_column: Optional[str] = None,
-                      enable_factual_consistency: bool = False) -> Dict[str, Any]:
+                      enable_factual_consistency: bool = False,
+                      enable_llm_as_judge: bool = False) -> Dict[str, Any]:
         """
         Führt die Evaluierung für alle Modelle durch.
         
@@ -61,6 +62,7 @@ class LLMEvaluationPipeline:
             source_text_column: Optional, Name der Spalte mit dem Quelltext für 
                                sachliche Konsistenzmetriken (normalerweise gleich ruling_column)
             enable_factual_consistency: Optional, aktiviert QAGS und FactCC (rechenintensiv)
+            enable_llm_as_judge: Optional, aktiviert die LLM-as-a-Judge Bewertung mit Claude Sonnet
             
         Returns:
             Evaluierungsergebnisse als Dictionary
@@ -158,7 +160,8 @@ class LLMEvaluationPipeline:
                             bert_score_model=self.bert_score_model,
                             lang=self.lang,
                             source_text=source_text,
-                            enable_factual_consistency=enable_factual_consistency
+                            enable_factual_consistency=enable_factual_consistency,
+                            enable_llm_as_judge=enable_llm_as_judge
                         )
                         
                         # Alle Metriken in das Ergebnis-Dictionary einfügen

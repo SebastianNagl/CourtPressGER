@@ -225,3 +225,11 @@ clean-test:
 ## Clean all artifacts
 .PHONY: clean
 clean: clean-pyc clean-test 
+
+# Evaluierung mit LLM-as-a-Judge (Claude 3.7 Sonnet) ausführen
+eval-llm-judge:
+	python -m courtpressger.evaluation.cli --dataset $(DEFAULT_EVAL_DATASET) --evaluate-existing-columns --enable-llm-as-judge --bert-score-model $(DEFAULT_MODEL)
+
+# Vollständige Evaluierung mit allen Metriken einschließlich LLM-as-a-Judge ausführen
+eval-full:
+	python -m courtpressger.evaluation.cli --dataset $(DEFAULT_EVAL_DATASET) --evaluate-existing-columns --enable-factual-consistency --enable-llm-as-judge --bert-score-model $(DEFAULT_MODEL) 

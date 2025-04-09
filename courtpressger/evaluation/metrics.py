@@ -786,12 +786,143 @@ class FactCCMetric:
             "factcc_claim_count": len(claims)
         }
 
+class LLMAsJudgeMetric:
+    """Verwendet ein LLM (Claude 3.7 Sonnet) als Richter, um Pressemitteilungen zu bewerten."""
+    
+    def __init__(self, 
+                model_name: str = "claude-3-7-sonnet-20250219",
+                api_key: Optional[str] = None,
+                temperature: float = 0.0,
+                max_tokens: int = 1024):
+        """
+        Initialisiert die LLM-as-a-Judge Metrik.
+        
+        Args:
+            model_name: Anthropic Claude Modell
+            api_key: Anthropic API-Schlüssel (wenn nicht angegeben, wird ANTHROPIC_API_KEY verwendet)
+            temperature: Temperatur für die Generierung (0 für deterministische Antworten)
+            max_tokens: Maximale Anzahl an Tokens für die Ausgabe
+        """
+        self.model_name = model_name
+        self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
+        self.temperature = temperature
+        self.max_tokens = max_tokens
+        
+        if not self.api_key:
+            raise ValueError("ANTHROPIC_API_KEY muss als Parameter oder Umgebungsvariable gesetzt sein")
+        
+        try:
+            import anthropic
+            self.client = anthropic.Anthropic(api_key=self.api_key)
+        except ImportError:
+            raise ImportError("Anthropic-Paket muss installiert sein. Führe 'uv add anthropic' aus.")
+    
+    def compute(self, source: str, generated: str, reference: Optional[str] = None) -> Dict[str, float]:
+        """
+        Bewertet die generierte Pressemitteilung im Vergleich zum Quelltext und der Referenz-Pressemitteilung.
+        
+        Args:
+            source: Quelltext (Gerichtsurteil)
+            generated: Generierte Pressemitteilung
+            reference: Referenz-Pressemitteilung
+            
+        Returns:
+            Dictionary mit den Bewertungsergebnissen
+        """
+        # Prompt für das Modell vorbereiten
+        system_prompt = """
+        Du bist ein Experte für juristische Texte und bewertst die Qualität von Pressemitteilungen für Gerichtsurteile.
+        Bewerte die generierte Pressemitteilung anhand der folgenden Kriterien auf einer Skala von 1-10:
+        
+        1. Faktische Korrektheit: Wie genau spiegelt die Pressemitteilung die Fakten aus dem Gerichtsurteil wider?
+        2. Vollständigkeit: Wurden alle wichtigen Informationen aus dem Urteil in der Pressemitteilung berücksichtigt?
+        3. Klarheit: Wie verständlich ist die Pressemitteilung für ein nicht-juristisches Publikum?
+        4. Struktur: Wie gut ist die Pressemitteilung strukturiert und organisiert?
+        5. Vergleich mit Referenz: Wie gut ist die generierte Pressemitteilung im Vergleich zur Referenz-Pressemitteilung?
+        
+        Gib für jedes Kriterium einen numerischen Wert zwischen 1 und 10 an und eine kurze Begründung.
+        Berechne abschließend einen Gesamtscore als Durchschnitt aller Einzelwerte.
+        Gib deine Antwort im folgenden JSON-Format zurück:
+        {
+            "faktische_korrektheit": {"wert": X, "begründung": "..."},
+            "vollständigkeit": {"wert": X, "begründung": "..."},
+            "klarheit": {"wert": X, "begründung": "..."},
+            "struktur": {"wert": X, "begründung": "..."},
+            "vergleich_mit_referenz": {"wert": X, "begründung": "..."},
+            "gesamtscore": X.X
+        }
+        """
+        
+        user_prompt = f"""
+        # Gerichtsurteil
+        {source}
+        
+        # Generierte Pressemitteilung
+        {generated}
+        
+        # Referenz-Pressemitteilung
+        {reference}
+        """
+        
+        try:
+            # LLM-Anfrage ausführen
+            response = self.client.messages.create(
+                model=self.model_name,
+                max_tokens=self.max_tokens,
+                temperature=self.temperature,
+                system=system_prompt,
+                messages=[
+                    {"role": "user", "content": user_prompt}
+                ]
+            )
+            
+            # Extrahiere den JSON-Teil aus der Antwort
+            response_text = response.content[0].text
+            
+            # JSON parsen und Ergebnisse zurückgeben
+            try:
+                import json
+                import re
+                
+                # Extrahiere den JSON-Teil mit einem Regex-Pattern für den Fall, dass es zusätzlichen Text gibt
+                json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+                if json_match:
+                    json_str = json_match.group(0)
+                    result = json.loads(json_str)
+                else:
+                    result = json.loads(response_text)
+                
+                # Extrahiere die numerischen Werte für die Metriken
+                metrics_result = {}
+                
+                metrics_result["llm_judge_faktische_korrektheit"] = result["faktische_korrektheit"]["wert"]
+                metrics_result["llm_judge_vollständigkeit"] = result["vollständigkeit"]["wert"]
+                metrics_result["llm_judge_klarheit"] = result["klarheit"]["wert"]
+                metrics_result["llm_judge_struktur"] = result["struktur"]["wert"]
+                metrics_result["llm_judge_vergleich_mit_referenz"] = result["vergleich_mit_referenz"]["wert"]
+                metrics_result["llm_judge_gesamtscore"] = result["gesamtscore"]
+                metrics_result["llm_judge_details"] = response_text
+                
+                return metrics_result
+                
+            except Exception as e:
+                print(f"Fehler beim Parsen der LLM-Antwort: {e}")
+                return {
+                    "llm_judge_error": str(e),
+                    "llm_judge_raw_response": response_text
+                }
+                
+        except Exception as e:
+            print(f"Fehler bei der LLM-Bewertung: {e}")
+            return {"llm_judge_error": str(e)}
+
 def compute_all_metrics(reference: str, generated: str, 
                        semantic_similarity_model: Optional[str] = None,
                        bert_score_model: Optional[str] = None,
                        lang: str = "de",
                        source_text: Optional[str] = None,
-                       enable_factual_consistency: bool = False) -> Dict[str, float]:
+                       enable_factual_consistency: bool = False,
+                       enable_llm_as_judge: bool = False) -> Dict[str, float]:
     """
     Berechnet alle verfügbaren Metriken für ein Paar aus generiertem und Referenztext.
     
@@ -803,6 +934,7 @@ def compute_all_metrics(reference: str, generated: str,
         lang: Sprachcode für BERTScore
         source_text: Optional, Quelltext (Gerichtsurteil) für sachliche Konsistenzmetriken
         enable_factual_consistency: Optional, aktiviert QAGS und FactCC (rechenintensiv)
+        enable_llm_as_judge: Optional, aktiviert die LLM-as-a-Judge Bewertung mit Claude Sonnet
         
     Returns:
         Dictionary mit allen berechneten Metriken
@@ -891,5 +1023,15 @@ def compute_all_metrics(reference: str, generated: str,
             print(f"INFO: FactCC-Score berechnet: {factcc_results.get('factcc_score', 'N/A')}")
         except Exception as e:
             print(f"Fehler bei der Berechnung des FactCC-Scores: {str(e)}")
+    
+    # LLM as a Judge (falls aktiviert)
+    if enable_llm_as_judge and source_text:
+        try:
+            llm_judge = LLMAsJudgeMetric()
+            llm_judge_results = llm_judge.compute(source_text, generated, reference)
+            metrics.update(llm_judge_results)
+            print(f"INFO: LLM-as-Judge Score berechnet: {llm_judge_results.get('llm_judge_gesamtscore', 'N/A')}")
+        except Exception as e:
+            print(f"Fehler bei der LLM-as-Judge Bewertung: {str(e)}")
     
     return metrics 
