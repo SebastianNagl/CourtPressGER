@@ -244,8 +244,15 @@ class LLMEvaluationPipeline:
             'factcc_score', 'factcc_consistency_ratio', 'factcc_claim_count'
         ]
         
+        # 7. LLM-as-a-Judge Metriken
+        llm_judge_metrics = [
+            'llm_judge_faktische_korrektheit', 'llm_judge_vollständigkeit', 
+            'llm_judge_klarheit', 'llm_judge_struktur', 'llm_judge_vergleich_mit_referenz',
+            'llm_judge_gesamtscore'
+        ]
+        
         # Alle Metriken kombinieren
-        all_metrics = rouge_metrics + bleu_metrics + meteor_metrics + bertscore_metrics + other_metrics + factual_consistency_metrics
+        all_metrics = rouge_metrics + bleu_metrics + meteor_metrics + bertscore_metrics + other_metrics + factual_consistency_metrics + llm_judge_metrics
         
         # Durchschnittliche Werte für alle Metriken berechnen
         summary = {}

@@ -9,8 +9,7 @@ Wir sind Wissenschaftler der Technischen Universität München im Bereich Legal 
 Neben den Pipeline-Skripten haben wir für unsere Analysen auch immer ein Jupyter Notebook für die Arbeitsschritte; abrufbar unter notebooks/.
 
 ## Aktuelle Aufgaben und Probleme
-Aktuelle Aufgaben können work in progress sein; immer erst mal kontrollieren, dann lösen. Sobald was davon erledigt ist, bitte [erledigt] zu Beginn der Aufgabe schreiben; ich kontrolliere dann bei Gelegenheit. 
-
+Aktuelle Aufgaben können work in progress sein; immer erst mal kontrollieren, dann lösen. Sobald was davon erledigt ist, bitte [erledigt] zu Beginn der Aufgabe schreiben; ich kontrolliere dann bei Gelegenheit.
 
 # Struktur
 Das Projekt folgt im Kern der Cookiecutter Data Science Projektstruktur. Skripte und Module sind unter courtpressger/ angeordnet.
