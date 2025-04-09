@@ -281,6 +281,11 @@ def main():
                 print(f"    Schlüsselwort-Überlappung: {summary['avg_keyword_overlap']:.4f}")
             if "avg_entity_overlap" in summary:
                 print(f"    Entitäts-Überlappung: {summary['avg_entity_overlap']:.4f}")
+            # Entity-F1-Metriken anzeigen, wenn verfügbar
+            if "avg_entity_precision" in summary and "avg_entity_recall" in summary and "avg_entity_f1" in summary:
+                print(f"    Entity-F1-Score: {summary['avg_entity_f1']:.4f}")
+                print(f"    Entity-Precision: {summary['avg_entity_precision']:.4f}")
+                print(f"    Entity-Recall: {summary['avg_entity_recall']:.4f}")
             if "avg_length_ratio" in summary:
                 print(f"    Längenverhältnis: {summary['avg_length_ratio']:.4f}")
         

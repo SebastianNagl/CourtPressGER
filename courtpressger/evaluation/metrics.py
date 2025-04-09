@@ -29,6 +29,12 @@ try:
 except ImportError:
     BERT_SCORE_AVAILABLE = False
 
+try:
+    import spacy
+    SPACY_AVAILABLE = True
+except ImportError:
+    SPACY_AVAILABLE = False
+
 class SemanticSimilarityMetric:
     """Berechnet die semantische Ähnlichkeit zwischen zwei Texten mit Hilfe von Transformer-Modellen."""
     
@@ -299,6 +305,36 @@ class BertScoreMetric:
 class ContentOverlapMetrics:
     """Berechnet Metriken zur Überlappung von Inhalt zwischen generierten und Referenztexten."""
     
+    # Klassenvariable für SpaCy-Modell, wird bei Bedarf initialisiert
+    _nlp = None
+    
+    @staticmethod
+    def _get_nlp():
+        """
+        Lädt das SpaCy-Modell für Deutsch, wenn es noch nicht geladen wurde.
+        
+        Returns:
+            SpaCy-NLP-Modell
+        """
+        if not SPACY_AVAILABLE:
+            raise ImportError(
+                "Für entity_f1 wird das Paket 'spacy' benötigt. "
+                "Installiere es mit 'uv add spacy' und lade dann das deutsche Modell mit "
+                "'python -m spacy download de_core_news_sm'."
+            )
+        
+        if ContentOverlapMetrics._nlp is None:
+            try:
+                ContentOverlapMetrics._nlp = spacy.load("de_core_news_sm")
+                print("SpaCy-Modell 'de_core_news_sm' erfolgreich geladen.")
+            except OSError:
+                raise ImportError(
+                    "Das deutsche SpaCy-Modell 'de_core_news_sm' ist nicht installiert. "
+                    "Installiere es mit 'python -m spacy download de_core_news_sm'."
+                )
+        
+        return ContentOverlapMetrics._nlp
+    
     @staticmethod
     def _preprocess_text(text: str) -> List[str]:
         """
@@ -417,6 +453,82 @@ class ContentOverlapMetrics:
         ratio = min(ref_length, gen_length) / max(ref_length, gen_length)
         
         return ratio
+
+    @staticmethod
+    def entity_f1(reference: str, generated: str) -> Dict[str, float]:
+        """
+        Berechnet Precision, Recall und F1-Score für benannte Entitäten.
+        
+        Diese Implementierung verwendet spaCy für die NER-Erkennung.
+        
+        Args:
+            reference: Referenztext
+            generated: Generierter Text
+            
+        Returns:
+            Dictionary mit Precision, Recall und F1-Score für Entitäten
+        """
+        if not reference or not generated:
+            return {
+                "entity_precision": 0.0,
+                "entity_recall": 0.0,
+                "entity_f1": 0.0
+            }
+        
+        try:
+            nlp = ContentOverlapMetrics._get_nlp()
+            
+            # Parse Texte mit spaCy
+            ref_doc = nlp(reference)
+            gen_doc = nlp(generated)
+            
+            # Extrahiere benannte Entitäten mit ihrer Kategorie
+            ref_entities = {(ent.text, ent.label_) for ent in ref_doc.ents}
+            gen_entities = {(ent.text, ent.label_) for ent in gen_doc.ents}
+            
+            # Berechne Precision, Recall und F1
+            if not ref_entities and not gen_entities:
+                return {
+                    "entity_precision": 1.0,  # Wenn keine Entitäten erwartet wurden und keine gefunden wurden
+                    "entity_recall": 1.0,
+                    "entity_f1": 1.0
+                }
+            
+            if not gen_entities:
+                return {
+                    "entity_precision": 1.0,  # Wenn keine Entitäten generiert wurden, ist Precision 1
+                    "entity_recall": 0.0,     # Aber Recall ist 0, da erwartete Entitäten fehlen
+                    "entity_f1": 0.0
+                }
+            
+            if not ref_entities:
+                return {
+                    "entity_precision": 0.0,  # Wenn keine Entitäten erwartet wurden, aber welche generiert wurden
+                    "entity_recall": 1.0,     # Recall ist 1, da es keine erwarteten Entitäten gab
+                    "entity_f1": 0.0
+                }
+            
+            # Anzahl der übereinstimmenden Entitäten
+            intersection = len(ref_entities.intersection(gen_entities))
+            
+            # Berechne Metriken
+            precision = intersection / len(gen_entities) if gen_entities else 0.0
+            recall = intersection / len(ref_entities) if ref_entities else 0.0
+            f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
+            
+            return {
+                "entity_precision": precision,
+                "entity_recall": recall,
+                "entity_f1": f1
+            }
+        except Exception as e:
+            print(f"Fehler bei der Berechnung des Entity-F1-Scores: {str(e)}")
+            return {
+                "entity_precision": np.nan,
+                "entity_recall": np.nan,
+                "entity_f1": np.nan,
+                "entity_error": str(e)
+            }
 
 class QAGSMetric:
     """
@@ -945,6 +1057,14 @@ def compute_all_metrics(reference: str, generated: str,
     metrics['keyword_overlap'] = ContentOverlapMetrics.keyword_overlap(reference, generated)
     metrics['entity_overlap'] = ContentOverlapMetrics.entity_overlap(reference, generated)
     metrics['length_ratio'] = ContentOverlapMetrics.length_ratio(reference, generated)
+    
+    # Entity-F1-Score berechnen (falls spaCy verfügbar)
+    if SPACY_AVAILABLE:
+        try:
+            entity_f1_metrics = ContentOverlapMetrics.entity_f1(reference, generated)
+            metrics.update(entity_f1_metrics)
+        except Exception as e:
+            print(f"Fehler bei der Berechnung des Entity-F1-Scores: {str(e)}")
     
     # BLEU-Scores berechnen (falls verfügbar)
     if NLTK_AVAILABLE:
