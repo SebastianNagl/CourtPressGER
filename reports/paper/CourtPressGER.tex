@@ -92,14 +92,60 @@ The cleaned dataset contains 6.4k pairs of court decisions and press releases. T
 \subsection{Synthetic Prompts}
 For each decision-press release pair, we developed synthetic prompts that serve as input for LLMs to generate press releases. These prompts were carefully designed to highlight the key aspects of the decision and to train the models to create relevant and precise press releases.
 
+\subsubsection{Synthetic Prompt Generation}
+To create synthetic prompts, we utilized Claude 3.7 Sonnet with the following system prompt:
+
+\begin{quote}
+You are an expert in legal texts and communication. Your task is to analyze a court decision and its corresponding press release, and then determine what prompt could have been used to generate this press release from the court decision if given to an LLM.
+
+1. Analyze how the press release simplifies, restructures, and highlights key information from the decision
+2. Consider the tone, structure, and level of detail in the press release
+3. Identify what instructions would be necessary to transform the legal text into this press release
+
+DO NOT explain your reasoning or add meta-comments. ONLY output the actual prompt that would generate the press release from the court decision. Be specific and detailed in your synthesized prompt.
+\end{quote}
+
+The user prompt template follows this structure:
+\begin{quote}
+Here is the original court decision:
+
+```
+[court\_ruling]
+```
+
+And here is the press release that was created from it:
+
+```
+[press\_release]
+```
+
+Create a detailed prompt that could be given to an LLM to generate the above press release from the court decision. 
+Write ONLY the prompt itself, without explanations or meta-comments.
+\end{quote}
+
+This approach allows us to create tailored prompts for each court decision-press release pair, which are then used as inputs for our generation models.
+
 \subsection{Pipeline for Generating Press Releases}
-Our pipeline includes various LLMs, which can be categorized into three groups:
+Our pipeline includes various LLMs, which can be categorized into two groups:
 \begin{itemize}
     \item Large Models: GPT-4o, Llama-3-70B
     \item Small Models: Teuken-7B, Llama-3-8B, EuroLLM-9B
 \end{itemize}
 
 The pipeline is designed to send the synthetic prompts to the models, collect the generated press releases, and store them alongside the actual press releases. A checkpoint system allows for the continuation of interrupted generation processes.
+
+\subsubsection{Generation Prompt Template}
+For consistency across models, we use a standardized prompt template:
+
+\begin{quote}
+[synthetic\_prompt]
+
+Court Decision: [court\_decision]
+\end{quote}
+
+For OpenAI models (GPT-4o), the request format uses the above template as the user message with a system message that instructs the model to act as an expert in legal texts who writes press releases based on court decisions.
+
+For local models (Teuken-7B, Llama-3-8B, EuroLLM-9B), we use a similar approach but without separate system messages, including the instructions directly in the prompt.
 
 \subsection{Evaluation Metrics}
 We use various metrics to evaluate the generated press releases:
@@ -108,9 +154,66 @@ We use various metrics to evaluate the generated press releases:
     \item BLEU (BLEU-1 to BLEU-4)
     \item METEOR
     \item BERTScore (with EuroBERT model)
+    \item QAGS (Question Answering for evaluating Generated Summaries)
+    \item FactCC (Factual Consistency Check)
+    \item LLM-as-a-Judge (evaluation using Claude 3.7 Sonnet)
 \end{itemize}
 
 In addition to these automated metrics, we conduct a human evaluation where experts assess the quality, accuracy, and understandability of the generated press releases.
+
+\subsubsection{Factual Consistency Metrics}
+Our project utilizes advanced metrics to evaluate the factual consistency between court decisions and generated press releases:
+
+\begin{itemize}
+    \item \textbf{QAGS (Question Answering for evaluating Generated Summaries)}:
+    This metric first generates questions from the press releases, then answers these questions with the court decisions as context, and finally compares the answers to verify if the press release is factually correct.
+    
+    \item \textbf{FactCC (Factual Consistency Check)}:
+    This metric extracts claims from the press releases and checks each claim for consistency with the court decision. A total score for factual consistency is calculated from these checks.
+    
+    \item \textbf{LLM-as-a-Judge (Claude 3.7 Sonnet)}:
+    This metric uses Claude 3.7 Sonnet to evaluate the generated press releases based on various criteria such as factual correctness, completeness, clarity, and structure. Optionally, the generated press release can be compared with the reference press release. The metric provides both numerical ratings (1-10) and detailed justifications, calculating an overall score across all evaluation criteria.
+\end{itemize}
+
+\subsubsection{LLM-as-a-Judge Evaluation Prompt}
+To evaluate the quality of the generated press releases, we use Claude 3.7 Sonnet with the following system prompt:
+
+\begin{quote}
+You are an expert in legal texts and evaluate the quality of press releases for court decisions.
+Rate the generated press release according to the following criteria on a scale of 1-10:
+
+1. Factual Correctness: How accurately does the press release reflect the facts from the court decision?
+2. Completeness: Have all important information from the decision been included in the press release?
+3. Clarity: How understandable is the press release for a non-legal audience?
+4. Structure: How well is the press release structured and organized?
+5. Comparison with Reference: How good is the generated press release compared to the reference press release?
+
+For each criterion, provide a numerical value between 1 and 10 and a brief justification.
+Finally, calculate an overall score as the average of all individual values.
+Provide your answer in the following JSON format:
+\{
+    "faktische\_korrektheit": \{"wert": X, "begründung": "..."\},
+    "vollständigkeit": \{"wert": X, "begründung": "..."\},
+    "klarheit": \{"wert": X, "begründung": "..."\},
+    "struktur": \{"wert": X, "begründung": "..."\},
+    "vergleich\_mit\_referenz": \{"wert": X, "begründung": "..."\},
+    "gesamtscore": X.X
+\}
+\end{quote}
+
+The user prompt contains:
+\begin{quote}
+# Court Decision
+[court\_decision]
+
+# Generated Press Release
+[generated\_press\_release]
+
+# Reference Press Release
+[reference\_press\_release]
+\end{quote}
+
+This approach provides a comprehensive evaluation that combines automated metrics with expert judgments from large language models.
 
 \section{Results}
 \subsection{Comparison of Models}
