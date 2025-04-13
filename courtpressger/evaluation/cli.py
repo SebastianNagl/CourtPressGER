@@ -6,6 +6,8 @@ import argparse
 import json
 import pandas as pd
 from typing import List, Dict, Any
+import sys
+import traceback
 
 from .pipeline import LLMEvaluationPipeline
 from .models import create_model_config
@@ -30,6 +32,9 @@ def parse_args():
     parser.add_argument("--press-column", type=str, default="press_release",
                         help="Name der Spalte mit Referenz-Pressemitteilungen im Dataset")
     
+    parser.add_argument("--source-text-column", type=str, default=None,
+                        help="Name der Spalte mit dem Quelltext für sachliche Konsistenzmetriken (Standard: ruling-column)")
+    
     # Gruppe für exklusive Argumente: Entweder Modellkonfiguration oder vorhandene Spalten
     model_source_group = parser.add_mutually_exclusive_group(required=True)
     model_source_group.add_argument("--models-config", type=str,
@@ -45,20 +50,20 @@ def parse_args():
                         help="Anzahl der gleichzeitig zu verarbeitenden Einträge")
     
     parser.add_argument("--checkpoint-freq", type=int, default=50,
-                        help="Häufigkeit der Checkpoint-Speicherung (Anzahl der verarbeiteten Batches)")
+                        help="Frequenz der Checkpoint-Speicherung")
     
     parser.add_argument("--limit", type=int, default=None,
                         help="Maximale Anzahl der zu verarbeitenden Einträge (für Tests)")
     
     parser.add_argument("--bert-score-model", type=str, default=None,
-                        help="Name des Modells für BERTScore (falls nicht angegeben, wird BERTScore nicht berechnet)")
+                        help="Name des Modells für BERTScore (z.B. 'models/eurobert')")
     
     parser.add_argument("--language", type=str, default="de",
                         help="Sprachcode für BERTScore (default: 'de' für Deutsch)")
     
-    parser.add_argument("--metrics", type=str, nargs="+", 
-                        default=["rouge", "bleu", "meteor", "bertscore"],
-                        help="Zu berechnende Metriken: 'rouge', 'bleu', 'meteor', 'bertscore', 'alle'")
+    parser.add_argument("--metrics", type=str, nargs="+", default=["alle"],
+                        choices=["alle", "rouge", "bleu", "meteor", "bertscore", "overlap", "qags", "factcc"],
+                        help="Zu berechnende Metriken")
     
     # Neue Parameter für die Berichtsgenerierung
     parser.add_argument("--generate-report", action="store_true",
@@ -66,6 +71,12 @@ def parse_args():
     
     parser.add_argument("--report-path", type=str, default=None,
                         help="Pfad für den HTML-Bericht (Standard: output-dir/report.html)")
+    
+    parser.add_argument("--enable-factual-consistency", action="store_true",
+                        help="Aktiviert sachliche Konsistenzmetriken (QAGS, FactCC)")
+    
+    parser.add_argument("--enable-llm-as-judge", action="store_true",
+                        help="Aktiviert die LLM-as-a-Judge Bewertung mit Claude 3.7 Sonnet")
     
     return parser.parse_args()
 
@@ -199,14 +210,15 @@ def main():
     if ("bertscore" in args.metrics or "alle" in args.metrics) and args.bert_score_model:
         bert_score_model = args.bert_score_model
     
-    # Evaluierungspipeline initialisieren und ausführen
-    print("Starte Evaluierung...")
+    # Evaluierungspipeline erstellen und ausführen
     pipeline = LLMEvaluationPipeline(
-        models_or_names=models_to_evaluate,
-        output_dir=args.output_dir,
-        bert_score_model=bert_score_model,
+        models_to_evaluate, 
+        args.output_dir,
+        bert_score_model=args.bert_score_model,
         lang=args.language
     )
+    
+    source_text_column = args.source_text_column or args.ruling_column
     
     results = pipeline.run_evaluation(
         dataset=dataset,
@@ -214,11 +226,14 @@ def main():
         ruling_column=args.ruling_column,
         reference_press_column=args.press_column,
         batch_size=args.batch_size,
-        checkpoint_freq=args.checkpoint_freq
+        checkpoint_freq=args.checkpoint_freq,
+        source_text_column=source_text_column,
+        enable_factual_consistency=args.enable_factual_consistency,
+        enable_llm_as_judge=args.enable_llm_as_judge
     )
     
-    # Ergebnisse ausgeben
-    print("\nEvaluierungsergebnisse:")
+    # Ausgabe
+    print("\nEvaluierung abgeschlossen!")
     for model_name, summary in results.items():
         print(f"\n{model_name}:")
         if "error" in summary:
@@ -258,6 +273,37 @@ def main():
                 print(f"    Recall: {summary['avg_bertscore_recall']:.4f}")
             if "avg_bertscore_f1" in summary:
                 print(f"    F1: {summary['avg_bertscore_f1']:.4f}")
+        
+        # Überlappungsmetriken ausgeben
+        if "overlap" in args.metrics or "alle" in args.metrics:
+            print("\n  Überlappungsmetriken:")
+            if "avg_keyword_overlap" in summary:
+                print(f"    Schlüsselwort-Überlappung: {summary['avg_keyword_overlap']:.4f}")
+            if "avg_entity_overlap" in summary:
+                print(f"    Entitäts-Überlappung: {summary['avg_entity_overlap']:.4f}")
+            # Entity-F1-Metriken anzeigen, wenn verfügbar
+            if "avg_entity_precision" in summary and "avg_entity_recall" in summary and "avg_entity_f1" in summary:
+                print(f"    Entity-F1-Score: {summary['avg_entity_f1']:.4f}")
+                print(f"    Entity-Precision: {summary['avg_entity_precision']:.4f}")
+                print(f"    Entity-Recall: {summary['avg_entity_recall']:.4f}")
+            if "avg_length_ratio" in summary:
+                print(f"    Längenverhältnis: {summary['avg_length_ratio']:.4f}")
+        
+        # QAGS ausgeben
+        if ("qags" in args.metrics or "alle" in args.metrics) and args.enable_factual_consistency:
+            print("\n  QAGS (Question Answering for evaluating Generated Summaries):")
+            if "avg_qags_score" in summary:
+                print(f"    Score: {summary['avg_qags_score']:.4f}")
+            if "avg_qags_question_count" in summary:
+                print(f"    Durchschnittliche Fragenzahl: {summary['avg_qags_question_count']:.2f}")
+        
+        # FactCC ausgeben
+        if ("factcc" in args.metrics or "alle" in args.metrics) and args.enable_factual_consistency:
+            print("\n  FactCC (Factual Consistency Check):")
+            if "avg_factcc_score" in summary:
+                print(f"    Score: {summary['avg_factcc_score']:.4f}")
+            if "avg_factcc_consistency_ratio" in summary:
+                print(f"    Konsistenz-Ratio: {summary['avg_factcc_consistency_ratio']:.4f}")
     
     print(f"\nDetaillierte Ergebnisse wurden in {args.output_dir} gespeichert.")
     

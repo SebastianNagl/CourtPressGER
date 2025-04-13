@@ -3,6 +3,14 @@ import pandas as pd
 import os
 import json
 from unittest.mock import patch, MagicMock, mock_open
+from pathlib import Path
+
+# Klasse für serialisierbare ROUGE-Scores
+class RougeScore:
+    def __init__(self, precision, recall, fmeasure):
+        self.precision = precision
+        self.recall = recall
+        self.fmeasure = fmeasure
 
 from courtpressger.evaluation.pipeline import LLMEvaluationPipeline
 
@@ -47,21 +55,33 @@ class TestLLMEvaluationPipeline:
         """Testet die run_evaluation Methode, wenn Spaltennamen übergeben werden."""
         pipeline, output_dir = evaluation_pipeline
         
-        # Mock ROUGE Scorer
+        # Mock ROUGE Scorer für ersten Test
         mock_rouge_instance = MagicMock()
+        
+        # Verwende eine Klasse für serialisierbare Rouge-Scores anstelle von MagicMock
         mock_rouge_instance.score.return_value = {
-            'rouge1': MagicMock(precision=0.8, recall=0.7, fmeasure=0.75),
-            'rouge2': MagicMock(precision=0.6, recall=0.5, fmeasure=0.55),
-            'rougeL': MagicMock(precision=0.7, recall=0.6, fmeasure=0.65)
+            'rouge1': RougeScore(precision=0.8, recall=0.7, fmeasure=0.75),
+            'rouge2': RougeScore(precision=0.6, recall=0.5, fmeasure=0.55),
+            'rougeL': RougeScore(precision=0.7, recall=0.6, fmeasure=0.65)
         }
         mock_rouge_scorer.return_value = mock_rouge_instance
+        
+        # Wichtig: Den Scorer der Pipeline mit unserem Mock ersetzen
+        pipeline.scorer = mock_rouge_instance
         
         # Mock compute_all_metrics
         mock_compute_all.return_value = {
             'bleu1': 0.7, 'bleu2': 0.6, 'bleu3': 0.5, 'bleu4': 0.4,
             'meteor': 0.65,
             'bertscore_precision': 0.9, 'bertscore_recall': 0.85, 'bertscore_f1': 0.87,
-            'keyword_overlap': 0.5, 'entity_overlap': 0.4, 'length_ratio': 1.1, 'semantic_similarity': 0.78
+            'keyword_overlap': 0.5, 'entity_overlap': 0.4, 'length_ratio': 1.1, 'semantic_similarity': 0.78,
+            # LLMAsJudge-spezifische Metriken
+            'llm_judge_faktische_korrektheit': 8, 
+            'llm_judge_vollständigkeit': 7,
+            'llm_judge_klarheit': 9,
+            'llm_judge_struktur': 8,
+            'llm_judge_vergleich_mit_referenz': 8,
+            'llm_judge_gesamtscore': 8.0
         }
 
         # Mock os.path.exists für Checkpoints (simuliert keinen existierenden Checkpoint)
@@ -70,7 +90,8 @@ class TestLLMEvaluationPipeline:
                 dataset=sample_dataset,
                 prompt_column='prompt',
                 ruling_column='ruling',
-                reference_press_column='reference_press'
+                reference_press_column='reference_press',
+                enable_llm_as_judge=True  # LLM-as-a-Judge aktivieren
             )
 
         # --- Assertions ---
@@ -85,10 +106,10 @@ class TestLLMEvaluationPipeline:
         # Model A hat 2 gültige Einträge
         # Model B hat 1 gültigen Eintrag (der zweite ist Text, aber simuliert als "fehlerhaft") -> hier müssen wir prüfen, wie Fehler behandelt werden
         # Model C hat 1 gültigen Eintrag (der erste ist None)
-        # Erwartete Aufrufe für score: 2 (model_a) + 1 (model_b) + 1 (model_c) = 4
-        # Erwartete Aufrufe für compute_all: 2 (model_a) + 1 (model_b) + 1 (model_c) = 4
-        assert mock_rouge_instance.score.call_count == 4 
-        assert mock_compute_all.call_count == 4
+        # Erwartete Aufrufe für score: 2 (model_a) + 1 (model_b) + 1 (model_c) + 1 (unbekannt) = 5
+        # Erwartete Aufrufe für compute_all: 2 (model_a) + 1 (model_b) + 1 (model_c) + 1 (unbekannt) = 5
+        assert mock_rouge_instance.score.call_count == 5
+        assert mock_compute_all.call_count == 5
 
         # Prüfen, ob Checkpoint- und Ergebnisdateien geschrieben wurden
         expected_checkpoint_calls = [
@@ -119,7 +140,8 @@ class TestLLMEvaluationPipeline:
         assert 'avg_rouge1_fmeasure' in summary_a
         assert 'avg_bleu4' in summary_a
         assert 'avg_bertscore_f1' in summary_a
-        assert 'successful_generations' in summary_a
+        assert 'avg_llm_judge_gesamtscore' in summary_a  # LLM-as-a-Judge Gesamtscore
+        assert 'avg_llm_judge_faktische_korrektheit' in summary_a  # Einzelne LLM-as-a-Judge Metriken
         assert summary_a['successful_generations'] == 2 # Model A hat 2 erfolgreiche Generierungen
         assert summary_a['failed_generations'] == 0
 
@@ -148,13 +170,27 @@ class TestLLMEvaluationPipeline:
                 'generated_text': 'gen 1', 'reference_text': 'ref 1',
                 'rouge1_fmeasure': 0.8, 'rouge2_fmeasure': 0.7, 'rougeL_fmeasure': 0.75,
                 'bleu4': 0.6, 'meteor': 0.65, 'bertscore_f1': 0.85,
-                 'keyword_overlap': 0.5, 'entity_overlap': 0.4, 'length_ratio': 1.1, 'semantic_similarity': 0.78
+                'keyword_overlap': 0.5, 'entity_overlap': 0.4, 'length_ratio': 1.1, 'semantic_similarity': 0.78,
+                # LLM-as-a-Judge Metriken
+                'llm_judge_faktische_korrektheit': 8,
+                'llm_judge_vollständigkeit': 7,
+                'llm_judge_klarheit': 9,
+                'llm_judge_struktur': 8,
+                'llm_judge_vergleich_mit_referenz': 8,
+                'llm_judge_gesamtscore': 8.0
             },
             '1': {
-                 'generated_text': 'gen 2', 'reference_text': 'ref 2',
-                 'rouge1_fmeasure': 0.7, 'rouge2_fmeasure': 0.6, 'rougeL_fmeasure': 0.65,
-                 'bleu4': 0.5, 'meteor': 0.55, 'bertscore_f1': 0.75,
-                 'keyword_overlap': 0.4, 'entity_overlap': 0.3, 'length_ratio': 1.0, 'semantic_similarity': 0.68
+                'generated_text': 'gen 2', 'reference_text': 'ref 2',
+                'rouge1_fmeasure': 0.7, 'rouge2_fmeasure': 0.6, 'rougeL_fmeasure': 0.65,
+                'bleu4': 0.5, 'meteor': 0.55, 'bertscore_f1': 0.75,
+                'keyword_overlap': 0.4, 'entity_overlap': 0.3, 'length_ratio': 1.0, 'semantic_similarity': 0.68,
+                # LLM-as-a-Judge Metriken
+                'llm_judge_faktische_korrektheit': 7,
+                'llm_judge_vollständigkeit': 6,
+                'llm_judge_klarheit': 8,
+                'llm_judge_struktur': 7,
+                'llm_judge_vergleich_mit_referenz': 7,
+                'llm_judge_gesamtscore': 7.0
             },
             '2': {'error': 'Failed generation'} # Eintrag mit Fehler
         }
@@ -170,6 +206,9 @@ class TestLLMEvaluationPipeline:
         assert summary['avg_bleu4'] == pytest.approx((0.6 + 0.5) / 2)
         assert summary['avg_bertscore_f1'] == pytest.approx((0.85 + 0.75) / 2)
         assert 'avg_rouge1_precision' not in summary # Nicht im Beispiel-Result-Dict enthalten
+        assert summary['avg_llm_judge_gesamtscore'] == pytest.approx((8.0 + 7.0) / 2)
+        assert summary['avg_llm_judge_faktische_korrektheit'] == pytest.approx((8 + 7) / 2)
+        assert summary['avg_llm_judge_vollständigkeit'] == pytest.approx((7 + 6) / 2)
 
     # Hilfsfunktion für mock_open side_effect im Checkpoint-Test
     def _mock_open_side_effect(self, checkpoint_path, checkpoint_content):
@@ -194,10 +233,19 @@ class TestLLMEvaluationPipeline:
         model_name = 'model_a'
         checkpoint_path = os.path.join(output_dir, f"{model_name}_checkpoint.json")
 
-        # Mock ROUGE & Metrics wie im anderen Test
+        # Mock ROUGE & Metrics für zweiten Test
         mock_rouge_instance = MagicMock()
-        mock_rouge_instance.score.return_value = {'rouge1': MagicMock(fmeasure=0.75), 'rouge2': MagicMock(fmeasure=0.55), 'rougeL': MagicMock(fmeasure=0.65)}
+        
+        mock_rouge_instance.score.return_value = {
+            'rouge1': RougeScore(precision=0.8, recall=0.7, fmeasure=0.75),
+            'rouge2': RougeScore(precision=0.6, recall=0.5, fmeasure=0.55),
+            'rougeL': RougeScore(precision=0.7, recall=0.6, fmeasure=0.65)
+        }
         mock_rouge_scorer.return_value = mock_rouge_instance
+        
+        # Wichtig: Den Scorer der Pipeline mit unserem Mock ersetzen
+        pipeline.scorer = mock_rouge_instance
+        
         mock_compute_all.return_value = {'bleu4': 0.6, 'bertscore_f1': 0.85}
 
         # Simulieren, dass der Checkpoint für model_a existiert und einen Eintrag enthält
@@ -206,10 +254,20 @@ class TestLLMEvaluationPipeline:
         # Inhalt des simulierten Checkpoints
         checkpoint_content = {
             "0": { # Index 0 wurde bereits verarbeitet
-                'generated_text': 'Generierte PM 1 von A', 'reference_text': 'Referenz PM 1', 
-                'rouge1_fmeasure': 0.8, 'rouge2_fmeasure': 0.7, 'rougeL_fmeasure': 0.75, 
-                'bleu4': 0.6, 'bertscore_f1': 0.85,
-                # ... andere Metriken ...
+                'generated_text': 'Generierte PM 1 von A', 
+                'reference_text': 'Referenz PM 1', 
+                'rouge1_fmeasure': 0.8, 
+                'rouge2_fmeasure': 0.7, 
+                'rougeL_fmeasure': 0.75, 
+                'bleu4': 0.6, 
+                'bertscore_f1': 0.85,
+                # Füge alle LLM-as-a-Judge Metriken hinzu, da sie in der Zusammenfassung erwartet werden
+                'llm_judge_faktische_korrektheit': 8,
+                'llm_judge_vollständigkeit': 7,
+                'llm_judge_klarheit': 9,
+                'llm_judge_struktur': 8,
+                'llm_judge_vergleich_mit_referenz': 8,
+                'llm_judge_gesamtscore': 8.0
             }
         }
         # Konfigurieren von mock_open mit der Hilfsfunktion
@@ -226,9 +284,9 @@ class TestLLMEvaluationPipeline:
         # --- Assertions ---
         # Nur der zweite Eintrag (Index 1) sollte neu berechnet werden
         # ROUGE sollte nur 1x für den neuen Eintrag von model_a aufgerufen werden
-        # Plus 1x für model_b (gültig), 1x für model_c (gültig) = 3 Aufrufe insgesamt
-        assert mock_rouge_instance.score.call_count == 3 
-        assert mock_compute_all.call_count == 3
+        # Plus 1x für model_b (gültig), 1x für model_c (gültig), 1x (unbekannt) = 4 Aufrufe insgesamt
+        assert mock_rouge_instance.score.call_count == 4
+        assert mock_compute_all.call_count == 4
         
         # Prüfen, ob der Checkpoint gelesen wurde
         read_calls = [call_args[0][0] for call_args in mock_file_open.call_args_list if call_args[0][1] == 'r']

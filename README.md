@@ -9,8 +9,7 @@ Wir sind Wissenschaftler der Technischen Universität München im Bereich Legal 
 Neben den Pipeline-Skripten haben wir für unsere Analysen auch immer ein Jupyter Notebook für die Arbeitsschritte; abrufbar unter notebooks/.
 
 ## Aktuelle Aufgaben und Probleme
-Aktuelle Aufgaben können work in progress sein; immer erst mal kontrollieren, dann lösen. Sobald was davon erledigt ist, bitte [erledigt] zu Beginn der Aufgabe schreiben; ich kontrolliere dann bei Gelegenheit. 
-
+Aktuelle Aufgaben können work in progress sein; immer erst mal kontrollieren, dann lösen. Sobald was davon erledigt ist, bitte [erledigt] zu Beginn der Aufgabe schreiben; ich kontrolliere dann bei Gelegenheit.
 
 # Struktur
 Das Projekt folgt im Kern der Cookiecutter Data Science Projektstruktur. Skripte und Module sind unter courtpressger/ angeordnet.
@@ -63,7 +62,8 @@ CourtPressGER/
 ├── notebooks/                   # Jupyter Notebooks für Analysen
 ├── tests/                       # Testmodule
 │   ├── evaluation/              # Tests für Evaluierungskomponenten
-│   │   └── test_pipeline.py     # Tests für die Evaluierungspipeline
+│   │   ├── test_pipeline.py     # Tests für die Evaluierungspipeline
+│   │   └── test_factual_metrics.py # Tests für QAGS und FactCC Metriken
 │   ├── examples/                # Beispieldaten für Tests
 │   ├── test_generation_pipeline.py # Tests für die Generierungspipeline
 │   ├── test_teuken_model.py     # Tests für das Teuken-Modell
@@ -114,13 +114,45 @@ Das Projekt bietet folgende Hauptfunktionalitäten:
 ### Evaluierung
 - Pipeline zur Evaluierung verschiedener LLMs
 - Unterstützung für OpenAI, Hugging Face und lokale Modelle
-- Berechnung verschiedener Metriken zur Textähnlichkeit:
+- Berechnung verschiedener Metriken zur Textähnlichkeit und sachlichen Konsistenz:
   - ROUGE (Rouge-1, Rouge-2, Rouge-L)
   - BLEU (BLEU-1 bis BLEU-4)
   - METEOR
   - BERTScore (verwendet EuroBERT-Modell)
+  - QAGS (Question Answering for evaluating Generated Summaries)
+  - FactCC (Evaluierung der faktischen Konsistenz)
+  - LLM-as-a-Judge (Bewertung durch Claude 3.7 Sonnet)
 - Visualisierung und Reporting-Funktionen für Ergebnisanalyse
 - Checkpoint-System für langläufige Evaluierungen
+
+#### Sachliche Konsistenzmetriken
+Seit neuestem unterstützt das Projekt auch fortgeschrittene Metriken zur Bewertung der sachlichen Konsistenz zwischen Gerichtsurteilen und generierten Pressemitteilungen:
+
+- **QAGS (Question Answering for evaluating Generated Summaries)**
+  - Generiert Fragen aus den Pressemitteilungen
+  - Beantwortet diese Fragen mit den Gerichtsurteilen als Kontext
+  - Vergleicht die Antworten, um zu prüfen, ob die Pressemitteilung sachlich korrekt ist
+  
+- **FactCC (Factual Consistency Check)**
+  - Extrahiert Behauptungen aus den Pressemitteilungen
+  - Überprüft jede Behauptung auf Konsistenz mit dem Gerichtsurteil
+  - Berechnet einen Gesamtscore für die faktische Konsistenz
+
+- **LLM-as-a-Judge (Claude 3.7 Sonnet)**
+  - Verwendet Claude 3.7 Sonnet zur Bewertung der generierten Pressemitteilungen
+  - Bewertet anhand verschiedener Kriterien (faktische Korrektheit, Vollständigkeit, Klarheit, Struktur)
+  - Vergleicht die generierte Pressemitteilung optional mit der Referenzpressemitteilung
+  - Liefert sowohl numerische Bewertungen (1-10) als auch detaillierte Begründungen
+  - Berechnet einen Gesamtscore über alle Bewertungskriterien
+
+Diese Metriken können über folgende Befehle ausgeführt werden:
+- `make eval-factual`: Aktiviert QAGS und FactCC für die sachliche Konsistenzprüfung
+- `make eval-llm-judge`: Aktiviert die Bewertung durch Claude 3.7 Sonnet
+- `make eval-full`: Führt alle Evaluierungsmetriken inklusive sachlicher Konsistenzprüfung und LLM-as-a-Judge aus
+
+Alternativ können diese Funktionen über entsprechende Kommandozeilenoptionen aktiviert werden:
+- `--enable-factual-consistency`: Aktiviert QAGS und FactCC
+- `--enable-llm-as-judge`: Aktiviert die Bewertung durch Claude 3.7 Sonnet
 
 ## Package Management
 Das Projekt nutzt uv, um Pakete und Venvs zu verwalten. Im besten Fall sollen pakete durch uv add hinzugefügt werden, nur im Ausnahmefall durch uv pip install. Es wird eine einzige virtuelle Umgebung unter .venv verwendet, die für alle Aufgaben (CPU und GPU) geeignet ist.

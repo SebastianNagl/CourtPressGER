@@ -45,7 +45,10 @@ class LLMEvaluationPipeline:
     
     def run_evaluation(self, dataset: pd.DataFrame, prompt_column: str, ruling_column: str, 
                       reference_press_column: str, batch_size: int = 10,
-                      checkpoint_freq: int = 50) -> Dict[str, Any]:
+                      checkpoint_freq: int = 50,
+                      source_text_column: Optional[str] = None,
+                      enable_factual_consistency: bool = False,
+                      enable_llm_as_judge: bool = False) -> Dict[str, Any]:
         """
         Führt die Evaluierung für alle Modelle durch.
         
@@ -56,6 +59,10 @@ class LLMEvaluationPipeline:
             reference_press_column: Name der Spalte mit Referenz-Pressemitteilungen
             batch_size: Anzahl der gleichzeitig zu verarbeitenden Einträge
             checkpoint_freq: Häufigkeit der Checkpoint-Speicherung
+            source_text_column: Optional, Name der Spalte mit dem Quelltext für 
+                               sachliche Konsistenzmetriken (normalerweise gleich ruling_column)
+            enable_factual_consistency: Optional, aktiviert QAGS und FactCC (rechenintensiv)
+            enable_llm_as_judge: Optional, aktiviert die LLM-as-a-Judge Bewertung mit Claude Sonnet
             
         Returns:
             Evaluierungsergebnisse als Dictionary
@@ -113,35 +120,37 @@ class LLMEvaluationPipeline:
                     # Entweder aus der Spalte (wenn evaluate_existing_columns)
                     # Oder durch Generierung (wenn nicht evaluate_existing_columns - dieser Pfad wird aktuell nicht genutzt)
                     try:
-                        if self.evaluate_existing_columns:
-                            generated_press = row[model_name]
-                        else:
-                            # Dieser Teil würde die Generierung aufrufen, ist aber momentan nicht aktiv
-                            # model_fn = model_config['generator_fn'] # Müsste hier geholt werden
-                            # generated_press = model_fn(ruling, prompt)
-                            # Für den Moment: Fehler werfen, wenn dieser Pfad erreicht wird
-                            raise NotImplementedError("Generierung von Text in der Pipeline ist derzeit deaktiviert.")
-
-                        # Prüfen, ob der generierte Text gültig ist (nicht leer oder NaN)
-                        if pd.isna(generated_press) or not isinstance(generated_press, str) or not generated_press.strip():
-                             raise ValueError("Ungültiger oder leerer generierter Text in der Spalte gefunden.")
-
-                        # ROUGE-Score berechnen
-                        rouge_scores = self.scorer.score(reference, generated_press)
+                        # Überprüfen, ob die Generierung vorhanden ist
+                        generated_press = row[model_name]
                         
-                        # Ergebnisse speichern mit ROUGE-Scores
+                        # Wenn keine Generierung verfügbar, überspringen
+                        if pd.isna(generated_press) or not generated_press:
+                            model_results[str(idx)] = {'error': 'Kein generierter Text verfügbar'}
+                            continue
+                        
+                        # Hole Quelltext für sachliche Konsistenzmetriken, falls aktiviert
+                        source_text = None
+                        if enable_factual_consistency and source_text_column and source_text_column in row:
+                            source_text = row[source_text_column]
+                        
+                        # ROUGE-Scores berechnen
+                        rouge_result = self.scorer.score(reference, generated_press)
+                        
+                        # Ergebnis-Dictionary erstellen
                         result_dict = {
-                            'generated_text': generated_press,
+                            'prompt': prompt,
                             'reference_text': reference,
-                            'rouge1_precision': rouge_scores['rouge1'].precision,
-                            'rouge1_recall': rouge_scores['rouge1'].recall,
-                            'rouge1_fmeasure': rouge_scores['rouge1'].fmeasure,
-                            'rouge2_precision': rouge_scores['rouge2'].precision,
-                            'rouge2_recall': rouge_scores['rouge2'].recall,
-                            'rouge2_fmeasure': rouge_scores['rouge2'].fmeasure,
-                            'rougeL_precision': rouge_scores['rougeL'].precision,
-                            'rougeL_recall': rouge_scores['rougeL'].recall,
-                            'rougeL_fmeasure': rouge_scores['rougeL'].fmeasure
+                            'generated_text': generated_press,
+                            'ruling': ruling,
+                            'rouge1_precision': rouge_result['rouge1'].precision,
+                            'rouge1_recall': rouge_result['rouge1'].recall,
+                            'rouge1_fmeasure': rouge_result['rouge1'].fmeasure,
+                            'rouge2_precision': rouge_result['rouge2'].precision,
+                            'rouge2_recall': rouge_result['rouge2'].recall,
+                            'rouge2_fmeasure': rouge_result['rouge2'].fmeasure,
+                            'rougeL_precision': rouge_result['rougeL'].precision,
+                            'rougeL_recall': rouge_result['rougeL'].recall,
+                            'rougeL_fmeasure': rouge_result['rougeL'].fmeasure
                         }
                         
                         # Zusätzliche Metriken berechnen (BLEU, METEOR, BERTScore)
@@ -149,7 +158,10 @@ class LLMEvaluationPipeline:
                             reference=reference, 
                             generated=generated_press,
                             bert_score_model=self.bert_score_model,
-                            lang=self.lang
+                            lang=self.lang,
+                            source_text=source_text,
+                            enable_factual_consistency=enable_factual_consistency,
+                            enable_llm_as_judge=enable_llm_as_judge
                         )
                         
                         # Alle Metriken in das Ergebnis-Dictionary einfügen
@@ -226,8 +238,21 @@ class LLMEvaluationPipeline:
         # 5. Andere Metriken
         other_metrics = ['keyword_overlap', 'entity_overlap', 'length_ratio', 'semantic_similarity']
         
+        # 6. Sachliche Konsistenzmetriken
+        factual_consistency_metrics = [
+            'qags_score', 'qags_question_count', 'qags_valid_answers',
+            'factcc_score', 'factcc_consistency_ratio', 'factcc_claim_count'
+        ]
+        
+        # 7. LLM-as-a-Judge Metriken
+        llm_judge_metrics = [
+            'llm_judge_faktische_korrektheit', 'llm_judge_vollständigkeit', 
+            'llm_judge_klarheit', 'llm_judge_struktur', 'llm_judge_vergleich_mit_referenz',
+            'llm_judge_gesamtscore'
+        ]
+        
         # Alle Metriken kombinieren
-        all_metrics = rouge_metrics + bleu_metrics + meteor_metrics + bertscore_metrics + other_metrics
+        all_metrics = rouge_metrics + bleu_metrics + meteor_metrics + bertscore_metrics + other_metrics + factual_consistency_metrics + llm_judge_metrics
         
         # Durchschnittliche Werte für alle Metriken berechnen
         summary = {}
