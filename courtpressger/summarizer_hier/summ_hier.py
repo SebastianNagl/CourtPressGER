@@ -368,6 +368,6 @@ def summarize_data(args):
     df_summarized = summarizer.get_summaries_for_dataframe(df)
 
     # Save to CSV
-    print(f"Saving summarized data to {args.output_path} ...")
-    df_summarized.to_csv(args.output_path, index=False)
+    print(f"Saving summarized data to {args.output} ...")
+    df_summarized.to_csv(args.output, index=False)
     print("Data saved successfully.\n")
