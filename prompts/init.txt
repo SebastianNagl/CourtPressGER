@@ -1,0 +1,17 @@
+Unten finden Sie einen Auszug aus einer Gerichtsentscheidung:
+
+---
+{}
+---
+
+Verfassen Sie eine Zusammenfassung dieses Auszugs. Gehen Sie dabei auf Folgendes ein:  
+1. Relevante Fakten zum Hintergrund.  
+2. Die beteiligten Parteien und ihre Argumente.  
+3. Die Überlegungen des Gerichts sowie wichtige Rechtsgrundsätze oder Präzedenzfälle.  
+4. Eine kurze Einführung für jede erstmals erwähnte Partei oder jeden erstmals erwähnten juristischen Verweis.  
+
+Stellen Sie die Zusammenfassung in einem logischen, fortlaufenden Text dar (Sie dürfen mehrere Absätze verwenden).  
+Ihre Antwort darf sich **nicht** auf den Prozess der Zusammenfassung oder eventuelle Haftungsausschlüsse beziehen.  
+Begrenzen Sie die endgültige Zusammenfassung auf **{} Wörter**. Überschreiten Sie diese Vorgabe **nicht**.
+
+Zusammenfassung:
