@@ -1,0 +1,16 @@
+Unten finden Sie mehrere Teilszusammenfassungen verschiedener Abschnitte einer Gerichtsentscheidung:
+
+---
+{}
+---
+
+Fassen Sie diese Teilszusammenfassungen zu einer einzigen, zusammenhängenden Zusammenfassung zusammen. Achten Sie dabei auf Folgendes:  
+1. Wichtige Fakten zum Hintergrund.  
+2. Die beteiligten Parteien und ihre Argumente.  
+3. Die Überlegungen des Gerichts sowie relevante Rechtsgrundsätze oder Präzedenzfälle.  
+4. Eine kurze Einführung für alle Parteien oder juristischen Verweise, die erstmals erwähnt werden.  
+
+Strukturieren Sie die Zusammenfassung logisch, sodass sie wie ein fortlaufendes Dokument wirkt.  
+Begrenzen Sie die endgültige Zusammenfassung auf **{} Wörter**. Überschreiten Sie diese Vorgabe **nicht**. Sie dürfen mehrere Absätze verwenden.
+
+Zusammenfassung:

@@ -1,0 +1,21 @@
+Unten finden Sie eine Zusammenfassung des Kontexts, der den folgenden Teilen einer Gerichtsentscheidung vorausgeht:
+
+---
+{}
+---
+
+Unten finden Sie außerdem mehrere Zusammenfassungen aufeinanderfolgender Abschnitte der Entscheidung:
+
+---
+{}
+---
+
+Verbinden Sie den vorhergehenden Kontext mit den Teilszusammenfassungen zu einer einzigen, zusammenhängenden Zusammenfassung. Achten Sie dabei auf Folgendes:  
+1. Die wichtigsten Fakten zum Hintergrund.  
+2. Die beteiligten Parteien und ihre Argumente.  
+3. Die Überlegungen des Gerichts sowie bedeutende Rechtsgrundsätze oder Präzedenzfälle.  
+
+Führen Sie Parteien oder Rechtskonzepte, die erstmals erwähnt werden, kurz ein. Die Entscheidung kann sich auf frühere Rechtsprechung, gerichtliche Stellungnahmen oder mehrere Berufungsverfahren beziehen. Präsentieren Sie die Informationen daher in einer logisch konsistenten Weise.  
+Begrenzen Sie die endgültige Zusammenfassung auf **{} Wörter**. Überschreiten Sie diese Vorgabe **nicht**. Sie dürfen mehrere Absätze verwenden.
+
+Zusammenfassung:
