@@ -48,7 +48,6 @@ dependencies = [
     "langchain-text-splitters[huggingface]>=0.3.7",
     "bitsandbytes>=0.45.4",
     "protobuf>=6.30.2",
-    "flash-attn>=2.7.4.post1",
 ]
 
 [project.optional-dependencies]
