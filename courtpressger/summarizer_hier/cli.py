@@ -51,6 +51,7 @@ def main():
     hier_parser.add_argument("--prompts", "-p", type=str, help="Prompts to use")
     hier_parser.add_argument("--num_attempts", "-n", type=int, default=3, help="Number of attempts")
     hier_parser.add_argument("--word_ratio", "-w", type=float, default=0.65, help="Word ratio")
+    hier_parser.add_argument("--column_name", "-cn", required=True, type=str, help="Column name")
 
 
     args = parser.parse_args()

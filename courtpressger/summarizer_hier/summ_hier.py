@@ -25,6 +25,7 @@ class Summarizer():
         validate_summary=False,
         num_attempts=3,
         word_ratio=0.65,
+        column_name=None        
     ):
         """
         :param chunk_size: Number of tokens per chunk at the initial level.
@@ -46,6 +47,7 @@ class Summarizer():
         print(f" validate_summary: {validate_summary}")
         print(f" num_attempts    : {num_attempts}")
         print(f" word_ratio      : {word_ratio}")
+        print(f" column_name     : {column_name}")
         print("============================================================\n")
 
         self.chunk_size = chunk_size
@@ -56,6 +58,7 @@ class Summarizer():
         self.model_name = model_name
         self.validate_summary = validate_summary
         self.num_attempts = num_attempts
+        self.column_name = column_name
 
         # Load your local model & tokenizer
         print("Loading tokenizer and pipeline...")
@@ -326,7 +329,8 @@ class Summarizer():
             final_summary = self.summarize_ruling(ruling_chunks)
             final_summaries.append(final_summary)
 
-        df["final_summary"] = final_summaries
+        column_name = self.column_name
+        df[column_name] = final_summaries
         print("[get_summaries_for_dataframe] Summaries generation completed.\n")
         return df
 
@@ -360,7 +364,8 @@ def summarize_data(args):
         prompts=args.prompts,
         validate_summary=args.validate_summary,
         num_attempts=args.num_attempts,
-        word_ratio=args.word_ratio
+        word_ratio=args.word_ratio,
+        column_name=args.column_name
     )
 
     # Summarize the data
