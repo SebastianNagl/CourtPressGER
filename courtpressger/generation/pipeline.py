@@ -64,6 +64,15 @@ class LLMGenerationPipeline:
             models: Liste der zu verwendenden Modellkonfigurationen
             output_dir: Verzeichnis zum Speichern der generierten Pressemitteilungen
         """
+        # Wenn models None ist, lade die Konfiguration aus der Datei
+        if models is None:
+            config_path = Path("models/generation_config.json")
+            if not config_path.exists():
+                raise FileNotFoundError(f"Konfigurationsdatei nicht gefunden: {config_path}")
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+                models = config['models']
+        
         self.model_configs = models
         self.output_dir = output_dir
         self.chains = {}
@@ -276,52 +285,48 @@ Gerichtsurteil: {ruling}"""
                     print(f"⚠️ Kein DeepInfra API-Key gefunden - Überspringe Modell {model_name}")
                     continue
                 
-                # DeepInfra-Client initialisieren
-                headers = {
-                    "Authorization": f"Bearer {api_key}",
-                    "Content-Type": "application/json"
-                }
-                
-                # Angepasste Funktion für DeepInfra API-Aufrufe
-                def deepinfra_generate(ruling, prompt):
-                    # Einheitlicher Prompt für alle Modelle
-                    full_prompt = f"{prompt}\n\nGerichtsurteil: {ruling}"
-                    
-                    # API-Aufruf mit DeepInfra
-                    data = {
-                        "model": model_config['model_id'],
-                        "messages": [
-                            {"role": "user", "content": full_prompt}
-                        ],
-                        "temperature": model_config.get('temperature', 0.7),
-                        "max_tokens": model_config.get('max_tokens', 1024)
-                    }
-                    
-                    response = requests.post(
-                        "https://api.deepinfra.com/v1/openai/chat/completions",
-                        headers=headers,
-                        data=json_lib.dumps(data)
+                try:
+                    # OpenAI-Client mit DeepInfra-Konfiguration initialisieren
+                    from openai import OpenAI
+                    openai_client = OpenAI(
+                        api_key=api_key,
+                        base_url="https://api.deepinfra.com/v1/openai"
                     )
                     
-                    if response.status_code != 200:
-                        print(f"⚠️ Fehler bei der DeepInfra API: {response.text}")
-                        return ""
+                    # Angepasste Funktion für DeepInfra API-Aufrufe
+                    def deepinfra_generate(ruling, prompt):
+                        # Einheitlicher Prompt für alle Modelle
+                        full_prompt = f"{prompt}\n\nGerichtsurteil: {ruling}"
+                        
+                        try:
+                            # API-Aufruf mit DeepInfra
+                            response = openai_client.chat.completions.create(
+                                model=model_config['model_id'],
+                                messages=[{"role": "user", "content": full_prompt}],
+                                temperature=model_config.get('temperature', 0.7),
+                                max_tokens=model_config.get('max_tokens', 1024)
+                            )
+                            
+                            return response.choices[0].message.content.strip()
+                        except Exception as e:
+                            print(f"⚠️ Fehler bei der DeepInfra API: {str(e)}")
+                            return ""
                     
-                    response_data = response.json()
-                    return response_data["choices"][0]["message"]["content"].strip()
-                
-                # Dummy-Chain erstellen, die unsere angepasste Funktion verwendet
-                from langchain.schema import runnable
-                
-                class DeepInfraRunnable(runnable.Runnable):
-                    def invoke(self, input_dict):
-                        return deepinfra_generate(
-                            input_dict.get("ruling", ""),
-                            input_dict.get("prompt", "")
-                        )
-                
-                # Chain erstellen, die mit DeepInfra arbeitet
-                chain = DeepInfraRunnable()
+                    # Dummy-Chain erstellen, die unsere angepasste Funktion verwendet
+                    from langchain.schema import runnable
+                    
+                    class DeepInfraRunnable(runnable.Runnable):
+                        def invoke(self, input_dict):
+                            return deepinfra_generate(
+                                input_dict.get("ruling", ""),
+                                input_dict.get("prompt", "")
+                            )
+                    
+                    # Chain erstellen, die mit DeepInfra arbeitet
+                    chain = DeepInfraRunnable()
+                except Exception as e:
+                    print(f"⚠️ Fehler beim Initialisieren des DeepInfra Clients: {str(e)}")
+                    continue
             else:
                 raise ValueError(f"Unbekannter Modelltyp: {model_type}")
             

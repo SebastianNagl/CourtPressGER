@@ -34,19 +34,18 @@ dependencies = [
     "transformers",
     "sentencepiece",
     "torch",
-    "jupyter", # Für Notebook-Interface
-    "nltk", # Für BLEU und METEOR Metriken
-    "bert-score", # Für BERTScore Metriken
-    "openai", # Für OpenAI API-Zugriff
-    "scipy", # Für statistische Signifikanzberechnungen
+    "jupyter", 
+    "nltk",
+    "bert-score",
+    "openai",
+    "scipy", 
     "pip>=25.0.1",
     "accelerate>=1.6.0",
     "langchain>=0.3.22",
     "langchain-openai>=0.3.11",
     "langchain-core>=0.3.49",
     "langchain-community>=0.3.20",
-    "langchain-text-splitters[huggingface]>=0.3.7",
-    "bitsandbytes>=0.45.4",
+    "langchain-text-splitters>=0.3.7",
     "protobuf>=6.30.2",
 ]
 

@@ -6,45 +6,19 @@ import argparse
 import json
 import pandas as pd
 from typing import List, Dict, Any, Optional
+from pathlib import Path
 
-from .pipeline import LLMGenerationPipeline
+from courtpressger.generation.pipeline import LLMGenerationPipeline
 
 def parse_args():
     """Parst die Kommandozeilenargumente für das Generierungs-Tool."""
-    parser = argparse.ArgumentParser(description="Generierung von Pressemitteilungen aus Gerichtsurteilen mit LLMs")
+    parser = argparse.ArgumentParser(description="Generiere Pressemitteilungen aus Gerichtsurteilen")
     
-    parser.add_argument("--dataset", type=str, required=True,
-                        help="Pfad zur Dataset-Datei (CSV oder JSON)")
+    parser.add_argument("--input", type=str, required=True, help="Pfad zur Eingabedatei mit Gerichtsurteilen")
     
-    parser.add_argument("--output-dir", type=str, default="data/generation",
-                        help="Verzeichnis für die Ausgabe der generierten Pressemitteilungen")
+    parser.add_argument("--output", type=str, default="data/generation", help="Ausgabeverzeichnis für generierte Pressemitteilungen")
     
-    parser.add_argument("--ruling-column", type=str, default="judgement",
-                        help="Name der Spalte mit Gerichtsurteilen im Dataset")
-    
-    parser.add_argument("--prompt-column", type=str, default="synthetic_prompt",
-                        help="Name der Spalte mit synthetischen Prompts im Dataset")
-    
-    parser.add_argument("--press-column", type=str, default="summary",
-                        help="Name der Spalte mit Referenz-Pressemitteilungen im Dataset")
-    
-    parser.add_argument("--models-config", type=str, default="models/generation_config.json",
-                        help="Pfad zur JSON-Konfigurationsdatei für die zu verwendenden Modelle")
-    
-    parser.add_argument("--model", type=str, default=None,
-                        help="Verwende nur ein bestimmtes Modell (z.B. 'teuken-7b')")
-    
-    parser.add_argument("--batch-size", type=int, default=10,
-                        help="Anzahl der gleichzeitig zu verarbeitenden Einträge")
-    
-    parser.add_argument("--checkpoint-freq", type=int, default=5,
-                        help="Häufigkeit der Checkpoint-Speicherung (in Batches)")
-    
-    parser.add_argument("--rate-limit-delay", type=float, default=1.0,
-                        help="Verzögerung zwischen API-Aufrufen in Sekunden")
-    
-    parser.add_argument("--limit", type=int, default=None,
-                        help="Limit der zu verarbeitenden Datensätze (für Testzwecke)")
+    parser.add_argument("--models", type=str, help="Pfad zur Modellkonfigurationsdatei (optional, verwendet standardmäßig models/generation_config.json)")
     
     return parser.parse_args()
 
@@ -99,44 +73,55 @@ def main():
     """Haupteinstiegspunkt für das CLI-Tool."""
     args = parse_args()
     
-    print(f"Lade Dataset: {args.dataset}")
-    dataset = load_dataset(args.dataset, args.limit)
+    # Lade die Modellkonfiguration
+    if args.models:
+        config_path = Path(args.models)
+    else:
+        config_path = Path("models/generation_config.json")
+    
+    if not config_path.exists():
+        raise FileNotFoundError(f"Konfigurationsdatei nicht gefunden: {config_path}")
+    
+    with open(config_path, 'r', encoding='utf-8') as f:
+        config = json.load(f)
+        models = config['models']
+    
+    # Initialisiere die Pipeline
+    pipeline = LLMGenerationPipeline(models=models, output_dir=args.output)
+    
+    # Führe die Generierung durch
+    # TODO: Implementiere die Generierung basierend auf der Eingabedatei
+    
+    print(f"Lade Dataset: {args.input}")
+    dataset = load_dataset(args.input)
     print(f"Dataset geladen: {len(dataset)} Einträge")
     
     # Prüfen, ob erforderliche Spalten vorhanden sind
-    required_columns = [args.ruling_column, args.prompt_column, args.press_column]
+    required_columns = ['judgement', 'synthetic_prompt', 'summary']
     missing_columns = [col for col in required_columns if col not in dataset.columns]
     
     if missing_columns:
         raise ValueError(f"Fehlende Spalten im Dataset: {', '.join(missing_columns)}")
     
     # Modellkonfigurationen laden
-    print(f"Lade Modellkonfigurationen: {args.models_config}")
-    models_config = load_models_config(args.models_config, args.model)
+    print(f"Lade Modellkonfigurationen: {config_path}")
+    models_config = load_models_config(str(config_path))
     
     if not models_config:
-        if args.model:
-            raise ValueError(f"Modell '{args.model}' nicht in der Konfiguration gefunden")
-        else:
-            raise ValueError("Keine Modelle in der Konfiguration gefunden")
+        raise ValueError("Keine Modelle in der Konfiguration gefunden")
     
     print(f"Modellkonfigurationen geladen: {len(models_config)} Modelle")
     
     # Generierungspipeline initialisieren und ausführen
     print("Starte Generierung mit Langchain-Pipeline...")
-    pipeline = LLMGenerationPipeline(
-        models_config, 
-        output_dir=args.output_dir
-    )
-    
     results = pipeline.run_generation(
         dataset=dataset,
-        prompt_column=args.prompt_column,
-        ruling_column=args.ruling_column,
-        reference_press_column=args.press_column,
-        batch_size=args.batch_size,
-        checkpoint_freq=args.checkpoint_freq,
-        rate_limit_delay=args.rate_limit_delay
+        prompt_column='synthetic_prompt',
+        ruling_column='judgement',
+        reference_press_column='summary',
+        batch_size=10,
+        checkpoint_freq=5,
+        rate_limit_delay=1.0
     )
     
     # Statistiken ausgeben
@@ -155,7 +140,7 @@ def main():
     
     print(model_stats)
     
-    print(f"\nGenerierte Pressemitteilungen wurden in {args.output_dir} gespeichert.")
+    print(f"\nGenerierte Pressemitteilungen wurden in {args.output} gespeichert.")
 
 if __name__ == "__main__":
     main() 
