@@ -156,6 +156,3 @@ Alternativ können diese Funktionen über entsprechende Kommandozeilenoptionen a
 
 ## Package Management
 Das Projekt nutzt uv, um Pakete und Venvs zu verwalten. Im besten Fall sollen pakete durch uv add hinzugefügt werden, nur im Ausnahmefall durch uv pip install. Es wird eine einzige virtuelle Umgebung unter .venv verwendet, die für alle Aufgaben (CPU und GPU) geeignet ist.
-
-## Lizenz
-Das Projekt ist lizenziert unter der MIT-Lizenz.
