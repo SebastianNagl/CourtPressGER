@@ -1,0 +1,42 @@
+{
+    "chunk": {
+      "model_type": "huggingface_local",
+      "model": "openGPT-X/Teuken-7B-instruct-research-v0.4",
+      "tokenizer_name": "openGPT-X/Teuken-7B-instruct-research-v0.4",
+      "input": "/home/heshmo/workspace/CourtPressGER/data/processed/cases_prs_synth_prompts_test_subset.csv",
+      "output": "/home/heshmo/workspace/CourtPressGER/data/processed/summarization_hier/chunks/teuken_chunks.csv",
+      "chunk_size": 2048
+    },
+    "summarize": {
+      "model_type": "huggingface_local",
+      "model": "openGPT-X/Teuken-7B-instruct-research-v0.4",
+      "tokenizer_name": "openGPT-X/Teuken-7B-instruct-research-v0.4",
+      "input": "/home/heshmo/workspace/CourtPressGER/data/processed/summarization_hier/chunks/teuken_chunks.csv",
+      "output": "/home/heshmo/workspace/CourtPressGER/data/processed/summarization_hier/summaries/teuken_summaries.csv",
+      "chunk_size": 2048,
+      "context_len": 4096,
+      "summary_len": 900,
+      "prompts": "/home/heshmo/workspace/CourtPressGER/prompts",
+      "validate_summary": false,
+      "num_attempts": 3,
+      "word_ratio": 0.65,
+      "column_name": "teuken_summary"
+    },
+    "summarize_mgpu": {
+      "model_type": "huggingface_local",
+      "model": "openGPT-X/Teuken-7B-instruct-research-v0.4",
+      "tokenizer_name": "openGPT-X/Teuken-7B-instruct-research-v0.4",
+      "input": "/home/heshmo/workspace/CourtPressGER/data/processed/summarization_hier/chunks/teuken_chunks.csv",
+      "output": "/home/heshmo/workspace/CourtPressGER/data/processed/summarization_hier/summaries/teuken_summaries.csv",
+      "chunk_size": 2048,
+      "context_len": 4096,
+      "summary_len": 900,
+      "prompts": "/home/heshmo/workspace/CourtPressGER/prompts",
+      "validate_summary": false,
+      "num_attempts": 3,
+      "word_ratio": 0.65,
+      "column_name": "teuken_summary",
+      "gpu_count": 4
+    }
+  }
+  

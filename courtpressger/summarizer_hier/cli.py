@@ -1,26 +1,14 @@
-# Whats my input?
-# data/processed/cases_prs_synth_prompts.csv
-# model_name
-# chunk_size
-# context_len
-# summary_len
-# validate_split
-
-# What are the stages?
-# 1) Split the data into chunks
-# 2) Hierarichal Summarization of each chunk
-
-# What are the outputs?
-# data/processed/cases_prs_synth_prompts_chunked.csv
-# data/processed/cases_prs_synth_prompts_hier_summ.csv
-
+# summarizer_hier/cli.py
 
 import logging
 import argparse
+import json
+import os
+from dotenv import load_dotenv
 from .chunk import chunk_data
 from .summ_hier import summarize_data
 from .multi_gpu import summarize_data_mgpu
-
+from .aggregate_summaries import aggregate_summaries
 # Logger konfigurieren
 logging.basicConfig(
     level=logging.INFO,
@@ -28,72 +16,106 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+def load_config_file(path: str) -> dict:
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Config file not found: {path}")
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def merge_args_with_config(cli_args: dict, config_section: dict) -> dict:
+    """
+    Merge CLI args with just the subcommand’s relevant config.
+    CLI overrides where applicable.
+    """
+    # We'll copy so as not to mutate the original.
+    final_cfg = config_section.copy()
+
+    for k, v in cli_args.items():
+        # skip keys that are None or that are not relevant
+        if v is None or k in ["command"]:
+            continue
+        final_cfg[k] = v
+
+    return final_cfg
 
 def main():
-    """Main entry point for the summarizer_hier CLI."""
-    parser = argparse.ArgumentParser(description="")
+    load_dotenv()
+    parser = argparse.ArgumentParser(description="Summarizer CLI with per-command config.")
     
-    subparsers = parser.add_subparsers(dest="command", help="Verfügbare Befehle")
+    subparsers = parser.add_subparsers(dest="command")
 
-    # -------------------------------
-    # 1) chunk subparser
-    # -------------------------------
+    # A shared --config just once for all subcommands.
+    parser.add_argument("--config", type=str, default=None, help="Path to master config JSON")
+
+    # ---- chunk ----
     chunk_parser = subparsers.add_parser("chunk", help="Chunk the data")
-    chunk_parser.add_argument("--input", "-i", required=True, help="Input CSV from synthetic_prompts")
-    chunk_parser.add_argument("--chunk_size", "-c", type=int, default=2048, help="Chunk size")
-    chunk_parser.add_argument("--output", "-o", required=True, help="Output CSV")
-    chunk_parser.add_argument("--model", "-m", default="models/eurollm", help="Model to use")
+    chunk_parser.add_argument("--input", "-i", required=False)
+    chunk_parser.add_argument("--output", "-o", required=False)
+    chunk_parser.add_argument("--model", "-m", default=None)
+    chunk_parser.add_argument("--tokenizer_name", "-t", default=None)
+    chunk_parser.add_argument("--chunk_size", "-c", type=int, default=None)
 
-    # -------------------------------
-    # 2) single-GPU summarize subparser
-    # -------------------------------
-    hier_parser = subparsers.add_parser("summarize", help="Hierarichal Summarization")
-    hier_parser.add_argument("--input", "-i", required=True, help="Input CSV from chunk")
-    hier_parser.add_argument("--output", "-o", required=True, help="Output CSV")
-    hier_parser.add_argument("--model", "-m", default="models/eurollm", help="Model to use")
-    hier_parser.add_argument("--chunk_size", "-c", type=int, default=2048, help="Chunk size")
-    hier_parser.add_argument("--context_len", "-l", type=int, default=4096, help="Context length")
-    hier_parser.add_argument("--summary_len", "-s", type=int, default=900, help="Summary length")
-    hier_parser.add_argument("--validate_summary", "-v", type=bool, default=False, help="Validate summary")
-    hier_parser.add_argument("--prompts", "-p", type=str, help="Prompts to use")
-    hier_parser.add_argument("--num_attempts", "-n", type=int, default=3, help="Number of attempts")
-    hier_parser.add_argument("--word_ratio", "-w", type=float, default=0.65, help="Word ratio")
-    hier_parser.add_argument("--column_name", "-cn", required=True, type=str, help="Column name")
+    # ---- summarize ----
+    hier_parser = subparsers.add_parser("summarize", help="Hierarchical Summarization")
+    hier_parser.add_argument("--input", "-i", required=False)
+    hier_parser.add_argument("--output", "-o", required=False)
+    hier_parser.add_argument("--model", "-m", default=None)
+    hier_parser.add_argument("--tokenizer_name", "-t", default=None)
+    hier_parser.add_argument("--chunk_size", "-c", type=int, default=None)
+    hier_parser.add_argument("--context_len", "-l", type=int, default=None)
+    hier_parser.add_argument("--summary_len", "-s", type=int, default=None)
+    hier_parser.add_argument("--validate_summary", "-v", type=bool, default=None)
+    hier_parser.add_argument("--prompts", "-p", type=str, default=None)
+    hier_parser.add_argument("--num_attempts", "-n", type=int, default=None)
+    hier_parser.add_argument("--word_ratio", "-w", type=float, default=None)
+    hier_parser.add_argument("--column_name", "-cn", type=str, default=None)
 
+    # ---- summarize_mgpu ----
+    mgpu_parser = subparsers.add_parser("summarize_mgpu", help="Multi-GPU Summarization")
+    mgpu_parser.add_argument("--input", "-i", required=False)
+    mgpu_parser.add_argument("--output", "-o", required=False)
+    mgpu_parser.add_argument("--model", "-m", default=None)
+    mgpu_parser.add_argument("--chunk_size", "-c", type=int, default=None)
+    mgpu_parser.add_argument("--context_len", "-l", type=int, default=None)
+    mgpu_parser.add_argument("--summary_len", "-s", type=int, default=None)
+    mgpu_parser.add_argument("--validate_summary", "-v", type=bool, default=None)
+    mgpu_parser.add_argument("--prompts", "-p", type=str, default=None)
+    mgpu_parser.add_argument("--num_attempts", "-n", type=int, default=None)
+    mgpu_parser.add_argument("--word_ratio", "-w", type=float, default=None)
+    mgpu_parser.add_argument("--column_name", "-cn", type=str, default=None)
+    mgpu_parser.add_argument("--tokenizer_name", "-t", default=None)
+    mgpu_parser.add_argument("--gpu_count", type=int, default=None)
 
-    # -------------------------------
-    # 3) multi-GPU summarize subparser
-    # -------------------------------
-    mgpu_parser = subparsers.add_parser("summarize_mgpu", help="Multi-GPU Hierarchical Summarization")
-    mgpu_parser.add_argument("--input", "-i", required=True, help="Input CSV (already chunked)")
-    mgpu_parser.add_argument("--output", "-o", required=True, help="Output CSV (aggregated)")
-    mgpu_parser.add_argument("--model", "-m", default="models/eurollm", help="Model to use")
-    mgpu_parser.add_argument("--chunk_size", "-c", type=int, default=2048, help="Chunk size")
-    mgpu_parser.add_argument("--context_len", "-l", type=int, default=4096, help="Context length")
-    mgpu_parser.add_argument("--summary_len", "-s", type=int, default=900, help="Summary length")
-    mgpu_parser.add_argument("--validate_summary", "-v", type=bool, default=False, help="Validate summary")
-    mgpu_parser.add_argument("--prompts", "-p", type=str, help="Prompts to use")
-    mgpu_parser.add_argument("--num_attempts", "-n", type=int, default=3, help="Number of attempts")
-    mgpu_parser.add_argument("--word_ratio", "-w", type=float, default=0.65, help="Word ratio")
-    mgpu_parser.add_argument("--column_name", "-cn", required=True, type=str, help="Column name")
-    mgpu_parser.add_argument("--gpu_count", type=int, default=1, help="Number of GPUs to use")
+    # ---- aggregate_summaries ----
+    agg_parser = subparsers.add_parser("aggregate", help="Aggregate Summaries")
+    agg_parser.add_argument("--origin_csv", "-oc", type=str, default=None)
+    agg_parser.add_argument("--summaries_path", "-s", type=str, default=None)
+    agg_parser.add_argument("--output_path", "-o", type=str, default=None)
 
-    
     args = parser.parse_args()
+    if not args.command:
+        parser.print_help()
+        return
 
+    # load the master config if provided
+    master_config = {}
+    if args.config:
+        master_config = load_config_file(args.config)
+
+    # pick out the sub-command config if it exists
+    command_config = master_config.get(args.command, {})
+    
+    # merge CLI overrides into the command config
+    final_config = merge_args_with_config(vars(args), command_config)
+    # Dispatch
     if args.command == "chunk":
-        # python -m courtpressger.summarizer_hier.cli chunk -i /home/heshmo/workspace/CourtPressGER/data/processed/cases_prs_synth_prompts_test_sample.csv -o /home/heshmo/workspace/CourtPressGER/data/processed/cases_prs_synth_prompts_test_sample_chunked.csv -m models/eurollm -c 2048
-        chunk_data(args)            
+        chunk_data(final_config)
     elif args.command == "summarize":
-        # python -m courtpressger.summarizer_hier.cli summarize -i /home/heshmo/workspace/CourtPressGER/data/processed/cases_prs_synth_prompts_test_sample_chunked.csv -o /home/heshmo/workspace/CourtPressGER/data/processed/cases_prs_synth_prompts_test_sample_hier_summ.csv -m models/eurollm -c 2048 -l 4096 -s 900 -p /home/heshmo/workspace/CourtPressGER/prompts
-        summarize_data(args)
+        summarize_data(final_config)
     elif args.command == "summarize_mgpu":
-        # e.g. python -m summarizer_hier.cli summarize_mgpu -i chunked.csv -o summarized.csv --gpu_count 4 ...
-        summarize_data_mgpu(args)
-    
-    
-    
-
+        summarize_data_mgpu(final_config)
+    elif args.command == "aggregate":
+        aggregate_summaries(args)
 
 if __name__ == "__main__":
     main()

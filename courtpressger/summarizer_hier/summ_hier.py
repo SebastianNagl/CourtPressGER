@@ -1,3 +1,5 @@
+# summarizer_hier/summ_hier.py
+
 import os
 import time
 import argparse
@@ -8,11 +10,7 @@ from tqdm import tqdm
 from collections import defaultdict
 
 import pandas as pd
-
-# Hugging Face imports
-from transformers import pipeline, AutoTokenizer
-import torch
-
+from .model_interface import get_model_interface
 
 class Summarizer():
     def __init__(
@@ -20,7 +18,7 @@ class Summarizer():
         chunk_size,
         max_context_len,
         max_summary_len,
-        model_name,
+        model_interface,
         prompts,
         validate_summary=False,
         num_attempts=3,
@@ -28,21 +26,22 @@ class Summarizer():
         column_name=None        
     ):
         """
+        :param model_interface: An object implementing `ModelInterface` 
+                                (for token counting + text generation).
         :param chunk_size: Number of tokens per chunk at the initial level.
         :param max_context_len: Maximum tokens that can be processed at a time.
         :param max_summary_len: Maximum tokens in each final summary generation.
-        :param word_ratio: Used for adjusting the word limit if a summary is invalid, etc.
-        :param validate_summary: Whether to validate the summary for length & punctuation.
+        :param prompts: Path to folder containing prompt templates.
+        :param validate_summary: Whether to validate summary for length, punctuation.
         :param num_attempts: How many times to attempt re-generation if invalid.
-        :param model_name: Hugging Face model identifier or local model path.
-        :param prompts: Path to the folder containing prompt templates.
+        :param word_ratio: For adjusting word limit if summary is invalid, etc.
+        :param column_name: Column name for the final summary output.
         """
 
         print("=== Initializing Summarizer with the following arguments ===")
         print(f" chunk_size      : {chunk_size}")
         print(f" max_context_len : {max_context_len}")
         print(f" max_summary_len : {max_summary_len}")
-        print(f" model_name      : {model_name}")
         print(f" prompts         : {prompts}")
         print(f" validate_summary: {validate_summary}")
         print(f" num_attempts    : {num_attempts}")
@@ -50,30 +49,25 @@ class Summarizer():
         print(f" column_name     : {column_name}")
         print("============================================================\n")
 
+        self.model_interface = model_interface
         self.chunk_size = chunk_size
         self.max_context_len = max_context_len
         self.max_summary_len = max_summary_len
         self.word_ratio = word_ratio
         self.prompts = prompts
-        self.model_name = model_name
         self.validate_summary = validate_summary
         self.num_attempts = num_attempts
         self.column_name = column_name
 
-        # Load your local model & tokenizer
-        print("Loading tokenizer and pipeline...")
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-        self.client = pipeline(
-            "text-generation",
-            model=self.model_name,
-            return_full_text=False,
-            do_sample=False,
-            repetition_penalty=1.2,
-            tokenizer=self.tokenizer,
-            torch_dtype=torch.bfloat16
+        model_name = getattr(model_interface, "model_name", "").lower()
+        self.is_teuken = "teuken" in model_name
+        self.system_message_de = (
+            "Ein Gespräch zwischen einem Menschen und einem Assistenten "
+            "mit künstlicher Intelligenz. Der Assistent gibt hilfreiche "
+            "und höfliche Antworten auf die Fragen des Menschen."
         )
-        print("Tokenizer and pipeline loaded.\n")
 
+        # Load prompt templates
         init_template_path = f"{self.prompts}/init.txt"
         merge_template_path = f"{self.prompts}/merge.txt"
         merge_context_path = f"{self.prompts}/merge_context.txt"
@@ -82,6 +76,7 @@ class Summarizer():
         print(f" init_template_path  : {init_template_path}")
         print(f" merge_template_path : {merge_template_path}")
         print(f" merge_context_path  : {merge_context_path}")
+
         self.templates = {
             'init_template': open(init_template_path, "r").read(),
             'template': open(merge_template_path, "r").read(),
@@ -89,28 +84,31 @@ class Summarizer():
         }
         print("Templates loaded successfully.\n")
 
+    def _build_teuken_prompt(self, prompt: str) -> str:
+        """
+        Build a chat-style Teuken prompt of the form:
+            System: ...
+            User: ...
+            Assistant:
+        """
+        prompt_chat = (
+            f"System: {self.system_message_de}\n"
+            f"User: {prompt}\n"
+            "Assistant:"
+        )
+        return prompt_chat
+
     def count_tokens(self, text):
-        """Counts the number of tokens in a text using the tokenizer."""
-        return len(self.tokenizer.encode(text))
+        """
+        Counts the number of tokens in a text using the model interface.
+        """
+        return self.model_interface.count_tokens(text)
 
     def obtain_response(self, prompt, max_tokens, temperature):
         """
-        Calls the text-generation pipeline to obtain a response.
-        We interpret 'max_tokens' as 'max_new_tokens' here.
+        Calls the model interface to obtain a response.
         """
-        print(f"[obtain_response] Generating text with max_tokens={max_tokens}")
-        try:
-            outputs = self.client(
-                prompt,
-                max_new_tokens=max_tokens,
-                temperature=temperature
-            )
-            response = outputs[0]['generated_text'].strip()
-            print(f"[obtain_response] Response length (chars): {len(response)}\n")
-            return response
-        except Exception as e:
-            print(f"[obtain_response] Generation error: {e}")
-            return ""
+        return self.model_interface.generate_text(prompt, max_tokens, temperature)
 
     def check_summary_validity(self, summary, token_limit):
         """Heuristic checks for an acceptable summary length and ending punctuation."""
@@ -127,7 +125,7 @@ class Summarizer():
 
     def summarize_texts(self, texts, token_limit, level):
         """
-        Summarize a given text (plus optional context) based on a given token_limit.
+        Summarize the given text (plus optional context) based on a given token_limit.
         """
         text = texts['text']
         context = texts['context']
@@ -142,14 +140,20 @@ class Summarizer():
             prompt = self.templates['template'].format(text, word_limit)
             if len(context) > 0 and level > 0:
                 prompt = self.templates['context_template'].format(context, text, word_limit)
+        
 
-        response = self.obtain_response(prompt, max_tokens=token_limit, temperature=None)
+        prompt = [{'role': 'user', 'content': prompt}]
+
+        if self.is_teuken:
+            prompt = self.model_interface.tokenizer.apply_chat_template(prompt, tokenize=False, chat_template="DE",add_generation_prompt=True)
+
+        response = self.obtain_response(prompt, max_tokens=token_limit, temperature=0.1)
 
         # Retry if empty
         while len(response) == 0:
             print("[summarize_texts] Received an empty summary, retrying in 10 seconds...")
             time.sleep(10)
-            response = self.obtain_response(prompt, max_tokens=token_limit, temperature=None)
+            response = self.obtain_response(prompt, max_tokens=token_limit, temperature=0.1)
 
         # Validate summary (if enabled)
         attempts = 0
@@ -170,7 +174,7 @@ class Summarizer():
                 if len(context) > 0 and level > 0:
                     prompt = self.templates['context_template'].format(context, text, word_limit)
 
-            response = self.obtain_response(prompt, max_tokens=token_limit, temperature=None)
+            response = self.obtain_response(prompt, max_tokens=token_limit, temperature=0.1)
 
         print(f"[summarize_texts] Final summary length (tokens): {self.count_tokens(response)}\n")
         return response
@@ -186,9 +190,8 @@ class Summarizer():
 
         print(f"[estimate_levels] Estimating levels for {num_chunks} chunks...")
 
-        # Repeatedly merge chunks until only one remains => define how many levels are needed
+        # Repeatedly merge chunks until only one remains => define how many levels
         while num_chunks > 1:
-            # number of chunks that could fit into the current context at once
             chunks_that_fit = (
                 self.max_context_len
                 - self.count_tokens(self.templates['template'].format('', 0))
@@ -225,9 +228,8 @@ class Summarizer():
         else:
             summary_limit = summary_limits[level]
 
-        # Check if we can fit everything in one shot at this level
+        # If there's context from previous chunk at the same level, we do some fitting logic
         if level > 0 and len(summaries_dict[level]) > 0:
-            # If context + chunk content + summary template fits, use max_summary_len
             if (
                 self.count_tokens('\n\n'.join(chunks))
                 + self.max_summary_len
@@ -267,12 +269,11 @@ class Summarizer():
 
             # If context is too large, trim it
             if self.count_tokens(context) > context_len:
-                context_tokens = self.tokenizer.encode(context)[:context_len]
-                context = self.tokenizer.decode(context_tokens)
+                context_tokens = self.model_interface.tokenizer.encode(context)[:context_len]
+                context = self.model_interface.tokenizer.decode(context_tokens)
                 if '.' in context:
                     context = context.rsplit('.', 1)[0] + '.'
 
-            # Concatenate as many chunks as we can fit
             if level == 0:
                 text = chunks[i]
             else:
@@ -291,7 +292,7 @@ class Summarizer():
             summaries_dict[level].append(summary)
             i += 1
 
-        # If there's more than one chunk of summaries, recursively merge
+        # If there's more than one chunk, we must merge them at the next level
         if len(summaries_dict[level]) > 1:
             print(f"[recursive_summary] Level {level} produced {len(summaries_dict[level])} summaries; proceeding to next level.\n")
             return self.recursive_summary(summaries, level + 1, summaries_dict[level], summary_limits)
@@ -305,22 +306,18 @@ class Summarizer():
         Summarize a single ruling's chunks hierarchically.
         """
         print(f"[summarize_ruling] Summarizing ruling with {len(chunks)} chunks...\n")
-        # Decide how many levels we might need
+        # Decide how many levels
         levels, summary_limits = self.estimate_levels(chunks)
         level = 0
 
-        # Create a fresh dictionary for intermediate summaries
-        summaries = {
-            'summaries_dict': defaultdict(list)
-        }
-
+        summaries = {'summaries_dict': defaultdict(list)}
         final_summary = self.recursive_summary(summaries, level, chunks, summary_limits)
         return final_summary
 
     def get_summaries_for_dataframe(self, df):
         """
-        Given a DataFrame (with a 'chunks' column),
-        produce hierarchical summaries for each row and store them in 'final_summary'.
+        Given a DataFrame (with 'chunks' column) produce hierarchical summaries 
+        for each row and store them in 'final_summary' or the chosen column name.
         """
         print("[get_summaries_for_dataframe] Generating summaries for the DataFrame...\n")
         final_summaries = []
@@ -335,44 +332,40 @@ class Summarizer():
         return df
 
 
-def summarize_data(args):
+def summarize_data(config):
     """
-    Summarizes the data from a CSV where each row has a 'chunks' column
-    (stringified list of text chunks). Writes the summarized results back to a CSV.
+    Summarizes the data from a CSV. 
+    Expects 'chunks' column in the CSV with stringified lists.
     """
-    print("=== summarize_data called with the following arguments ===")
-    for arg in vars(args):
-        print(f" {arg}: {getattr(args, arg)}")
-    print("==========================================================\n")
+    print("=== summarize_data ===")
+    print("Config received:", config, "\n")
 
     # Load the data
-    print(f"Loading data from {args.input} ...")
-    df = pd.read_csv(args.input)
+    df = pd.read_csv(config["input"])
     print(f"Data loaded. Rows: {len(df)}\n")
 
-    # Convert stringified list in 'chunks' column to Python list
-    print("Converting stringified chunks to Python lists...")
+    # Convert stringified 'chunks' into lists
     df["chunks"] = df["chunks"].apply(lambda x: ast.literal_eval(x))
-    print("Conversion complete.\n")
 
-    # Initialize Summarizer
+    # Instantiate the model interface
+    model_interface = get_model_interface(config)
+
+    # Create Summarizer
     summarizer = Summarizer(
-        chunk_size=args.chunk_size,
-        max_context_len=args.context_len,
-        max_summary_len=args.summary_len,
-        model_name=args.model,
-        prompts=args.prompts,
-        validate_summary=args.validate_summary,
-        num_attempts=args.num_attempts,
-        word_ratio=args.word_ratio,
-        column_name=args.column_name
+        chunk_size=config["chunk_size"],
+        max_context_len=config["context_len"],
+        max_summary_len=config["summary_len"],
+        model_interface=model_interface,
+        prompts=config["prompts"],
+        validate_summary=config.get("validate_summary", False),
+        num_attempts=config.get("num_attempts", 3),
+        word_ratio=config.get("word_ratio", 0.65),
+        column_name=config["column_name"]
     )
 
-    # Summarize the data
-    print("Starting the summarization process for all rows...\n")
+    # Summarize data
     df_summarized = summarizer.get_summaries_for_dataframe(df)
 
-    # Save to CSV
-    print(f"Saving summarized data to {args.output} ...")
-    df_summarized.to_csv(args.output, index=False)
-    print("Data saved successfully.\n")
+    # Save results
+    df_summarized.to_csv(config["output"], index=False)
+    print(f"Data saved to {config['output']}.\n")

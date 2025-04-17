@@ -1,0 +1,42 @@
+{
+    "chunk": {
+      "model_type": "deep_infra",
+      "model": "meta-llama/Llama-3.3-70B-Instruct",
+      "tokenizer_name": "meta-llama/Llama-3.3-70B-Instruct",
+      "input": "/home/heshmo/workspace/CourtPressGER/data/processed/cases_prs_synth_prompts_test_subset.csv",
+      "output": "/home/heshmo/workspace/CourtPressGER/data/processed/summarization_hier/chunks/llama_3_3_70B_chunks.csv",
+      "chunk_size": 2048
+    },
+    "summarize": {
+      "model_type": "deep_infra",
+      "model": "meta-llama/Llama-3.3-70B-Instruct", 
+      "tokenizer_name": "meta-llama/Llama-3.3-70B-Instruct",
+      "input": "/home/heshmo/workspace/CourtPressGER/data/processed/summarization_hier/chunks/llama_3_3_70B_chunks.csv",
+      "output": "/home/heshmo/workspace/CourtPressGER/data/processed/summarization_hier/summaries/llama_3_3_70B_summaries.csv",
+      "chunk_size": 2048,
+      "context_len": 4096,
+      "summary_len": 900,
+      "prompts": "/home/heshmo/workspace/CourtPressGER/prompts",
+      "validate_summary": false,
+      "num_attempts": 3,
+      "word_ratio": 0.65,
+      "column_name": "llama_3_3_70B_summary"
+    },
+    "summarize_mgpu": {
+      "model_type": "deep_infra",
+      "model": "meta-llama/Llama-3.3-70B-Instruct",
+      "tokenizer_name": "meta-llama/Llama-3.3-70B-Instruct",
+      "input": "/home/heshmo/workspace/CourtPressGER/data/processed/summarization_hier/chunks/llama_3_3_70B_chunks.csv",
+      "output": "/home/heshmo/workspace/CourtPressGER/data/processed/summarization_hier/summaries/llama_3_3_70B_summaries.csv",
+      "chunk_size": 2048,
+      "context_len": 4096,
+      "summary_len": 900,
+      "prompts": "/home/heshmo/workspace/CourtPressGER/prompts",
+      "validate_summary": false,
+      "num_attempts": 3,
+      "word_ratio": 0.65,
+      "column_name": "llama_3_3_70B_summary",
+      "gpu_count": 4
+    }
+  }
+  

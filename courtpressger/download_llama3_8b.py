@@ -12,7 +12,7 @@ if not HF_API_KEY:
     raise ValueError("HF_API_KEY nicht in .env gefunden!")
 
 # Modell-ID
-MODEL_ID = "meta-llama/Llama-3.1-8B"
+MODEL_ID = "meta-llama/Llama-3.1-8B-Instruct"
 
 # Speicherort für das Modell
 MODEL_PATH = "models/llama3-8b"

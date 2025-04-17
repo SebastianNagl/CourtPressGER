@@ -1,41 +1,36 @@
+# summarizer_hier/chunk.py
+
 import pandas as pd
-import numpy as np  # for calculating statistics
-from transformers import AutoTokenizer
+import numpy as np
 import re
 from tqdm import tqdm
+import json
+from .model_interface import get_model_interface
 
 class TextChunker:
     """
     A class to handle token counting and text chunking for large documents.
     """
-    def __init__(self, model_name, chunk_size=1024):
+    def __init__(self, model_interface, chunk_size=1024):
         """
-        Initialize the TextChunker with a tokenizer and a maximum chunk size.
+        Initialize the TextChunker with a model interface and a maximum chunk size.
         
-        :param model_name: The name or path of the model (for AutoTokenizer).
+        :param model_interface: An object that implements `ModelInterface`.
         :param chunk_size: The maximum number of tokens allowed per chunk.
         """
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model_interface = model_interface
         self.chunk_size = chunk_size
 
     def count_tokens(self, text):
         """
-        Return the number of tokens in 'text' using the loaded tokenizer.
-        
-        :param text: The input string to count tokens for.
-        :return: Integer count of tokens in the text.
+        Return the number of tokens in 'text' using the given model interface.
         """
-        tokenized = self.tokenizer(text, add_special_tokens=False)
-        return len(tokenized["input_ids"])
+        return self.model_interface.count_tokens(text)
 
     def find_punctuations(self, text, comma=False):
         """
         Find indices of punctuation marks in the text. 
         If comma=True, also consider commas as punctuation.
-        
-        :param text: The input string to search for punctuation indices.
-        :param comma: Whether to include ',' in punctuation checking.
-        :return: A list of indices where punctuation occurs.
         """
         if comma:
             puncs = ['.', '?', '!', ',', '."', '?"', '!"', ".'", "?'", "!'"]
@@ -58,9 +53,6 @@ class TextChunker:
         """
         Truncate 'text' at the last punctuation so it does not exceed 'self.chunk_size' tokens.
         Returns (truncated_text, remainder).
-        
-        :param text: The text to truncate.
-        :return: A tuple (text_that_fits, leftover_text).
         """
         original_text = text
         # Keep truncating until token count is within limit
@@ -83,9 +75,6 @@ class TextChunker:
     def chunk_text(self, paragraphs):
         """
         Given a list of paragraphs, combine them into chunks without exceeding 'self.chunk_size' tokens.
-        
-        :param paragraphs: A list of paragraph strings.
-        :return: A list of chunked text segments.
         """
         chunks = []
         current_chunk = ''
@@ -122,9 +111,6 @@ class TextChunker:
     def chunk_judgement(self, text):
         """
         Takes the full text of a single 'judgement' and returns a list of its chunks.
-        
-        :param text: The entire judgement text.
-        :return: A list of chunked text segments.
         """
         paragraphs = re.split(r'\n\s*\n+', text)
         paragraphs = [p for p in paragraphs if p.strip()]
@@ -146,62 +132,56 @@ class TextChunker:
             return chunks
 
 
-def chunk_data(args):
+def chunk_data(config):
     """
     Main function to read the input CSV, chunk the 'judgement' column, and save the results.
-    Also prints descriptive statistics of the token lengths of all chunks.
-    
-    :param args: An object containing .input, .output, .model, .chunk_size, etc.
     """
-    df = pd.read_csv(args.input)
-    
-    # Check for required columns
+    print("\n=== [chunk_data] Using config ===")
+    print(json.dumps(config, indent=2))
+    print("================================\n")
+
+    # Proceed with data loading
+    df = pd.read_csv(config["input"])
     if 'judgement' not in df.columns or 'synthetic_prompt' not in df.columns:
         raise ValueError("DataFrame must contain 'judgement' and 'synthetic_prompt' columns.")
-    
-    # Initialize our object-oriented chunker
-    chunker = TextChunker(args.model, args.chunk_size)
-    
+
+    # Build the model interface from config
+    model_interface = get_model_interface(config)
+
+    # Initialize the chunker
+    chunker = TextChunker(model_interface, config["chunk_size"])
+
     all_chunks = []
-    # We'll collect token lengths for all chunks in this list
     all_chunk_token_counts = []
 
-    # Process each judgement in the DataFrame
     for text in tqdm(df["judgement"], desc="Chunking Judgements", total=len(df)):
         chunks = chunker.chunk_judgement(text)
         all_chunks.append(chunks)
-        
-        # For each chunk, calculate and store its token count
         for ch in chunks:
             all_chunk_token_counts.append(chunker.count_tokens(ch))
 
-    # Assign the new list of chunk lists to a column in the DataFrame
     df["chunks"] = all_chunks
-
-    # Save the extended DataFrame to a new CSV
-    df.to_csv(args.output, index=False)
-
-    # Print a small sample of the result
+    df = df[["id", "chunks"]]
+    df.to_csv(config["output"], index=False)
     print(df)
 
-    # ---- Print Statistics ----
+    # Print stats
     if all_chunk_token_counts:
         p25, p50, p75, p99 = np.percentile(all_chunk_token_counts, [25, 50, 75, 99])
         maximum = max(all_chunk_token_counts)
         mean = np.mean(all_chunk_token_counts)
         std_dev = np.std(all_chunk_token_counts)
         count = len(all_chunk_token_counts)
-
         stats_str = (
             "\n=== Chunk Token Count Statistics ===\n"
-            f"Count of all chunks:    {count}\n"
-            f"25th Percentile:        {p25:.2f}\n"
+            f"Count of all chunks:      {count}\n"
+            f"25th Percentile:          {p25:.2f}\n"
             f"50th Percentile (median): {p50:.2f}\n"
-            f"75th Percentile:        {p75:.2f}\n"
-            f"99th Percentile:        {p99:.2f}\n"
-            f"Max:                    {maximum}\n"
-            f"Mean:                   {mean:.2f}\n"
-            f"Std. Dev:               {std_dev:.2f}\n"
+            f"75th Percentile:          {p75:.2f}\n"
+            f"99th Percentile:          {p99:.2f}\n"
+            f"Max:                      {maximum}\n"
+            f"Mean:                     {mean:.2f}\n"
+            f"Std. Dev:                 {std_dev:.2f}\n"
             "======================================\n"
         )
         print(stats_str)
