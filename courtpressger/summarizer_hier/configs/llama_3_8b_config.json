@@ -37,6 +37,31 @@
       "word_ratio": 0.65,
       "column_name": "llama_3_8b_summary",
       "gpu_count": 4
+    },
+    "generate": {
+      "model_type": "huggingface_local",
+      "model": "models/llama3-8b",
+      "tokenizer_name": "models/llama3-8b",
+      "input": "/home/heshmo/workspace/CourtPressGER/data/processed/cases_prs_synth_prompts_test_sample_w_hier_summ.csv",
+      "output": "/home/heshmo/workspace/CourtPressGER/data/generation/hier/cases_prs_synth_prompts_test_sample_hier_gen_summ_llama_3_8b.csv",
+      "hier_summ_column_name": "llama_3_8b_summary",
+      "output_column_name": "llama_3_8b_gen_hier_summary",
+      "context_len": 4096,
+      "summary_len": 1024,
+      "prompt_column_name": "synthetic_prompt"
+    },
+    "generate_mgpu": {
+      "model_type": "huggingface_local",
+      "model": "models/llama3-8b",
+      "tokenizer_name": "models/llama3-8b",
+      "input": "/home/heshmo/workspace/CourtPressGER/data/processed/cases_prs_synth_prompts_test_sample_w_hier_summ.csv",
+      "output": "/home/heshmo/workspace/CourtPressGER/data/generation/hier/cases_prs_synth_prompts_test_sample_hier_gen_summ_llama_3_8b.csv",
+      "hier_summ_column_name": "llama_3_8b_summary",
+      "output_column_name": "llama_3_8b_gen_hier_summary",
+      "context_len": 4096,
+      "summary_len": 1024,
+      "prompt_column_name": "synthetic_prompt",
+      "gpu_count": 4
     }
   }
   

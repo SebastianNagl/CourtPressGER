@@ -4,6 +4,9 @@ import torch
 from openai import OpenAI
 from transformers import AutoTokenizer, pipeline
 import tiktoken
+import time
+from openai import RateLimitError, OpenAIError
+import requests
 
 ###############################################################################
 # 1) ModelInterface definition
@@ -72,7 +75,8 @@ class HuggingFaceLocalModel(ModelInterface):
 class DeepInfraModel(ModelInterface):
     """
     Implementation of `ModelInterface` that calls a DeepInfra-hosted model
-    via their OpenAI-compatible /v1/chat/completions endpoint.
+    via their OpenAI-compatible /v1/chat/completions endpoint,
+    retrying every 5 minutes on error.
     """
     def __init__(
         self,
@@ -88,21 +92,25 @@ class DeepInfraModel(ModelInterface):
         self.top_p = top_p
         self.repetition_penalty = repetition_penalty
         HF_API_KEY = os.getenv("HF_API_KEY")
-        self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_name or model_name, token=HF_API_KEY, trust_remote_code=True   )
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            tokenizer_name or model_name,
+            token=HF_API_KEY,
+            trust_remote_code=True
+        )
 
     def count_tokens(self, text: str) -> int:
         return len(self.tokenizer.encode(text))
 
     def generate_text(self, prompt: str, max_tokens: int, temperature: float) -> str:
         """
-        Calls the DeepInfra /v1/openai/chat/completions endpoint.
+        Calls the DeepInfra /v1/openai/chat/completions endpoint,
+        retrying every 5 minutes if an error occurs.
         """
         url = "https://api.deepinfra.com/v1/openai/chat/completions"
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.api_key}"
         }
-
         payload = {
             "model": self.model_name,
             "messages": prompt,
@@ -111,10 +119,18 @@ class DeepInfraModel(ModelInterface):
             "top_p": self.top_p,
         }
 
-        response = requests.post(url, headers=headers, json=payload)
-        response.raise_for_status()
-        data = response.json()
-        return data["choices"][0]["message"]["content"].strip()
+        while True:
+            try:
+                response = requests.post(url, headers=headers, json=payload)
+                response.raise_for_status()
+                data = response.json()
+                return data["choices"][0]["message"]["content"].strip()
+
+            except Exception as e:
+                # Log the error if you have a logger, otherwise print
+                print(f"Error calling DeepInfra API: {e}. Retrying in 5 minutes...")
+                time.sleep(5 * 60)
+                # and then loop around to retry
 
 
 ###############################################################################
@@ -122,64 +138,74 @@ class DeepInfraModel(ModelInterface):
 ###############################################################################
 class OpenAIModel(ModelInterface):
     """
-    Implementation of `ModelInterface` that calls the OpenAI ChatCompletion endpoint.
+    Implementation of `ModelInterface` that calls the OpenAI ChatCompletion endpoint,
+    but will pause and retry if it hits rate limits.
     """
 
-    def __init__(
-        self,
-        model_name: str = "gpt-4o",
-        do_sample: bool = True,
-        top_p: float = 0.9,
-        tokenizer_name: str = None
-    ):
-        """
-        :param model_name: The OpenAI model to use (e.g., "gpt-3.5-turbo" or "gpt-4")
-        :param do_sample: (Kept for interface consistency; ChatCompletion doesn't heavily use sampling)
-        :param top_p: The top_p parameter for nucleus sampling
-        :param tokenizer_name: Not necessary for OpenAI but included for interface consistency
-        """
+    def __init__(self,
+                 model_name: str = "gpt-4o",
+                 do_sample: bool = True,
+                 top_p: float = 0.9,
+                 tokenizer_name: str = None,
+                 max_retries: int = 5,
+                 backoff_factor: float = 1.0):
         self.model_name = model_name
-        # Retrieve OpenAI key from environment
         self.api_key = os.getenv("OPENAI_API_KEY", "")
         self.client = OpenAI(api_key=self.api_key)
         self.do_sample = do_sample
         self.top_p = top_p
 
+        self.max_retries = max_retries
+        self.backoff_factor = backoff_factor
+
         # For token counting with tiktoken
-        self.tokenizer = None
         if tiktoken is not None:
             try:
                 self.tokenizer = tiktoken.encoding_for_model(self.model_name)
             except KeyError:
-                # If model is unknown, fallback to a default
                 self.tokenizer = tiktoken.get_encoding("cl100k_base")
+        else:
+            self.tokenizer = None
 
     def count_tokens(self, text: str) -> int:
-        """
-        Uses tiktoken if available; otherwise does a naive fallback.
-        """
-        if self.tokenizer is not None:
+        if self.tokenizer:
             return len(self.tokenizer.encode(text))
         else:
             return len(text.split())
 
     def generate_text(self, prompt: str, max_tokens: int, temperature: float) -> str:
-        """
-        Calls the OpenAI ChatCompletion endpoint using a 'chat' format.
-        """
-        try:
-            response = self.client.responses.create(
-                model=self.model_name,
-                input=prompt,
-                max_output_tokens=max_tokens,
-                temperature=temperature,
-                top_p=self.top_p,
-            )
-            return response.output_text.strip()
-        except Exception as e:
-            error_msg = f"OpenAI API error: {str(e)}"
-            print(f"⚠️ {error_msg}")
-            return error_msg
+        attempt = 0
+        backoff = self.backoff_factor
+
+        while True:
+            try:
+                resp = self.client.responses.create(
+                    model=self.model_name,
+                    input=prompt,
+                    max_output_tokens=max_tokens,
+                    temperature=temperature,
+                    top_p=self.top_p,
+                )
+                return resp.output_text.strip()
+
+            except RateLimitError as e:
+                attempt += 1
+                if attempt > self.max_retries:
+                    raise
+
+                # if OpenAI returns a Retry-After header, respect it
+                retry_after = None
+                if hasattr(e, "response") and e.response is not None:
+                    retry_after = e.response.headers.get("Retry-After")
+                sleep_secs = float(retry_after) if retry_after else backoff
+
+                print(f"🔄 Rate limit hit; sleeping {sleep_secs}s before retry #{attempt}")
+                time.sleep(sleep_secs)
+                backoff *= 2  # exponential back‑off
+
+            except OpenAIError as e:
+                # any other OpenAI error: bubble up or handle as you see fit
+                raise RuntimeError(f"OpenAI API error: {e}") from e
 
 
 ###############################################################################

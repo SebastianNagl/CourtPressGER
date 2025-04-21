@@ -84,20 +84,6 @@ class Summarizer():
         }
         print("Templates loaded successfully.\n")
 
-    def _build_teuken_prompt(self, prompt: str) -> str:
-        """
-        Build a chat-style Teuken prompt of the form:
-            System: ...
-            User: ...
-            Assistant:
-        """
-        prompt_chat = (
-            f"System: {self.system_message_de}\n"
-            f"User: {prompt}\n"
-            "Assistant:"
-        )
-        return prompt_chat
-
     def count_tokens(self, text):
         """
         Counts the number of tokens in a text using the model interface.

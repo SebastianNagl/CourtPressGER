@@ -9,6 +9,9 @@ from .chunk import chunk_data
 from .summ_hier import summarize_data
 from .multi_gpu import summarize_data_mgpu
 from .aggregate_summaries import aggregate_summaries
+from .generate_summaries import generate_summaries
+from .multi_gpu_gen import generate_summ_data_mgpu
+
 # Logger konfigurieren
 logging.basicConfig(
     level=logging.INFO,
@@ -92,6 +95,34 @@ def main():
     agg_parser.add_argument("--summaries_path", "-s", type=str, default=None)
     agg_parser.add_argument("--output_path", "-o", type=str, default=None)
 
+
+    # ---- generate summaries ----
+    gen_parser = subparsers.add_parser("generate", help="Generate Summaries")
+    gen_parser.add_argument("--input", "-i", required=False)
+    gen_parser.add_argument("--output", "-o", required=False)
+    gen_parser.add_argument("--model", "-m", default=None)
+    gen_parser.add_argument("--tokenizer_name", "-t", default=None)
+    gen_parser.add_argument("--model_type", "-mt", default=None)
+    gen_parser.add_argument("--context_len", "-l", type=int, default=None)
+    gen_parser.add_argument("--summary_len", "-s", type=int, default=None)
+    gen_parser.add_argument("--hier_summ_column_name", "-hcn", type=str, default=None)
+    gen_parser.add_argument("--output_column_name", "-ocn", type=str, default=None)
+    gen_parser.add_argument("--prompt_column_name", "-pcn", type=str, default=None)
+
+    # ---- generate_mgpu ----
+    gen_mgpu_parser = subparsers.add_parser("generate_mgpu", help="Multi-GPU Summarization")
+    gen_mgpu_parser.add_argument("--input", "-i", required=False)
+    gen_mgpu_parser.add_argument("--output", "-o", required=False)
+    gen_mgpu_parser.add_argument("--model", "-m", default=None)
+    gen_mgpu_parser.add_argument("--tokenizer_name", "-t", default=None)
+    gen_mgpu_parser.add_argument("--model_type", "-mt", default=None)
+    gen_mgpu_parser.add_argument("--gpu_count", type=int, default=None)
+    gen_mgpu_parser.add_argument("--context_len", "-l", type=int, default=None)
+    gen_mgpu_parser.add_argument("--summary_len", "-s", type=int, default=None)
+    gen_mgpu_parser.add_argument("--hier_summ_column_name", "-hcn", type=str, default=None)
+    gen_mgpu_parser.add_argument("--output_column_name", "-ocn", type=str, default=None)
+    gen_mgpu_parser.add_argument("--prompt_column_name", "-pcn", type=str, default=None)
+
     args = parser.parse_args()
     if not args.command:
         parser.print_help()
@@ -116,6 +147,10 @@ def main():
         summarize_data_mgpu(final_config)
     elif args.command == "aggregate":
         aggregate_summaries(args)
+    elif args.command == "generate":
+        generate_summaries(final_config)
+    elif args.command == "generate_mgpu":
+        generate_summ_data_mgpu(final_config)
 
 if __name__ == "__main__":
     main()

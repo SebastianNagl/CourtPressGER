@@ -37,6 +37,31 @@
       "word_ratio": 0.65,
       "column_name": "openai_gpt_4o_summary",
       "gpu_count": 4
+    },
+    "generate": {
+      "model_type": "openai",
+      "model": "gpt-4o",
+      "tokenizer_name": "gpt-4o",
+      "input": "/home/heshmo/workspace/CourtPressGER/data/processed/cases_prs_synth_prompts_test_sample_w_hier_summ.csv",
+      "output": "/home/heshmo/workspace/CourtPressGER/data/generation/hier/cases_prs_synth_prompts_test_sample_hier_gen_summ_openai_gpt_4o.csv",
+      "hier_summ_column_name": "openai_gpt_4o_summary",
+      "output_column_name": "openai_gpt_4o_gen_hier_summary",
+      "context_len": 4096,
+      "summary_len": 1024,
+      "prompt_column_name": "synthetic_prompt"
+    },
+    "generate_mgpu": {
+      "model_type": "openai",
+      "model": "gpt-4o",
+      "tokenizer_name": "gpt-4o",
+      "input": "/home/heshmo/workspace/CourtPressGER/data/processed/cases_prs_synth_prompts_test_sample_w_hier_summ.csv",
+      "output": "/home/heshmo/workspace/CourtPressGER/data/generation/hier/cases_prs_synth_prompts_test_sample_hier_gen_summ_openai_gpt_4o.csv",
+      "hier_summ_column_name": "openai_gpt_4o_summary",
+      "output_column_name": "openai_gpt_4o_gen_hier_summary",
+      "context_len": 4096,
+      "summary_len": 1024,
+      "prompt_column_name": "synthetic_prompt",
+      "gpu_count": 8
     }
   }
   

@@ -36,7 +36,32 @@
       "num_attempts": 3,
       "word_ratio": 0.65,
       "column_name": "llama_3_3_70B_summary",
-      "gpu_count": 4
+      "gpu_count": 8
+    },
+    "generate": {
+      "model_type": "deep_infra",
+      "model": "meta-llama/Llama-3.3-70B-Instruct",
+      "tokenizer_name": "meta-llama/Llama-3.3-70B-Instruct",
+      "input": "/home/heshmo/workspace/CourtPressGER/data/processed/cases_prs_synth_prompts_test_sample_w_hier_summ.csv",
+      "output": "/home/heshmo/workspace/CourtPressGER/data/generation/hier/cases_prs_synth_prompts_test_sample_hier_gen_summ_llama_3_3_70B.csv",
+      "hier_summ_column_name": "llama_3_3_70B_summary",
+      "output_column_name": "llama_3_3_70B_gen_hier_summary",
+      "context_len": 4096,
+      "summary_len": 1024,
+      "prompt_column_name": "synthetic_prompt"
+    },
+    "generate_mgpu": {
+      "model_type": "deep_infra",
+      "model": "meta-llama/Llama-3.3-70B-Instruct",
+      "tokenizer_name": "meta-llama/Llama-3.3-70B-Instruct",
+      "input": "/home/heshmo/workspace/CourtPressGER/data/processed/cases_prs_synth_prompts_test_sample_w_hier_summ.csv",
+      "output": "/home/heshmo/workspace/CourtPressGER/data/generation/hier/cases_prs_synth_prompts_test_sample_hier_gen_summ_llama_3_3_70B.csv",
+      "hier_summ_column_name": "llama_3_3_70B_summary",
+      "output_column_name": "llama_3_3_70B_gen_hier_summary",
+      "context_len": 4096,
+      "summary_len": 1024,
+      "prompt_column_name": "synthetic_prompt",
+      "gpu_count": 8
     }
   }
   
