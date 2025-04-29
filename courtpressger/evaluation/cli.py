@@ -8,7 +8,7 @@ import pandas as pd
 from typing import List, Dict, Any
 import sys
 import traceback
-
+from dotenv import load_dotenv
 from .pipeline import LLMEvaluationPipeline
 from .models import create_model_config
 from .metrics import NLTK_AVAILABLE, BERT_SCORE_AVAILABLE
@@ -156,6 +156,7 @@ def load_models_config(config_path: str) -> List[Dict[str, Any]]:
     return models_config
 
 def main():
+    load_dotenv()
     """Haupteinstiegspunkt für das CLI-Tool."""
     args = parse_args()
     

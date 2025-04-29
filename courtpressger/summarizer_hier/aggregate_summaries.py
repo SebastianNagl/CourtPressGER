@@ -21,7 +21,7 @@ def aggregate_summaries(args):
         temp_df = pd.read_csv(csv_file)
 
         # Identify all columns that end with '_summary'
-        summary_cols = [c for c in temp_df.columns if c.endswith('_summary')]
+        summary_cols = [c for c in temp_df.columns if c.endswith('_generated_judgement_summary')]
         
         # If there's nothing to merge (no summary columns), skip
         if not summary_cols:

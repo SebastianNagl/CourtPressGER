@@ -69,15 +69,15 @@ class HuggingFaceLocalModel(ModelInterface):
         return outputs[0]['generated_text'].strip()
 
 
-###############################################################################
-# 3) DeepInfra Model Implementation
-###############################################################################
 class DeepInfraModel(ModelInterface):
     """
     Implementation of `ModelInterface` that calls a DeepInfra-hosted model
     via their OpenAI-compatible /v1/chat/completions endpoint,
-    retrying every 5 minutes on error.
+    retrying every 5 minutes on error. Adds truncation for Mistral models
+    to enforce a 32,768-token context window, with logging of truncations.
     """
+    MAX_MISTRAL_CONTEXT = 32700
+
     def __init__(
         self,
         model_name: str,
@@ -91,6 +91,8 @@ class DeepInfraModel(ModelInterface):
         self.do_sample = do_sample
         self.top_p = top_p
         self.repetition_penalty = repetition_penalty
+        self.truncation_count = 0
+
         HF_API_KEY = os.getenv("HF_API_KEY")
         self.tokenizer = AutoTokenizer.from_pretrained(
             tokenizer_name or model_name,
@@ -101,22 +103,53 @@ class DeepInfraModel(ModelInterface):
     def count_tokens(self, text: str) -> int:
         return len(self.tokenizer.encode(text))
 
-    def generate_text(self, prompt: str, max_tokens: int, temperature: float) -> str:
+    def _truncate_if_mistral(self, messages, max_tokens):
+        """
+        If using a Mistral model and the combined messages exceed the context window,
+        truncate the user content down to MAX_MISTRAL_CONTEXT tokens.
+        """
+        if "mistral" not in self.model_name.lower():
+            return messages
+
+        # Combine all message contents into one string
+        full_text = "".join([msg.get("content", "") for msg in messages])
+        token_count = self.count_tokens(full_text)
+        if token_count + max_tokens <= self.MAX_MISTRAL_CONTEXT:
+            return messages
+
+        # Truncate to the first MAX_MISTRAL_CONTEXT tokens
+        tokens = self.tokenizer.encode(full_text)
+        truncated_tokens = tokens[: self.MAX_MISTRAL_CONTEXT-max_tokens]
+        truncated_text = self.tokenizer.decode(truncated_tokens, skip_special_tokens=True)
+
+        # Replace with single user message
+        truncated_msg = {"role": "user", "content": truncated_text}
+        self.truncation_count += 1
+        print(f"[DeepInfraModel] Truncated prompt to {self.MAX_MISTRAL_CONTEXT} tokens (occurrence #{self.truncation_count})")
+        return [truncated_msg]
+
+    def generate_text(self, prompt: list, max_tokens: int, temperature: float) -> str:
         """
         Calls the DeepInfra /v1/openai/chat/completions endpoint,
-        retrying every 5 minutes if an error occurs.
+        retrying every 5 minutes if an error occurs. Applies truncation
+        for Mistral models before sending.
         """
         url = "https://api.deepinfra.com/v1/openai/chat/completions"
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.api_key}"
         }
+
+        # Truncate messages if needed
+        messages = self._truncate_if_mistral(prompt,max_tokens)
+
         payload = {
             "model": self.model_name,
-            "messages": prompt,
+            "messages": messages,
             "max_tokens": max_tokens,
             "temperature": temperature,
             "top_p": self.top_p,
+            "repetition_penalty": self.repetition_penalty
         }
 
         while True:
@@ -127,10 +160,8 @@ class DeepInfraModel(ModelInterface):
                 return data["choices"][0]["message"]["content"].strip()
 
             except Exception as e:
-                # Log the error if you have a logger, otherwise print
                 print(f"Error calling DeepInfra API: {e}. Retrying in 5 minutes...")
-                time.sleep(5 * 60)
-                # and then loop around to retry
+                time.sleep(5 * 60)  # wait 5 minutes then retry
 
 
 ###############################################################################
