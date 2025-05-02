@@ -20,6 +20,8 @@ def parse_args():
     
     parser.add_argument("--models", type=str, help="Pfad zur Modellkonfigurationsdatei (optional, verwendet standardmäßig models/generation_config.json)")
     
+    parser.add_argument("--ignore-missing-columns", action="store_true", help="Ignoriere fehlende Spalten und nutze Standardwerte")
+    
     return parser.parse_args()
 
 def load_dataset(filepath: str, limit: Optional[int] = None) -> pd.DataFrame:
@@ -98,10 +100,19 @@ def main():
     
     # Prüfen, ob erforderliche Spalten vorhanden sind
     required_columns = ['judgement', 'synthetic_prompt', 'summary']
-    missing_columns = [col for col in required_columns if col not in dataset.columns]
     
-    if missing_columns:
-        raise ValueError(f"Fehlende Spalten im Dataset: {', '.join(missing_columns)}")
+    # Wenn ignore-missing-columns gesetzt ist, ersetze fehlende Spalten durch leere Werte
+    if args.ignore_missing_columns:
+        for col in required_columns:
+            if col not in dataset.columns:
+                print(f"Warnung: Spalte '{col}' fehlt im Dataset, wird mit leeren Werten erzeugt")
+                dataset[col] = ""
+    else:
+        # Sonst prüfe wie bisher
+        missing_columns = [col for col in required_columns if col not in dataset.columns]
+        
+        if missing_columns:
+            raise ValueError(f"Fehlende Spalten im Dataset: {', '.join(missing_columns)}")
     
     # Modellkonfigurationen laden
     print(f"Lade Modellkonfigurationen: {config_path}")

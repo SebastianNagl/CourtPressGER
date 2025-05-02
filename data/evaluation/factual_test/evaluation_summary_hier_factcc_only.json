@@ -1,0 +1,19 @@
+{
+  "teuken_gen_hier_summary": {
+    "avg_rouge1_precision": 0.37776248184652905,
+    "avg_rouge1_recall": 0.1186281366387511,
+    "avg_rouge1_fmeasure": 0.1630487645099904,
+    "avg_rouge2_precision": 0.052430389342869504,
+    "avg_rouge2_recall": 0.015314069589762398,
+    "avg_rouge2_fmeasure": 0.021254194251825127,
+    "avg_rougeL_precision": 0.1739863661772137,
+    "avg_rougeL_recall": 0.05084364415632153,
+    "avg_rougeL_fmeasure": 0.07032084691045767,
+    "avg_factcc_score": 0.5050946408830547,
+    "avg_factcc_consistency_ratio": 0.5068438003220612,
+    "avg_factcc_claim_count": 4.628352490421456,
+    "total_samples": 1045,
+    "successful_generations": 1044,
+    "failed_generations": 1
+  }
+}
