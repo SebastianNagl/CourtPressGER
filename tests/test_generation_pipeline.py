@@ -37,7 +37,7 @@ def sample_models_config():
         {
             'name': 'test-model-1',
             'type': 'openai',
-            'model': 'gpt-3.5-turbo',
+            'model': 'gpt-4',
             'temperature': 0.7,
             'max_tokens': 1024
         },
