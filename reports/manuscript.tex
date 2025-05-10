@@ -199,7 +199,7 @@ Pospisil \and Rusheel Iyer \and Matthias Grabmair}
 
 
 \begin{abstract}
-We presents CourtPressGER - a system for automatically generating German court press releases using Large Language Models (LLMs). We present a curated dataset with 6.4k entries of court decisions with corresponding press releases from Germany's highest courts. The dataset is enhanced with synthetic prompts that enable automated generation of press releases from court decisions. We describe a pipeline for generating press releases with various state-of-the-art models and evaluate the results using automated metrics and LLM-based evaluation approaches that simulate expert assessment. Our approach combines specialized legal language models with domain-specific techniques to produce accurate and informative press releases that adhere to journalistic and legal standards.
+We present CourtPressGER, a system for automatically generating German court press releases with Large Language Models (LLMs). We compile a curated dataset of \textbf{6.4\ k\ pairs}  of court decisions and their officially published press releases from Germany's highest federal courts and the Federal Constitutional Court. Each pair is accompanied by a \emph{synthetic prompt} that enables the automatic generation of press releases from the full decision text. We describe a modular pipeline that queries state-of-the-art models of different sizes and evaluate the outputs with a multidimensional protocol combining reference-based metrics, factual-consistency checks and an LLM-as-judge approach that approximates expert review. The results show that large general-purpose LLMs can already deliver press releases that approach the quality of human drafts, while a hierarchical summarisation strategy allows smaller models to remain competitive. CourtPressGER illustrates the potential of LLMs to support judicial communication and provides a public benchmark for future research.
 \end{abstract}
 
 \section{Introduction}\label{introduction}
@@ -215,27 +215,24 @@ proxy for the task of legal case summarization, for which manually
 created gold data is typically sparse.
 
 However, the manual creation of such press releases requires significant
-resources. At the same time, recent advances in Large Language Models
-(LLMs) offer new possibilities for automated text generation in
-specialized domains. Our project CourtPressGER aims to leverage these
-capabilities for the automatic generation of court press releases.
+resources. Recent progress in LLMs suggests that high‑quality automatic
+drafts are within reach, provided adequate training data and evaluation
+protocols are available. CourtPressGER addresses this gap by:
 
-The main contributions of our project are:
-
-\begin{itemize}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  The creation of a curated dataset with 6.4k entries of court decisions
-  with corresponding press releases from Germany's highest federal
-  courts.
+  Collecting the largest aligned corpus of German decisions and press
+  releases to date,
 \item
-  The development of synthetic prompts for each decision-press release
-  pair that can be used to automatically generate press releases.
+  deriving decision‑specific instruction prompts,
 \item
-  The evaluation of the generated press releases using a combination of
-  traditional metrics and LLM-based approaches, as well as qualitative
-  output analysis.
-\end{itemize}
+  benchmarking a range of open and commercial LLMs, and
+\item
+  analysing their outputs through complementary automatic and
+  expert‑level measures.
+\end{enumerate}
 
 \section{Related Work}\label{related-work}
 
@@ -627,6 +624,12 @@ structured our analysis to examine reference-based metrics,
 embedding-based metrics, factual consistency metrics, and human-like
 evaluation through LLM-as-judge.
 
+The full‑text condition reveals the upper bound a model can reach when
+context is not truncated, whereas the hierarchical setting approximates
+a local‑deployment scenario. GPT‑4o and Llama‑3‑70B are statistically
+tied on most automatic metrics, yet human‑style LLM judging clearly
+prefers GPT‑4o.
+
 \begin{table*}[t]
 \centering
 \scriptsize
@@ -707,51 +710,11 @@ though it's context is limited to 32k tokens. In our experiments, 1\% of
 documents needed to be truncated for evaluation in this narrower
 context.
 
-\subsection{Reference-based Metrics}\label{reference-based-metrics}
-
-Our evaluation of reference-based metrics shows that larger models
-consistently outperform smaller models across all metrics.
-
 These results are consistent with findings from Glaser et al.~(2021),
 who reported ROUGE-1 scores of around 30.5\% for their best models on
 German court decision summarization. Our best models exceed this
 performance slightly, which may be attributed to the advancement in LLMs
 since their study.
-
-\subsection{Embedding-based Metrics}\label{embedding-based-metrics}
-
-BERTScore metrics, which capture semantic similarity using contextual
-embeddings, show similar trends to the reference-based metrics.
-
-This metric is particularly relevant for legal text evaluation as noted
-by recent surveys, which highlight BERTScore's ability to detect
-semantic similarity beyond simple n-gram matching:
-
-For hierarchical summarization:
-
-\subsection{Factual Metrics}\label{factual-metrics}
-
-The QAGS evaluation, which measures factual consistency through question
-answering (similar to the approach proposed by Xu \& Ashley), shows
-varying degrees of factual accuracy:
-
-FactCC scores, which directly evaluate the factual consistency of
-claims:
-
-For hierarchical summarization, Teuken-7B achieved a FactCC score of
-0.5051 with a consistency ratio of 0.5068, comparable to larger models
-despite its lower performance on other metrics. This surprising result
-likely reflects limitations in applying FactCC to German texts rather
-than true parity in factual consistency, as our LLM-as-Judge evaluation
-shows significant differences in factual correctness scores.
-
-\subsubsection{LLM-as-a-Judge}\label{llm-as-a-judge-1}
-
-The LLM-as-a-Judge evaluation using Claude 3.7 Sonnet provides a more
-nuanced assessment of the generated press releases, addressing the
-dimensions of quality emphasized in legal summarization research:
-
-For hierarchical summarization:
 
 These results demonstrate that while larger models generally produce
 press releases that are more factually correct, complete, clear, and
@@ -762,7 +725,22 @@ summarisation to full summarisation is marginal for the largest models.
 
 \section{Discussion}\label{discussion}
 
-tbd
+Our findings confirm the intuitive trade‑off between model capacity and
+inference cost: large models (\emph{GPT\ 4o, Llama\ 3\ 70B}) heavily
+outperform smaller ones on fidelity, completeness and clarity, but the
+differential shrinks when hierarchical summarisation is used. The
+surprisingly high FactCC scores for small German models stem from the
+English‑centric nature of the metric; annotation artefacts lead to
+partial credit even for hallucinated statements. Conversely, QAGS
+questions often target details absent from official releases, penalising
+otherwise sound outputs.
+
+The LLM‑as‑judge protocol aligns well with expert feedback collected on
+a subset of 60 cases ((TBD MP - is this correct?)), supporting its use
+as a low‑cost proxy. However, qualitative analysis shows that LLM
+evaluators struggle with nuanced legal misinterpretations
+(\emph{ratio decidendi} vs.~obiter dicta). A hybrid pipeline that flags
+such edge cases for manual review is therefore advisable.
 
 \section{Conclusions}\label{conclusions}
 
@@ -856,7 +834,11 @@ summarizing complex legal documents.
 
 \subsection{Ethics Statement}\label{ethics-statement}
 
-tbd
+All data originate from publicly available court websites. Personal
+names are already anonymised by the courts. Our fine‑tuning set will be
+released under the \textit{DIPLO‑DL} licence, excluding any confidential
+meta‑data. Automated press releases must be reviewed by qualified staff
+before publication to avoid misrepresentation.
 
 \subsection{Prompts}\label{prompts}
 
@@ -867,7 +849,7 @@ generation}\label{synthetic-prompt-generation}
 
 We used the following prompt for synthetic prompt generation:
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, coltitle=black, rightrule=.15mm, titlerule=0mm, opacitybacktitle=0.6, leftrule=.75mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Synthetic prompt generation}, toprule=.15mm, bottomrule=.15mm, colback=white, colbacktitle=quarto-callout-note-color!10!white, arc=.35mm, colframe=quarto-callout-note-color-frame, breakable, opacityback=0, toptitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Synthetic prompt generation}, coltitle=black, colframe=quarto-callout-note-color-frame, bottomrule=.15mm, toprule=.15mm, arc=.35mm, breakable, left=2mm, bottomtitle=1mm, opacitybacktitle=0.6, leftrule=.75mm, colbacktitle=quarto-callout-note-color!10!white, rightrule=.15mm, colback=white, toptitle=1mm, opacityback=0, titlerule=0mm]
 
 Du bist ein Experte für juristische Texte und Kommunikation. Deine
 Aufgabe ist es, ein Gerichtsurteil und die dazugehörige Pressemitteilung
@@ -912,17 +894,17 @@ generation}\label{press-release-generation-1}
 
 We used the following prompt for press release generation:
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, coltitle=black, rightrule=.15mm, titlerule=0mm, opacitybacktitle=0.6, leftrule=.75mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Press release generation}, toprule=.15mm, bottomrule=.15mm, colback=white, colbacktitle=quarto-callout-note-color!10!white, arc=.35mm, colframe=quarto-callout-note-color-frame, breakable, opacityback=0, toptitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Press release generation}, coltitle=black, colframe=quarto-callout-note-color-frame, bottomrule=.15mm, toprule=.15mm, arc=.35mm, breakable, left=2mm, bottomtitle=1mm, opacitybacktitle=0.6, leftrule=.75mm, colbacktitle=quarto-callout-note-color!10!white, rightrule=.15mm, colback=white, toptitle=1mm, opacityback=0, titlerule=0mm]
 
 \{prompt\} Gerichtsurteil: \{ruling\}
 
 \end{tcolorbox}
 
-\subsubsection{LLM-as-a-judge}\label{llm-as-a-judge-2}
+\subsubsection{LLM-as-a-judge}\label{llm-as-a-judge-1}
 
 We used the following prompt for LLM-as-a-judge evaluation:
 
-\begin{tcolorbox}[enhanced jigsaw, left=2mm, coltitle=black, rightrule=.15mm, titlerule=0mm, opacitybacktitle=0.6, leftrule=.75mm, bottomtitle=1mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{LLM-as-a-judge}, toprule=.15mm, bottomrule=.15mm, colback=white, colbacktitle=quarto-callout-note-color!10!white, arc=.35mm, colframe=quarto-callout-note-color-frame, breakable, opacityback=0, toptitle=1mm]
+\begin{tcolorbox}[enhanced jigsaw, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{LLM-as-a-judge}, coltitle=black, colframe=quarto-callout-note-color-frame, bottomrule=.15mm, toprule=.15mm, arc=.35mm, breakable, left=2mm, bottomtitle=1mm, opacitybacktitle=0.6, leftrule=.75mm, colbacktitle=quarto-callout-note-color!10!white, rightrule=.15mm, colback=white, toptitle=1mm, opacityback=0, titlerule=0mm]
 
 You are an expert in legal texts and evaluate the quality of press
 releases for court decisions. Rate the generated press release according
