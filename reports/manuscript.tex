@@ -399,8 +399,8 @@ The descriptive statistics of the cleaned dataset can be seen in
 \hyperref[tab:descriptive_statistics]{Table 1}.
 
 In addition, the distribution of press release and judgement length and
-year distribution can be seen in {[}Figure 1{]}
-(\#fig:length\_distribution).
+year distribution can be seen in
+\hyperref[fig:length_distribution]{Figure 1}.
 
 \begin{figure*}[ht]
 \centering
@@ -517,7 +517,7 @@ multiple chunks.
 
 Our evaluation framework was designed to address the known limitations
 of traditional NLP metrics for legal text summarization. As highlighted
-by Steffes et al.~(2023), metrics like ROUGE can be unreliable as sole
+by \citet{steffes2023}, metrics like ROUGE can be unreliable as sole
 quality indicators because they may not adequately capture legally
 relevant content.
 
@@ -545,13 +545,17 @@ multiple complementary metrics:
 
 While BLEU is less commonly used for summarization tasks due to its
 sensitivity to word order and sentence length, we include it to maintain
-comparability with multilingual studies like Rolshoven et al.~(2024) and
-to provide a more comprehensive assessment through multiple metrics.
+comparability with multilingual studies like \citet{rolshoven2024} to
+provide a more comprehensive assessment through multiple metrics.
 
 This multi-faceted approach aligns with recent trends in legal
 summarization evaluation, which emphasize combining different automated
 metrics with expert judgment to assess different quality dimensions of
 generated legal texts.
+
+In addition to these metrics, we engaged a legal professional who ranked
+a subset ofthe model outputs for \textbf{10 decisions from each court}
+(60~cases).
 
 \subsubsection{Factual Consistency
 Metrics}\label{factual-consistency-metrics}
@@ -566,8 +570,8 @@ consistency between court decisions and generated press releases:
   metric first generates questions from the press releases, then answers
   these questions with the court decisions as context, and finally
   compares the answers to verify if the press release is factually
-  correct. This approach is similar to the framework proposed by Xu \&
-  Ashley (2023), which showed better correlation with expert judgments
+  correct. This approach is similar to the framework proposed by
+  \citet{xu2023a}, which showed better correlation with expert judgments
   than traditional metrics.
 \item
   FactCC (Factual Consistency Check): This metric extracts claims from
@@ -591,9 +595,9 @@ For additional context information in press releases that doesn't
 directly appear in the court decision, these metrics may incorrectly
 flag such information as inconsistent, leading to potentially lower
 scores even for high-quality press releases. We address this limitation
-partially through our LLM-as-a-Judge approach, which can better
-distinguish between contradictory information and benign additional
-context.
+partially through our LLM-as-a-Judge approach and the human evaluation
+process, which can better distinguish between contradictory information
+and benign additional context.
 
 \subsubsection{LLM-as-a-judge}\label{llm-as-a-judge}
 
@@ -607,14 +611,19 @@ across all evaluation criteria.
 To evaluate the quality of the generated press releases, we use Claude
 3.7 Sonnet with the following system prompt {[}→Appendix{]}
 
-It is important to note that our evaluation relied on LLM-as-a-Judge
-rather than human legal experts. While this approach provides valuable
-insights and scales to large datasets, it serves as a proxy for human
-evaluation and would benefit from validation through targeted expert
-reviews in future work. Claude 3.7 Sonnet was selected for this task due
-to its strong performance in understanding complex legal texts in
-multiple languages as well as its selection for synthetic prompt
-generation which made it a natural choice for evaluation.
+It is important to note that our full evaluation relied on
+LLM-as-a-Judge rather than human legal experts. While this approach
+provides valuable insights and scales to large datasets, it serves as a
+proxy for human evaluation and would benefit from validation through
+extendedtargeted expert reviews in future work. Claude 3.7 Sonnet was
+selected for this task due to its strong performance in understanding
+complex legal texts in multiple languages as well as its selection for
+synthetic prompt generation which made it a natural choice for
+evaluation.
+
+\subsection{Human Evaluation}\label{human-evaluation}
+
+\#todo MP
 
 \section{Results}\label{results}
 
@@ -705,25 +714,20 @@ mistral v03 &
 \label{tab:comparison_full}
 \end{table*}
 
+\#todo MP - add in results for human evaluation here
+
 Note that we evaluate Mistral\_v03 also on the full ruling text even
 though it's context is limited to 32k tokens. In our experiments, 1\% of
 documents needed to be truncated for evaluation in this narrower
 context.
 
-These results are consistent with findings from Glaser et al.~(2021),
-who reported ROUGE-1 scores of around 30.5\% for their best models on
-German court decision summarization. Our best models exceed this
-performance slightly, which may be attributed to the advancement in LLMs
-since their study.
-
-These results demonstrate that while larger models generally produce
-press releases that are more factually correct, complete, clear, and
-well-structured, the hierarchical summarization approach allows smaller
-models to produce reasonably good summaries, particularly in terms of
-clarity and structure. Interestingly, the improvement from hierarchical
-summarisation to full summarisation is marginal for the largest models.
-
 \section{Discussion}\label{discussion}
+
+These results are consistent with findings from \citet{glaser2021}, who
+reported ROUGE-1 scores of around 30.5\% for their best models on German
+court decision summarization. Our best models exceed this performance
+slightly, which may be attributed to the advancement in LLMs since their
+study.
 
 Our findings confirm the intuitive trade‑off between model capacity and
 inference cost: large models (\emph{GPT\ 4o, Llama\ 3\ 70B}) heavily
@@ -735,12 +739,19 @@ partial credit even for hallucinated statements. Conversely, QAGS
 questions often target details absent from official releases, penalising
 otherwise sound outputs.
 
-The LLM‑as‑judge protocol aligns well with expert feedback collected on
-a subset of 60 cases ((TBD MP - is this correct?)), supporting its use
-as a low‑cost proxy. However, qualitative analysis shows that LLM
-evaluators struggle with nuanced legal misinterpretations
-(\emph{ratio decidendi} vs.~obiter dicta). A hybrid pipeline that flags
-such edge cases for manual review is therefore advisable.
+These results demonstrate that while larger models generally produce
+press releases that are more factually correct, complete, clear, and
+well-structured, the hierarchical summarization approach allows smaller
+models to produce reasonably good summaries, particularly in terms of
+clarity and structure. Interestingly, the improvement from hierarchical
+summarisation to full summarisation is marginal for the largest models.
+
+The LLM-as-a-judge protocol aligns well with expert feedback collected
+on a subset of 60 cases ((\#todo MP - is this correct?)), supporting its
+use as a low‑cost proxy. However, qualitative analysis shows that LLM
+evaluators struggle with nuanced legal misinterpretations (ratio
+decidendi vs.~obiter dicta). A hybrid pipeline that flags such edge
+cases for manual review is therefore advisable.
 
 \section{Conclusions}\label{conclusions}
 
@@ -836,7 +847,7 @@ summarizing complex legal documents.
 
 All data originate from publicly available court websites. Personal
 names are already anonymised by the courts. Our fine‑tuning set will be
-released under the \textit{DIPLO‑DL} licence, excluding any confidential
+released under the \textit{DIPLO-DL} licence, excluding any confidential
 meta‑data. Automated press releases must be reviewed by qualified staff
 before publication to avoid misrepresentation.
 
@@ -849,7 +860,7 @@ generation}\label{synthetic-prompt-generation}
 
 We used the following prompt for synthetic prompt generation:
 
-\begin{tcolorbox}[enhanced jigsaw, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Synthetic prompt generation}, coltitle=black, colframe=quarto-callout-note-color-frame, bottomrule=.15mm, toprule=.15mm, arc=.35mm, breakable, left=2mm, bottomtitle=1mm, opacitybacktitle=0.6, leftrule=.75mm, colbacktitle=quarto-callout-note-color!10!white, rightrule=.15mm, colback=white, toptitle=1mm, opacityback=0, titlerule=0mm]
+\begin{tcolorbox}[enhanced jigsaw, bottomtitle=1mm, rightrule=.15mm, colframe=quarto-callout-note-color-frame, colback=white, toprule=.15mm, opacityback=0, opacitybacktitle=0.6, leftrule=.75mm, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Synthetic prompt generation}, toptitle=1mm, breakable, colbacktitle=quarto-callout-note-color!10!white, bottomrule=.15mm, coltitle=black, titlerule=0mm, arc=.35mm]
 
 Du bist ein Experte für juristische Texte und Kommunikation. Deine
 Aufgabe ist es, ein Gerichtsurteil und die dazugehörige Pressemitteilung
@@ -894,7 +905,7 @@ generation}\label{press-release-generation-1}
 
 We used the following prompt for press release generation:
 
-\begin{tcolorbox}[enhanced jigsaw, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Press release generation}, coltitle=black, colframe=quarto-callout-note-color-frame, bottomrule=.15mm, toprule=.15mm, arc=.35mm, breakable, left=2mm, bottomtitle=1mm, opacitybacktitle=0.6, leftrule=.75mm, colbacktitle=quarto-callout-note-color!10!white, rightrule=.15mm, colback=white, toptitle=1mm, opacityback=0, titlerule=0mm]
+\begin{tcolorbox}[enhanced jigsaw, bottomtitle=1mm, rightrule=.15mm, colframe=quarto-callout-note-color-frame, colback=white, toprule=.15mm, opacityback=0, opacitybacktitle=0.6, leftrule=.75mm, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Press release generation}, toptitle=1mm, breakable, colbacktitle=quarto-callout-note-color!10!white, bottomrule=.15mm, coltitle=black, titlerule=0mm, arc=.35mm]
 
 \{prompt\} Gerichtsurteil: \{ruling\}
 
@@ -904,7 +915,7 @@ We used the following prompt for press release generation:
 
 We used the following prompt for LLM-as-a-judge evaluation:
 
-\begin{tcolorbox}[enhanced jigsaw, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{LLM-as-a-judge}, coltitle=black, colframe=quarto-callout-note-color-frame, bottomrule=.15mm, toprule=.15mm, arc=.35mm, breakable, left=2mm, bottomtitle=1mm, opacitybacktitle=0.6, leftrule=.75mm, colbacktitle=quarto-callout-note-color!10!white, rightrule=.15mm, colback=white, toptitle=1mm, opacityback=0, titlerule=0mm]
+\begin{tcolorbox}[enhanced jigsaw, bottomtitle=1mm, rightrule=.15mm, colframe=quarto-callout-note-color-frame, colback=white, toprule=.15mm, opacityback=0, opacitybacktitle=0.6, leftrule=.75mm, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{LLM-as-a-judge}, toptitle=1mm, breakable, colbacktitle=quarto-callout-note-color!10!white, bottomrule=.15mm, coltitle=black, titlerule=0mm, arc=.35mm]
 
 You are an expert in legal texts and evaluate the quality of press
 releases for court decisions. Rate the generated press release according
@@ -1062,24 +1073,23 @@ teuken\_hier &
 0.1607 & \textbf{4.94} &
 3.0635 & 2.1606 & 4.2356 & 4.4077 & 1.8269 & 3.1388
 \\ \bottomrule
-\caption{Kombinierte automatische und menschliche Bewertungen
-         (hierarchische Summaries $\to$ \texttt{\_hier\_};
-          vollständige Judgements $\to$ \texttt{\_full\_})}
+\caption{Combined automatic and human evaluation scores
+         (hierarchical Summaries $\to$ \texttt{\_hier\_};
+          complete Judgements $\to$ \texttt{\_full\_})}
 \end{longtable}
 
 \noindent\footnotesize
-\textbf{Legende der Kürzel:}\\[2pt]
 \begin{tabular}{@{}ll@{\hspace{3em}}ll@{}}
-R1, R2, RL   & ROUGE-1/-2/-L F1            & KW          & Schlüsselwort-Überlappung\\
-B1–B4        & BLEU-1 … BLEU-4             & ENT         & Entitäts-Überlappung\\
-MTR          & METEOR                      & Len         & Längenverhältnis\\
-BP, BR, BF1  & BERTScore Precision/Recall/F1 & Fcc, FccC   & FactCC Score / Konsistenz\\
-QGS, Qn      & QAGS Score / Ø Fragen       & LJ\_Fact    & \texttt{llm\_judge}\,fakt. Korr.\\
-             &                             & LJ\_Compl   & – Vollständigkeit\\
-             &                             & LJ\_Clar    & – Klarheit\\
-             &                             & LJ\_Struc   & – Struktur\\
-             &                             & LJ\_Ref     & – Vergl. mit Referenz\\
-             &                             & LJ\_Tot     & – Gesamtscore\\
+R1, R2, RL   & ROUGE-1/-2/-L F1            & KW          & Keyword-Overlap\\
+B1–B4        & BLEU-1 … BLEU-4             & ENT         & Entity-Overlap\\
+MTR          & METEOR                      & Len         & Length-Ratio\\
+BP, BR, BF1  & BERTScore Precision/Recall/F1 & Fcc, FccC   & FactCC Score / Consistency\\
+QGS, Qn      & QAGS Score / Ø Questions       & LJ\_Fact    & \texttt{llm\_judge}\,fact. Corr.\\
+             &                             & LJ\_Compl   & – Completeness\\
+             &                             & LJ\_Clar    & – Clarity\\
+             &                             & LJ\_Struc   & – Structure\\
+             &                             & LJ\_Ref     & – Comparison with Reference\\
+             &                             & LJ\_Tot     & – Total Score\\
 \end{tabular}
 \end{landscape}
 \twocolumn
