@@ -1,0 +1,1101 @@
+% Options for packages loaded elsewhere
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+% Make \paragraph and \subparagraph free-standing
+\makeatletter
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}{
+    \@ifstar
+      \xxxParagraphStar
+      \xxxParagraphNoStar
+  }
+  \newcommand{\xxxParagraphStar}[1]{\oldparagraph*{#1}\mbox{}}
+  \newcommand{\xxxParagraphNoStar}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}{
+    \@ifstar
+      \xxxSubParagraphStar
+      \xxxSubParagraphNoStar
+  }
+  \newcommand{\xxxSubParagraphStar}[1]{\oldsubparagraph*{#1}\mbox{}}
+  \newcommand{\xxxSubParagraphNoStar}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+\makeatother
+
+
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+
+
+
+
+
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+
+
+ 
+\usepackage[]{natbib}
+\bibliographystyle{plainnat}
+
+
+\usepackage[review]{acl}
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{makecell}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{inconsolata}
+\usepackage{graphicx}
+\graphicspath{{./figures}}
+\makeatletter
+\@ifpackageloaded{tcolorbox}{}{\usepackage[skins,breakable]{tcolorbox}}
+\@ifpackageloaded{fontawesome5}{}{\usepackage{fontawesome5}}
+\definecolor{quarto-callout-color}{HTML}{909090}
+\definecolor{quarto-callout-note-color}{HTML}{0758E5}
+\definecolor{quarto-callout-important-color}{HTML}{CC1914}
+\definecolor{quarto-callout-warning-color}{HTML}{EB9113}
+\definecolor{quarto-callout-tip-color}{HTML}{00A047}
+\definecolor{quarto-callout-caution-color}{HTML}{FC5300}
+\definecolor{quarto-callout-color-frame}{HTML}{acacac}
+\definecolor{quarto-callout-note-color-frame}{HTML}{4582ec}
+\definecolor{quarto-callout-important-color-frame}{HTML}{d9534f}
+\definecolor{quarto-callout-warning-color-frame}{HTML}{f0ad4e}
+\definecolor{quarto-callout-tip-color-frame}{HTML}{02b875}
+\definecolor{quarto-callout-caution-color-frame}{HTML}{fd7e14}
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\AtBeginDocument{%
+\ifdefined\contentsname
+  \renewcommand*\contentsname{Table of contents}
+\else
+  \newcommand\contentsname{Table of contents}
+\fi
+\ifdefined\listfigurename
+  \renewcommand*\listfigurename{List of Figures}
+\else
+  \newcommand\listfigurename{List of Figures}
+\fi
+\ifdefined\listtablename
+  \renewcommand*\listtablename{List of Tables}
+\else
+  \newcommand\listtablename{List of Tables}
+\fi
+\ifdefined\figurename
+  \renewcommand*\figurename{Figure}
+\else
+  \newcommand\figurename{Figure}
+\fi
+\ifdefined\tablename
+  \renewcommand*\tablename{Table}
+\else
+  \newcommand\tablename{Table}
+\fi
+}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\makeatother
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={CourtPressGER},
+  pdfauthor={Sebastian Nagl; Mohamed Elganayni; Melanie Pospisil; Rusheel Iyer; Matthias Grabmair},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+
+\title{CourtPressGER}
+\author{Sebastian Nagl \and Mohamed Elganayni \and Melanie
+Pospisil \and Rusheel Iyer \and Matthias Grabmair}
+\date{}
+\begin{document}
+\maketitle
+
+
+\begin{abstract}
+We present CourtPressGER, a system for automatically generating German court press releases with Large Language Models (LLMs). We compile a curated dataset of \textbf{6.4\ k\ pairs}  of court decisions and their officially published press releases from Germany's highest federal courts and the Federal Constitutional Court. Each pair is accompanied by a \emph{synthetic prompt} that enables the automatic generation of press releases from the full decision text. We describe a modular pipeline that queries state-of-the-art models of different sizes and evaluate the outputs with a multidimensional protocol combining reference-based metrics, factual-consistency checks and an LLM-as-judge approach that approximates expert review. The results show that large general-purpose LLMs can already deliver press releases that approach the quality of human drafts, while a hierarchical summarisation strategy allows smaller models to remain competitive. CourtPressGER illustrates the potential of LLMs to support judicial communication and provides a public benchmark for future research.
+\end{abstract}
+
+\section{Introduction}\label{introduction}
+
+The German legal system consists of a complex network of courts that
+regularly publish extensive decisions. To make these decisions
+accessible to the public, the highest courts create press releases that
+summarize the essential aspects and implications of the decisions in an
+understandable form. These press releases serve as an important
+interface between the judicial system and the general public by
+explaining complex legal matters in an accessible way and serve as a
+proxy for the task of legal case summarization, for which manually
+created gold data is typically sparse.
+
+However, the manual creation of such press releases requires significant
+resources. Recent progress in LLMs suggests that high‑quality automatic
+drafts are within reach, provided adequate training data and evaluation
+protocols are available. CourtPressGER addresses this gap by:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Collecting the largest aligned corpus of German decisions and press
+  releases to date,
+\item
+  deriving decision‑specific instruction prompts,
+\item
+  benchmarking a range of open and commercial LLMs, and
+\item
+  analysing their outputs through complementary automatic and
+  expert‑level measures.
+\end{enumerate}
+
+\section{Related Work}\label{related-work}
+
+Legal text summarization has been an active area of research for several
+decades. Early approaches relied on statistical methods and extractive
+summarization techniques to select the most important sentences from
+legal documents. With the advent of neural network models, more
+sophisticated abstractive summarization methods became possible,
+allowing for the generation of new text that captures the essence of the
+original document.
+
+In the German legal domain, several notable research efforts have
+focused on court decision summarization. The focus of these studies has
+been on official headnotes (``Leitsätze'') as they are mainly extractive
+summaries from the judgement that are written by the judges themselves.
+These headnotes are typically short and concise, making them suitable
+for extractive summarization tasks and can in general be found verbatim
+in the body of the decision. However, they do not provide a
+comprehensive overview of the entire decision and are not intended for
+public communication. In contrast, press releases are designed to be
+more accessible to the general public and provide a broader context for
+the decision.
+
+\citet{glaser2021} presented the first large dataset of 100.000 German
+court decisions with corresponding summaries, establishing baseline
+models for German legal summarization. Their transformer-based approach
+achieved a ROUGE-1 F1 score of approximately 30.5\%, demonstrating both
+the feasibility and challenges of the task. The complex structure of
+German court decisions (including sections like ``Rubrum,'' ``Tenor,''
+and ``Gründe'') requires specialized preprocessing and models.
+
+\citet{steffes2022} focused on extracting official headnotes
+(``Leitsätze'') from Federal Court of Justice (BGH) decisions by
+utilizing the argumentative structure of rulings. Their approach
+selected key sentences based on their argumentative roles, improving the
+selection of headnote sentences compared to purely statistical methods.
+
+For multilingual court summarization, \citet{rolshoven2024} introduced
+the SLDS dataset (Swiss Leading Decision Summarization) containing
+18,000 Swiss Federal Court decisions in German, French, and Italian,
+along with German summaries (``Regesten''). Their work on cross-lingual
+summarization demonstrated that fine-tuned smaller models could perform
+similarly to large pre-trained models in prompt mode. They evaluated
+their approach using ROUGE, BLEU, METEOR, and BERTScore metrics.
+
+Regarding evaluation methodologies, \citet{steffes2023} explicitly
+showed that ROUGE is unreliable as a sole quality indicator for legal
+summaries since it fails to reliably assess legally relevant content.
+Their study demonstrated that a system might achieve high ROUGE scores
+while missing essential legal statements.
+
+For more robust evaluation, \citet{xu2023a} presented a
+question-answering framework using LLMs to assess the factual
+correctness of legal summaries. Their approach generates understanding
+questions about the reference text and compares answers derived from
+both reference and generated summaries, showing better correlation with
+expert judgments than simple ROUGE scores.
+
+In practical applications, the
+\href{https://www.bmj.de/DE/themen/digitales/digitalisierung_justiz/digitalisierungsinitiative/laendervorhaben/_doc/artikel_vorhaben_14_ALeKS.html\#:~:text=K\%C3\%BCnftig\%20sollen\%20mehr\%20Gerichtsentscheidungen\%20in,Automatisierung\%20vereinfacht}{ALeKS
+project} (Anonymisierungs- und Leitsatzerstellungs-Kit) is being
+developed in Germany to automatically anonymize court decisions and
+generate headnotes using LLMs. This collaboration between judicial
+authorities and research institutions aims to increase the publication
+rate of court decisions while maintaining content accuracy and data
+protection standards.
+
+Our work extends these efforts by specifically focusing on press release
+generation (rather than technical headnotes) for German court decisions,
+emphasizing both factual correctness and accessibility for non-legal
+audiences. We employ a comprehensive evaluation framework that combines
+reference-based metrics, embedding-based metrics, and factual
+consistency checks through both automated methods and LLM-as-judge
+assessments.
+
+It is important to note that court press releases often contain
+additional context not found in the original decision, such as
+procedural history, background information, or quotes from
+spokespersons. This characteristic distinguishes press releases from
+pure summaries and presents additional challenges for automated
+evaluation of factual consistency.
+
+\section{CourtPressGER}\label{courtpressger}
+
+\subsection{Data}\label{data}
+
+\begin{table*}[ht]
+\centering
+\begin{tabular*}{\textwidth}{
+    @{\extracolsep{\fill}}
+    lrrrrrr
+    }
+\toprule
+ & \multicolumn{3}{c}{Press Release} & \multicolumn{3}{c}{Judgment} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Court & Mean & Std & Count & Mean & Std & Count \\
+\midrule
+Bundesarbeitsgericht & 1056.37 & 407.50 & 177 & 14148.00 & 7913.64 & 177 \\
+Bundesfinanzhof & 800.28 & 213.58 & 761 & 7378.97 & 4410.79 & 761 \\
+Bundesgerichtshof & 1386.84 & 680.10 & 2407 & 8216.82 & 5686.26 & 2407 \\
+Bundessozialgericht & 1146.66 & 484.69 & 161 & 11790.02 & 4850.29 & 161 \\
+Bundesverfassungsgericht & 2039.50 & 1353.63 & 1771 & 14781.53 & 16844.62 & 1771 \\
+Bundesverwaltungsgericht & 942.91 & 336.86 & 1155 & 11734.63 & 8110.92 & 1155 \\
+\midrule
+\textbf{Overall average} & 1402.32 & 954.52 & -- & 10809.58 & 10739.27 & -- \\
+\bottomrule
+\end{tabular*}
+\caption{Statistical summary of press releases and judgments by court}
+\label{tab:descriptive_statistics}
+\end{table*}
+
+Our dataset includes court decisions and corresponding press releases
+from Germany's highest courts (Bundesgerichte) as well as the federal
+constitutional court (Bundesverfassungsgericht - under german law not a
+Bundesgericht) :
+
+\begin{itemize}
+\tightlist
+\item
+  Federal Labor Law Court (Bundesarbeitsgericht - BAG)
+\item
+  Federal Fiscal Court (Bundesfinanzhof - BFH)
+\item
+  Federal Court of Justice (Bundesgerichtshof - BGH)
+\item
+  Federal Social Court (Bundessozialgericht - BSG)
+\item
+  Federal Constitutional Court (Bundesverfassungsgericht - BVerfG)
+\item
+  Federal Administrative Court (Bundesverwaltungsgericht - BVerwG)
+\end{itemize}
+
+The cleaned dataset contains 6.4k pairs of court decisions and press
+releases. The average length of decisions is 10.810 BPE tokens , while
+press releases average 1.402 BPE tokens. We report BPE token counts as
+used by modern LLMs rather than raw word or character counts for better
+compatibility with model context window considerations.
+
+\subsection{Splits}\label{splits}
+
+For our experiments, we divided the dataset into training, validation,
+and test splits in an 72.2/11.6/16.3 ratio. The training set contains
+4643 pairs, while the validation set contains 744 test sets contain 1045
+pairs. The split was done chronogically with the following year
+distribution: ((\ldots))
+
+We decided to split chronologically because otherwise the distribution
+shifts incurred by rotating press office personnel over time would not
+be captured in the data split, leading to a potential overestimation of
+performance on unseen data.
+
+\subsection{Descriptive Statistics}\label{descriptive-statistics}
+
+Our dataset analysis reveals variation in document lengths across
+different courts. Federal Constitutional Court decisions tend to be the
+longest with an average of 14.782 BPE tokens, while Federal Fiscal Court
+decisions average 7.379 BPE tokens. Press release lengths also vary,
+with Federal Constitutional Court releases averaging 2,230 BPE tokens
+and Federal Court of Justice releases averaging 1,620 BPE tokens. The
+standard deviation for court decision length is 10.739 BPE tokens,
+indicating considerable variation in document size.
+
+The descriptive statistics of the cleaned dataset can be seen in
+\hyperref[tab:descriptive_statistics]{Table 1}.
+
+In addition, the distribution of press release and judgement length and
+year distribution can be seen in
+\hyperref[fig:length_distribution]{Figure 1}.
+
+\begin{figure*}[ht]
+\centering
+\includegraphics[width=\textwidth]{output.png}
+\caption{Distribution of press release and judgment lengths across different courts}
+\label{fig:length_distribution}
+\end{figure*}
+
+\section{Experimental Setup}\label{experimental-setup}
+
+\subsection{Synthetic Prompts}\label{synthetic-prompts}
+
+For each decision-press release pair, we generated synthetic prompts
+through the Anthropic API (Claude Sonnet 3.7) to serve as input for LLMs
+to generate press releases. These prompts were designed to highlight the
+key aspects of the decision and to train the models to create relevant
+and precise press releases.
+
+To create synthetic prompts, we utilized Claude 3.7 Sonnet with a system
+prompt {[}→Appendix{]}
+
+\subsection{Press Release Generation}\label{press-release-generation}
+
+Our pipeline includes various LLMs, which can be categorized into two
+groups:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Large Models: GPT-4o (mainstream and economical closed source model at
+  time of experiments), Llama-3-70B (large \& SotA open weights model at
+  time of running experiments)
+\item
+  Small Models: Teuken-7B, Llama-3-8B, EuroLLM-9B, Mistral-7B (all open
+  weights in smaller class, typical base models for research finetuning
+  experiments)
+\end{enumerate}
+
+The pipeline is designed to send the synthetic prompts to the models,
+collect the generated press releases, and store them alongside the
+actual press releases. A checkpoint system allows for the continuation
+of interrupted generation processes.
+
+\subsubsection{Context Limitation}\label{context-limitation}
+
+We found that the context window size of the models has a significant
+impact on their ability to generate high-quality press releases. Models
+with larger context windows (e.g., GPT-4o with a theoretical limit of
+128k tokens, though in our implementation we used the API with a
+practical limit of 64k tokens) can process the entire court decision at
+once, while smaller models require document chunking and hierarchical
+summarization approaches.
+
+For decisions that exceed the context window of a model, we implemented
+a hierarchical summarization approach (described in the next section)
+that allows the model to consider the entire document while respecting
+context limitations.
+
+\subsubsection{Generation Prompt
+Template}\label{generation-prompt-template}
+
+For consistency across models, we use a standardized german prompt
+template that can be found in the appendix.
+
+For OpenAI models (GPT-4o), the request format uses the above template
+as the user message with a system message that instructs the model to
+act as an expert in legal texts who writes press releases based on court
+decisions.
+
+For local models (Teuken-7B, Llama-3-8B, EuroLLM-9B), we use a similar
+approach but without separate system messages, including the
+instructions directly in the prompt.
+
+\subsection{Hierarchical
+Summarization}\label{hierarchical-summarization}
+
+For court decisions that exceed the context window of a model, we
+implemented a hierarchical summarization approach. This method involves
+the following steps:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Chunking: The court decision is divided into chunks that fit within
+  the model's context window.
+\item
+  Level 0 Summarization: Each chunk is independently summarized.
+\item
+  Higher Level Summarization: The summaries are combined and recursively
+  summarized until a single summary is created.
+\item
+  Final Press Release Generation: The final summary is used as input for
+  the press release generation.
+\end{enumerate}
+
+This hierarchical approach allows smaller models to process long
+documents while maintaining the context and coherence of the original
+text. The implementation involves a recursive algorithm that estimates
+the number of levels needed based on the document length and the model's
+context window size.
+
+Each level of summarization uses specially designed prompts that
+instruct the model to focus on different aspects of the text, with
+higher levels emphasizing cohesion and integration of information from
+multiple chunks.
+
+\subsection{FT Teuken}\label{ft-teuken}
+
+\#todo ME
+
+\section{Evaluation}\label{evaluation}
+
+Our evaluation framework was designed to address the known limitations
+of traditional NLP metrics for legal text summarization. As highlighted
+by \citet{steffes2023}, metrics like ROUGE can be unreliable as sole
+quality indicators because they may not adequately capture legally
+relevant content.
+
+Therefore, we developed a comprehensive evaluation approach using
+multiple complementary metrics:
+
+\begin{itemize}
+\tightlist
+\item
+  ROUGE (\citet{lin2004})
+\item
+  BLEU (\citet{papineni2002})
+\item
+  METEOR (\citet{banerjee2005})
+\item
+  BERTScore (\citet{zhang2020})
+\item
+  QAGS (Question Answering for evaluating Generated Summaries)
+  (\citet{wang2020})
+\item
+  FactCC (Factual Consistency Check) (\citet{Kryscinski2019})
+\item
+  LLM-as-a-Judge (evaluation using Claude 3.7 Sonnet)
+\end{itemize}
+
+While BLEU is less commonly used for summarization tasks due to its
+sensitivity to word order and sentence length, we include it to maintain
+comparability with multilingual studies like \citet{rolshoven2024} to
+provide a more comprehensive assessment through multiple metrics.
+
+This multi-faceted approach aligns with recent trends in legal
+summarization evaluation, which emphasize combining different automated
+metrics with expert judgment to assess different quality dimensions of
+generated legal texts.
+
+In addition to these metrics, we engaged a legal professional who ranked
+a subset ofthe model outputs for \textbf{10 decisions from each court}
+(60~cases).
+
+\subsubsection{Factual Consistency
+Metrics}\label{factual-consistency-metrics}
+
+Our project utilizes advanced metrics to evaluate the factual
+consistency between court decisions and generated press releases:
+
+\begin{itemize}
+\tightlist
+\item
+  QAGS (Question Answering for evaluating Generated Summaries): This
+  metric first generates questions from the press releases, then answers
+  these questions with the court decisions as context, and finally
+  compares the answers to verify if the press release is factually
+  correct. This approach is similar to the framework proposed by
+  \citet{xu2023a}, which showed better correlation with expert judgments
+  than traditional metrics.
+\item
+  FactCC (Factual Consistency Check): This metric extracts claims from
+  the press releases and checks each claim for consistency with the
+  court decision. A total score for factual consistency is calculated
+  from these checks.
+\end{itemize}
+
+For both QAGS and FactCC, we acknowledge a significant limitation: These
+metrics were originally developed and trained on English news datasets,
+not German legal texts. Their application to our German court texts
+relies on the multilingual capabilities of the underlying models, but
+has not been specifically validated for German legal text. This
+limitation likely affects the absolute scores and may partially explain
+why smaller German-specific models like Teuken-7B achieve factual
+consistency scores comparable to larger models despite lower performance
+on other metrics. The scores should be interpreted as relative
+comparisons rather than absolute measures of factual accuracy.
+
+For additional context information in press releases that doesn't
+directly appear in the court decision, these metrics may incorrectly
+flag such information as inconsistent, leading to potentially lower
+scores even for high-quality press releases. We address this limitation
+partially through our LLM-as-a-Judge approach and the human evaluation
+process, which can better distinguish between contradictory information
+and benign additional context.
+
+\subsubsection{LLM-as-a-judge}\label{llm-as-a-judge}
+
+We use Claude 3.7 Sonnet to evaluate the generated press releases based
+on various criteria such as factual correctness, completeness, clarity,
+and structure. Optionally, the generated press release can be compared
+with the reference press release. The metric provides both numerical
+ratings (1-10) and detailed justifications, calculating an overall score
+across all evaluation criteria.
+
+To evaluate the quality of the generated press releases, we use Claude
+3.7 Sonnet with the following system prompt {[}→Appendix{]}
+
+It is important to note that our full evaluation relied on
+LLM-as-a-Judge rather than human legal experts. While this approach
+provides valuable insights and scales to large datasets, it serves as a
+proxy for human evaluation and would benefit from validation through
+extendedtargeted expert reviews in future work. Claude 3.7 Sonnet was
+selected for this task due to its strong performance in understanding
+complex legal texts in multiple languages as well as its selection for
+synthetic prompt generation which made it a natural choice for
+evaluation.
+
+\subsection{Human Evaluation}\label{human-evaluation}
+
+\#todo MP
+
+\section{Results}\label{results}
+
+Based on our evaluation, we present the results organized by evaluation
+type (hierarchical vs.~full document processing) and model. We
+structured our analysis to examine reference-based metrics,
+embedding-based metrics, factual consistency metrics, and human-like
+evaluation through LLM-as-judge.
+
+The full‑text condition reveals the upper bound a model can reach when
+context is not truncated, whereas the hierarchical setting approximates
+a local‑deployment scenario. GPT‑4o and Llama‑3‑70B are statistically
+tied on most automatic metrics, yet human‑style LLM judging clearly
+prefers GPT‑4o.
+
+\begin{table*}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}      % etwas enger, falls nötig
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}l*{12}{r}}
+\toprule
+Modell &
+ROUGE-1 & BLEU-1 & METEOR & BERT &
+FactCC & QAGS &
+llm\_fact &
+llm\_compl &
+llm\_clar &
+llm\_struc &
+llm\_ref &
+llm\_total
+\\ \midrule
+gpt 4o &
+0.3584 & 0.2275 & 0.1836 & 0.7711 & 0.4915 & 0.2637 &
+\textbf{8.1070} & \textbf{7.0885} & \textbf{8.7451} &
+\textbf{8.4076} & \textbf{6.8414} & \textbf{7.8379}
+\\
+llama 3\_3 70B &
+\textbf{0.3746} & \textbf{0.2327} & \textbf{0.1931} & 0.7730 & 0.4987 & \textbf{0.2863} &
+7.3417 & 6.3637 & 8.1545 & 7.6200 & 5.9002 & 7.0760
+\\
+eurollm 9B &
+0.2800 & 0.1856 & 0.1451 & 0.7459 & 0.5065 & 0.1875 &
+4.9739 & 4.4255 & 6.4043 & 6.6876 & 3.5435 & 5.2070
+\\
+llama 3 8B &
+0.2927 & 0.1829 & 0.1472 & 0.7373 & 0.5082 & 0.2289 &
+5.2780 & 4.5405 & 6.3069 & 6.4295 & 3.7751 & 5.2660
+\\
+mistral v03 &
+0.3571 & 0.2304 & 0.1871 & \textbf{0.7777} & \textbf{0.5122} & 0.2386 &
+5.5376 & 4.9653 & 5.5578 & 5.2447 & 3.7370 & 5.0085
+\\
+teuken &
+0.1630 & 0.0794 & 0.0781 & 0.6600 & 0.5051 & 0.1607 &
+3.0635 & 2.1606 & 4.2356 & 4.4077 & 1.8269 & 3.1388
+\\ \bottomrule
+\end{tabular*}
+\caption{Press release comparison on hierarchical summarized judgements}
+\label{tab:comparison_hier}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}          % etwas enger, falls nötig
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}l*{12}{r}}
+\toprule
+Model &
+ROUGE-1 & BLEU-1 & METEOR & BERT &
+FactCC & QAGS &
+llm\_fact & llm\_compl & llm\_clar & llm\_struc & llm\_ref & llm\_total
+\\ \midrule
+gpt 4o &
+0.3627 & 0.2105 & 0.1845 & 0.7563 & 0.4991 & 0.2777 &
+\textbf{8.3933} & \textbf{7.1615} & \textbf{8.8192} &
+\textbf{8.5385} & \textbf{7.0115} & \textbf{7.9848}
+\\
+llama 3\_3 70B &
+\textbf{0.3823} & \textbf{0.2248} & \textbf{0.1986} & \textbf{0.7691} & \textbf{0.5082} & 0.2898 &
+8.1721 & 6.8661 & 8.6333 & 8.1552 & 6.6603 & 7.6974
+\\
+mistral v03 &
+0.3612 & 0.2126 & 0.1901 & 0.7465 & 0.5021 & \textbf{0.3252} &
+6.9612 & 5.7141 & 7.1395 & 6.8110 & 5.0271 & 6.3306
+\\ \bottomrule
+\end{tabular*}
+\caption{Press release comparison on full judgements}
+\label{tab:comparison_full}
+\end{table*}
+
+\#todo MP - add in results for human evaluation here
+
+Note that we evaluate Mistral\_v03 also on the full ruling text even
+though it's context is limited to 32k tokens. In our experiments, 1\% of
+documents needed to be truncated for evaluation in this narrower
+context.
+
+\section{Discussion}\label{discussion}
+
+These results are consistent with findings from \citet{glaser2021}, who
+reported ROUGE-1 scores of around 30.5\% for their best models on German
+court decision summarization. Our best models exceed this performance
+slightly, which may be attributed to the advancement in LLMs since their
+study.
+
+Our findings confirm the intuitive trade‑off between model capacity and
+inference cost: large models (\emph{GPT\ 4o, Llama\ 3\ 70B}) heavily
+outperform smaller ones on fidelity, completeness and clarity, but the
+differential shrinks when hierarchical summarisation is used. The
+surprisingly high FactCC scores for small German models stem from the
+English‑centric nature of the metric; annotation artefacts lead to
+partial credit even for hallucinated statements. Conversely, QAGS
+questions often target details absent from official releases, penalising
+otherwise sound outputs.
+
+These results demonstrate that while larger models generally produce
+press releases that are more factually correct, complete, clear, and
+well-structured, the hierarchical summarization approach allows smaller
+models to produce reasonably good summaries, particularly in terms of
+clarity and structure. Interestingly, the improvement from hierarchical
+summarisation to full summarisation is marginal for the largest models.
+
+The LLM-as-a-judge protocol aligns well with expert feedback collected
+on a subset of 60 cases ((\#todo MP - is this correct?)), supporting its
+use as a low‑cost proxy. However, qualitative analysis shows that LLM
+evaluators struggle with nuanced legal misinterpretations (ratio
+decidendi vs.~obiter dicta). A hybrid pipeline that flags such edge
+cases for manual review is therefore advisable.
+
+\section{Conclusions}\label{conclusions}
+
+Our comprehensive evaluation of the CourtPressGER system demonstrates
+that modern LLMs can effectively generate German court press releases,
+with performance varying according to model size and architecture.
+
+Key findings include:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Model size matters: Larger models consistently outperform smaller
+  models across all evaluation metrics.
+\item
+  Hierarchical summarization is effective: Our hierarchical approach
+  enables smaller models to process long documents while maintaining
+  reasonable quality.
+\item
+  Factual consistency challenges: Even the best models struggle with
+  perfect factual consistency, indicating room for improvement.
+\item
+  Language-specific models: German-specific models like EuroLLM show
+  competitive performance for their size compared to larger multilingual
+  models.
+\end{enumerate}
+
+While our fine-tuned Teuken model showed some improvement over the base
+version, ((ME update this when done)) it still performs significantly
+below larger models, suggesting that parameter count remains a decisive
+factor for this complex task.
+
+Our work provides a contribution to the emerging field of automated
+legal text summarization in the German language, extending the work of
+\citet{glaser2021}, \citet{steffes2022}, and \citet{rolshoven2024}. The
+multidimensional evaluation approach we employed addresses the
+limitations of traditional metrics highlighted by \citet{steffes2023}
+and incorporates newer evaluation methods like question-answering based
+assessment proposed by \citet{xu2023a}.
+
+Our system has potential practical applications similar to the
+\href{https://www.bmj.de/DE/themen/digitales/digitalisierung_justiz/digitalisierungsinitiative/laendervorhaben/_doc/artikel_vorhaben_14_ALeKS.html\#:~:text=K\%C3\%BCnftig\%20sollen\%20mehr\%20Gerichtsentscheidungen\%20in,Automatisierung\%20vereinfacht}{ALeKS
+project} currently under development in Germany, which aims to automate
+the generation of court decision headnotes. While ALeKS focuses on
+technical headnotes, our work specifically addresses press releases that
+need to be accessible to non-legal audiences.
+
+\subsection{Limitations}\label{limitations}
+
+We acknowledge several limitations of our approach:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Evaluation metrics: Our use of QAGS and FactCC metrics, which were
+  developed and validated on English datasets, introduces uncertainty
+  when applied to German legal texts. Future work should explore
+  German-specific factual consistency metrics.
+\item
+  LLM-as-judge vs.~human evaluation: While our LLM-based evaluation
+  provides valuable insights, it serves as a proxy for human expert
+  evaluation and would benefit from validation through targeted expert
+  reviews.
+\item
+  Additional context in press releases: Court press releases often
+  contain contextual information not present in the original decision,
+  which can confound factual consistency metrics.
+\item
+  Divergence from Rolshoven et al.~findings: Unlike Rolshoven et
+  al.~(2024), who found that fine-tuned smaller models could approach
+  the performance of larger models, our results show a clear advantage
+  for larger models. This difference may be attributed to our focus on
+  press releases rather than technical summaries (``Regesten''), the
+  different nature of our dataset, or the specific characteristics of
+  German federal court decisions.
+\end{enumerate}
+
+The CourtPressGER project demonstrates the potential of LLMs to assist
+in making legal information more accessible to the public while
+highlighting the ongoing challenges in maintaining factual accuracy when
+summarizing complex legal documents.
+
+\newpage{}
+
+\section{Appendix}\label{appendix}
+
+\renewcommand{\bibsection}{}
+\bibliography{CourtPressGER.bib}
+
+\subsection{Ethics Statement}\label{ethics-statement}
+
+All data originate from publicly available court websites. Personal
+names are already anonymised by the courts. Our fine‑tuning set will be
+released under the \textit{DIPLO-DL} licence, excluding any confidential
+meta‑data. Automated press releases must be reviewed by qualified staff
+before publication to avoid misrepresentation.
+
+\subsection{Prompts}\label{prompts}
+
+We used the following prompts for our experiments:
+
+\subsubsection{Synthetic prompt
+generation}\label{synthetic-prompt-generation}
+
+We used the following prompt for synthetic prompt generation:
+
+\begin{tcolorbox}[enhanced jigsaw, bottomtitle=1mm, rightrule=.15mm, colframe=quarto-callout-note-color-frame, colback=white, toprule=.15mm, opacityback=0, opacitybacktitle=0.6, leftrule=.75mm, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Synthetic prompt generation}, toptitle=1mm, breakable, colbacktitle=quarto-callout-note-color!10!white, bottomrule=.15mm, coltitle=black, titlerule=0mm, arc=.35mm]
+
+Du bist ein Experte für juristische Texte und Kommunikation. Deine
+Aufgabe ist es, ein Gerichtsurteil und die dazugehörige Pressemitteilung
+zu analysieren und dann herauszufinden, welcher Prompt verwendet worden
+sein könnte, um diese Pressemitteilung aus dem Gerichtsurteil zu
+generieren, wenn man ihn einem LLM gegeben hätte.
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Analysiere, wie die Pressemitteilung Informationen aus dem Urteil
+  vereinfacht, umstrukturiert und Schlüsselinformationen hervorhebt
+\item
+  Berücksichtige den Ton, die Struktur und den Detaillierungsgrad der
+  Pressemitteilung
+\item
+  Identifiziere, welche Anweisungen nötig wären, um den juristischen
+  Text in diese Pressemitteilung zu transformieren
+\end{enumerate}
+
+Erkläre NICHT deine Überlegungen und füge KEINE Meta-Kommentare hinzu.
+Gib NUR den tatsächlichen Prompt aus, der die Pressemitteilung aus dem
+Gerichtsurteil generieren würde. Sei spezifisch und detailliert in
+deinem synthetisierten Prompt.
+
+Hier ist das originale Gerichtsurteil: \{court\_ruling\}
+
+Und hier ist die Pressemitteilung, die daraus erstellt wurde:
+
+\{press\_release\}
+
+Erstelle einen detaillierten Prompt, der einem LLM gegeben werden
+könnte, um die obige Pressemitteilung aus dem Gerichtsurteil zu
+generieren. Schreibe NUR den Prompt selbst, ohne Erklärungen oder
+Meta-Kommentare.
+
+\end{tcolorbox}
+
+\subsubsection{Press release
+generation}\label{press-release-generation-1}
+
+We used the following prompt for press release generation:
+
+\begin{tcolorbox}[enhanced jigsaw, bottomtitle=1mm, rightrule=.15mm, colframe=quarto-callout-note-color-frame, colback=white, toprule=.15mm, opacityback=0, opacitybacktitle=0.6, leftrule=.75mm, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{Press release generation}, toptitle=1mm, breakable, colbacktitle=quarto-callout-note-color!10!white, bottomrule=.15mm, coltitle=black, titlerule=0mm, arc=.35mm]
+
+\{prompt\} Gerichtsurteil: \{ruling\}
+
+\end{tcolorbox}
+
+\subsubsection{LLM-as-a-judge}\label{llm-as-a-judge-1}
+
+We used the following prompt for LLM-as-a-judge evaluation:
+
+\begin{tcolorbox}[enhanced jigsaw, bottomtitle=1mm, rightrule=.15mm, colframe=quarto-callout-note-color-frame, colback=white, toprule=.15mm, opacityback=0, opacitybacktitle=0.6, leftrule=.75mm, left=2mm, title=\textcolor{quarto-callout-note-color}{\faInfo}\hspace{0.5em}{LLM-as-a-judge}, toptitle=1mm, breakable, colbacktitle=quarto-callout-note-color!10!white, bottomrule=.15mm, coltitle=black, titlerule=0mm, arc=.35mm]
+
+You are an expert in legal texts and evaluate the quality of press
+releases for court decisions. Rate the generated press release according
+to the following criteria on a scale of 1-10:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Factual Correctness: How accurately does the press release reflect the
+  facts from the court decision?
+\item
+  Completeness: Have all important information from the decision been
+  included in the press release?
+\item
+  Clarity: How understandable is the press release for a non-legal
+  audience?
+\item
+  Structure: How well is the press release structured and organized?
+\item
+  Comparison with Reference: How good is the generated press release
+  compared to the reference press release?
+\end{enumerate}
+
+For each criterion, provide a numerical value between 1 and 10 and a
+brief justification. Finally, calculate an overall score as the average
+of all individual values. Provide your answer in the following JSON
+format: \{ ``faktische\_korrektheit'': \{``wert'': X, ``begründung'':
+``\ldots{}''\}, ``vollständigkeit'': \{``wert'': X, ``begründung'':
+``\ldots{}''\}, ``klarheit'': \{``wert'': X, ``begründung'':
+``\ldots{}''\}, ``struktur'': \{``wert'': X, ``begründung'':
+``\ldots{}''\}, ``vergleich\_mit\_referenz'': \{``wert'': X,
+``begründung'': ``\ldots{}''\}, ``gesamtscore'': X.X \}
+
+The user prompt contains: Court Decision {[}court\_decision{]} Generated
+Press Release {[}generated\_press\_release{]} Reference Press Release
+{[}reference\_press\_release{]}
+
+\end{tcolorbox}
+
+\clearpage
+\onecolumn
+\begin{landscape}
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.1}
+\centering
+\begin{longtable}{@{\extracolsep{\fill}}l*{24}{r}}
+\label{tab:all_combined}\\
+\toprule
+Model &
+R1 & R2 & RL &
+B1 & B2 & B3 & B4 &
+MTR &
+BP & BR & BF1 &
+KW & ENT & Len &
+Fcc & FccC &
+QGS & Qn &
+LJ\_Fact & LJ\_Compl & LJ\_Clar & LJ\_Struc & LJ\_Ref & LJ\_Tot
+\\ \midrule
+\endfirsthead
+\toprule
+Model & R1 & R2 & RL & B1 & B2 & B3 & B4 & MTR &
+BP & BR & BF1 & KW & ENT & Len & Fcc & FccC &
+QGS & Qn & LJ\_Fact & LJ\_Compl & LJ\_Clar & LJ\_Struc & LJ\_Ref & LJ\_Tot
+\\ \midrule
+\endhead
+openai\_gpt\_4o\_full &
+0.3627 & 0.1452 & 0.1918 &
+0.2105 & 0.1266 & 0.0832 & 0.0559 &
+0.1845 &
+0.7746 & 0.7396 & 0.7563 &
+0.2082 & 0.2290 & 0.4572 &
+0.4991 & 0.5068 &
+0.2777 & 4.75 &
+\textbf{8.3933} & \textbf{7.1615} & \textbf{8.8192} & \textbf{8.5385} & \textbf{7.0115} & \textbf{7.9848}
+\\
+openai\_gpt\_4o\_hier &
+0.3584 & 0.1242 & 0.1758 &
+0.2275 & 0.1280 & 0.0786 & 0.0495 &
+0.1836 &
+0.7835 & 0.7595 & 0.7711 &
+0.1883 & 0.2157 & 0.5114 &
+0.4915 & 0.4758 &
+0.2637 & 4.78 &
+8.1070 & 7.0885 & 8.7451 & 8.4076 & 6.8414 & 7.8379
+\\
+llama\_3\_3\_70B\_full &
+\textbf{0.3823} & \textbf{0.1601} & \textbf{0.1997} &
+0.2248 & \textbf{0.1385} & \textbf{0.0946} & \textbf{0.0668} &
+\textbf{0.1986} &
+0.7889 & 0.7508 & 0.7691 &
+\textbf{0.2198} & \textbf{0.2311} & 0.4972 &
+0.5082 & 0.5144 &
+0.2898 & 4.87 &
+8.1721 & 6.8661 & 8.6333 & 8.1552 & 6.6603 & 7.6974
+\\
+llama\_3\_3\_70B\_hier &
+0.3746 & 0.1411 & 0.1864 &
+\textbf{0.2327} & 0.1358 & 0.0879 & 0.0593 &
+0.1931 &
+\textbf{0.7918} & 0.7557 & 0.7730 &
+0.2132 & 0.2158 & 0.5156 &
+0.4987 & 0.5005 &
+0.2863 & \textbf{4.94} &
+7.3417 & 6.3637 & 8.1545 & 7.6200 & 5.9002 & 7.0760
+\\
+eurollm\_9B\_hier &
+0.2800 & 0.0611 & 0.1199 &
+0.1856 & 0.0832 & 0.0413 & 0.0212 &
+0.1451 &
+0.7570 & 0.7362 & 0.7459 &
+0.1275 & 0.1229 & 0.5249 &
+0.5065 & \textbf{0.5290} &
+0.1875 & 4.84 &
+4.9739 & 4.4255 & 6.4043 & 6.6876 & 3.5435 & 5.2070
+\\
+llama\_3\_8B\_hier &
+0.2927 & 0.0780 & 0.1344 &
+0.1829 & 0.0897 & 0.0499 & 0.0287 &
+0.1472 &
+0.7519 & 0.7239 & 0.7373 &
+0.1456 & 0.1444 & 0.4958 &
+0.5082 & 0.5081 &
+0.2289 & 4.90 &
+5.2780 & 4.5405 & 6.3069 & 6.4295 & 3.7751 & 5.2660
+\\
+mistral\_v03\_full &
+0.3612 & 0.1561 & 0.1844 &
+0.2126 & 0.1304 & 0.0907 & 0.0660 &
+0.1901 &
+0.7706 & 0.7255 & 0.7465 &
+0.2132 & 0.2074 & 0.4929 &
+0.5021 & 0.5044 &
+\textbf{0.3252} & 4.72 &
+6.9612 & 5.7141 & 7.1395 & 6.8110 & 5.0271 & 6.3306
+\\
+mistral\_v03\_hier &
+0.3571 & 0.1218 & 0.1638 &
+0.2304 & 0.1264 & 0.0780 & 0.0509 &
+0.1871 &
+\textbf{0.7918} & \textbf{0.7645} & \textbf{0.7777} &
+0.1884 & 0.1825 & \textbf{0.5475} &
+\textbf{0.5122} & 0.5189 &
+0.2386 & 4.69 &
+5.5376 & 4.9653 & 5.5578 & 5.2447 & 3.7370 & 5.0085
+\\
+teuken\_hier &
+0.1630 & 0.0213 & 0.0703 &
+0.0794 & 0.0284 & 0.0105 & 0.0043 &
+0.0781 &
+0.6966 & 0.6303 & 0.6600 &
+0.0705 & 0.0673 & 0.3553 &
+0.5051 & 0.5068 &
+0.1607 & \textbf{4.94} &
+3.0635 & 2.1606 & 4.2356 & 4.4077 & 1.8269 & 3.1388
+\\ \bottomrule
+\caption{Combined automatic and human evaluation scores
+         (hierarchical Summaries $\to$ \texttt{\_hier\_};
+          complete Judgements $\to$ \texttt{\_full\_})}
+\end{longtable}
+
+\noindent\footnotesize
+\begin{tabular}{@{}ll@{\hspace{3em}}ll@{}}
+R1, R2, RL   & ROUGE-1/-2/-L F1            & KW          & Keyword-Overlap\\
+B1–B4        & BLEU-1 … BLEU-4             & ENT         & Entity-Overlap\\
+MTR          & METEOR                      & Len         & Length-Ratio\\
+BP, BR, BF1  & BERTScore Precision/Recall/F1 & Fcc, FccC   & FactCC Score / Consistency\\
+QGS, Qn      & QAGS Score / Ø Questions       & LJ\_Fact    & \texttt{llm\_judge}\,fact. Corr.\\
+             &                             & LJ\_Compl   & – Completeness\\
+             &                             & LJ\_Clar    & – Clarity\\
+             &                             & LJ\_Struc   & – Structure\\
+             &                             & LJ\_Ref     & – Comparison with Reference\\
+             &                             & LJ\_Tot     & – Total Score\\
+\end{tabular}
+\end{landscape}
+\twocolumn
+
+
+
+
+
+\end{document}

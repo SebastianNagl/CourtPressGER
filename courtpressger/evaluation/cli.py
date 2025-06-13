@@ -127,7 +127,7 @@ def load_models_config(config_path: str) -> List[Dict[str, Any]]:
         if model_type == "openai":
             model_params.update({
                 "type": "openai",
-                "model": model_config.get("model", "gpt-3.5-turbo"),
+                "model": model_config.get("model", "gpt-4"),
                 "api_key": model_config.get("api_key", None),
                 "temperature": model_config.get("temperature", 0.7),
                 "max_tokens": model_config.get("max_tokens", 1024)

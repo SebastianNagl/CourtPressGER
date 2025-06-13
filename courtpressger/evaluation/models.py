@@ -77,7 +77,7 @@ class BaseModel:
 
 
 class OpenAIModel(BaseModel):
-    """Implementierung für OpenAI-Modelle (GPT-3.5, GPT-4 etc.)."""
+    """Implementierung für OpenAI-Modelle (z.B. GPT-4)."""
     
     def __init__(self, name: str, model_name: str, api_key: Optional[str] = None, 
                 temperature: float = 0.7, max_tokens: int = 2048, **kwargs):
@@ -86,7 +86,7 @@ class OpenAIModel(BaseModel):
         
         Args:
             name: Name für dieses Modellinstanz
-            model_name: Name des OpenAI-Modells (z.B. "gpt-3.5-turbo", "gpt-4")
+            model_name: Name des OpenAI-Modells (z.B. "gpt-4")
             api_key: OpenAI API-Schlüssel (falls nicht gesetzt, wird OPENAI_API_KEY aus Umgebung verwendet)
             temperature: Temperaturparameter für die Generierung (0.0-1.0)
             max_tokens: Maximale Anzahl von Tokens in der Ausgabe

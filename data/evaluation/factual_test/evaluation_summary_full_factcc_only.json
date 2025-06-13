@@ -1,0 +1,53 @@
+{
+  "llama_3_3_70B_generated_judgement_summary": {
+    "avg_rouge1_precision": 0.6406758861127981,
+    "avg_rouge1_recall": 0.29994411655211817,
+    "avg_rouge1_fmeasure": 0.382309190595661,
+    "avg_rouge2_precision": 0.2721738552903488,
+    "avg_rouge2_recall": 0.12506195911981816,
+    "avg_rouge2_fmeasure": 0.16006398727979504,
+    "avg_rougeL_precision": 0.3350115884241865,
+    "avg_rougeL_recall": 0.15705122248043243,
+    "avg_rougeL_fmeasure": 0.19972296183451183,
+    "avg_factcc_score": 0.5082374406146091,
+    "avg_factcc_consistency_ratio": 0.5144497607655503,
+    "avg_factcc_claim_count": 4.9980861244019135,
+    "total_samples": 1045,
+    "successful_generations": 1045,
+    "failed_generations": 0
+  },
+  "mistral_v03_generated_judgement_summary": {
+    "avg_rouge1_precision": 0.6161534368791741,
+    "avg_rouge1_recall": 0.2873331223248295,
+    "avg_rouge1_fmeasure": 0.36123532731274194,
+    "avg_rouge2_precision": 0.27403466880397037,
+    "avg_rouge2_recall": 0.12261058333932776,
+    "avg_rouge2_fmeasure": 0.15611640109629962,
+    "avg_rougeL_precision": 0.3224440273931828,
+    "avg_rougeL_recall": 0.14567425127526423,
+    "avg_rougeL_fmeasure": 0.18442262880727775,
+    "avg_factcc_score": 0.5020749756649858,
+    "avg_factcc_consistency_ratio": 0.5044401544401544,
+    "avg_factcc_claim_count": 4.9615014436958615,
+    "total_samples": 1045,
+    "successful_generations": 1039,
+    "failed_generations": 6
+  },
+  "openai_gpt_4o_generated_judgement_summary": {
+    "avg_rouge1_precision": 0.6436643582166336,
+    "avg_rouge1_recall": 0.27614514759815034,
+    "avg_rouge1_fmeasure": 0.36266692645414716,
+    "avg_rouge2_precision": 0.26057573825077834,
+    "avg_rouge2_recall": 0.11050603909245002,
+    "avg_rouge2_fmeasure": 0.14515418795177074,
+    "avg_rougeL_precision": 0.34015175121574326,
+    "avg_rougeL_recall": 0.1464354352868417,
+    "avg_rougeL_fmeasure": 0.19178838322744626,
+    "avg_factcc_score": 0.4991487660447947,
+    "avg_factcc_consistency_ratio": 0.5067942583732058,
+    "avg_factcc_claim_count": 4.999043062200957,
+    "total_samples": 1045,
+    "successful_generations": 1045,
+    "failed_generations": 0
+  }
+}
