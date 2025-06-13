@@ -1,0 +1,1304 @@
+[
+  {
+    "case_id": "bag_31-22",
+    "press_items": [
+      {
+        "press_id": "pr9",
+        "model_name": "llama_3_3_70B_generated_judgement_summary",
+        "rank": 1,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr4",
+        "model_name": "reference_summary",
+        "rank": 2,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr3",
+        "model_name": "openai_gpt_4o_generated_judgement_summary",
+        "rank": 3,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr5",
+        "model_name": "openai_gpt_4o_gen_hier_summary",
+        "rank": 4,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr2",
+        "model_name": "llama_3_3_70B_gen_hier_summary",
+        "rank": 5,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr6",
+        "model_name": "mistral_v03_generated_judgement_summary",
+        "rank": 6,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr7",
+        "model_name": "llama_3_8b_gen_hier_summary",
+        "rank": 7,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr1",
+        "model_name": "mistral_v03_gen_hier_summary",
+        "rank": 8,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr10",
+        "model_name": "eurollm_gen_hier_summary",
+        "rank": 9,
+        "hallucination": true,
+        "incoherent": true,
+        "publishable": false
+      },
+      {
+        "press_id": "pr11",
+        "model_name": "teuken_gen_hier_summ_summary-press-summary-v2",
+        "rank": 10,
+        "hallucination": true,
+        "incoherent": true,
+        "publishable": false
+      },
+      {
+        "press_id": "pr8",
+        "model_name": "teuken_gen_hier_summary",
+        "rank": 11,
+        "hallucination": true,
+        "incoherent": true,
+        "publishable": false
+      }
+    ]
+  },
+  {
+    "case_id": "bag_42-22",
+    "press_items": [
+      {
+        "press_id": "pr11",
+        "model_name": "reference_summary",
+        "rank": 1,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr4",
+        "model_name": "llama_3_3_70B_generated_judgement_summary",
+        "rank": 2,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr1",
+        "model_name": "openai_gpt_4o_gen_hier_summary",
+        "rank": 3,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr5",
+        "model_name": "openai_gpt_4o_generated_judgement_summary",
+        "rank": 4,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr8",
+        "model_name": "llama_3_3_70B_gen_hier_summary",
+        "rank": 5,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr7",
+        "model_name": "llama_3_8b_gen_hier_summary",
+        "rank": 6,
+        "hallucination": true,
+        "incoherent": true,
+        "publishable": false
+      },
+      {
+        "press_id": "pr6",
+        "model_name": "mistral_v03_gen_hier_summary",
+        "rank": 7,
+        "hallucination": true,
+        "incoherent": true,
+        "publishable": false
+      },
+      {
+        "press_id": "pr9",
+        "model_name": "eurollm_gen_hier_summary",
+        "rank": 8,
+        "hallucination": true,
+        "incoherent": true,
+        "publishable": false
+      },
+      {
+        "press_id": "pr2",
+        "model_name": "mistral_v03_generated_judgement_summary",
+        "rank": 9,
+        "hallucination": true,
+        "incoherent": true,
+        "publishable": false
+      },
+      {
+        "press_id": "pr10",
+        "model_name": "teuken_gen_hier_summary",
+        "rank": 10,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr3",
+        "model_name": "teuken_gen_hier_summ_summary-press-summary-v2",
+        "rank": 11,
+        "hallucination": true,
+        "incoherent": true,
+        "publishable": false
+      }
+    ]
+  },
+  {
+    "case_id": "bag_44-22",
+    "press_items": [
+      {
+        "press_id": "pr3",
+        "model_name": "reference_summary",
+        "rank": 1,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr1",
+        "model_name": "llama_3_3_70B_generated_judgement_summary",
+        "rank": 2,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr8",
+        "model_name": "openai_gpt_4o_generated_judgement_summary",
+        "rank": 3,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr2",
+        "model_name": "llama_3_8b_gen_hier_summary",
+        "rank": 4,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr11",
+        "model_name": "llama_3_3_70B_gen_hier_summary",
+        "rank": 5,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr6",
+        "model_name": "openai_gpt_4o_gen_hier_summary",
+        "rank": 6,
+        "hallucination": false,
+        "incoherent": true,
+        "publishable": false
+      },
+      {
+        "press_id": "pr9",
+        "model_name": "mistral_v03_generated_judgement_summary",
+        "rank": 7,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr10",
+        "model_name": "mistral_v03_gen_hier_summary",
+        "rank": 8,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr4",
+        "model_name": "eurollm_gen_hier_summary",
+        "rank": 9,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr7",
+        "model_name": "teuken_gen_hier_summ_summary-press-summary-v2",
+        "rank": 10,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr5",
+        "model_name": "teuken_gen_hier_summary",
+        "rank": 11,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": false
+      }
+    ]
+  },
+  {
+    "case_id": "bag_1-22",
+    "press_items": [
+      {
+        "press_id": "pr4",
+        "model_name": "reference_summary",
+        "rank": 1,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr9",
+        "model_name": "llama_3_3_70B_gen_hier_summary",
+        "rank": 2,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr2",
+        "model_name": "eurollm_gen_hier_summary",
+        "rank": 3,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr1",
+        "model_name": "llama_3_3_70B_generated_judgement_summary",
+        "rank": 4,
+        "hallucination": true,
+        "incoherent": true,
+        "publishable": true
+      },
+      {
+        "press_id": "pr8",
+        "model_name": "openai_gpt_4o_gen_hier_summary",
+        "rank": 5,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr6",
+        "model_name": "llama_3_8b_gen_hier_summary",
+        "rank": 6,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr3",
+        "model_name": "openai_gpt_4o_generated_judgement_summary",
+        "rank": 7,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr5",
+        "model_name": "teuken_gen_hier_summary",
+        "rank": 8,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr10",
+        "model_name": "mistral_v03_generated_judgement_summary",
+        "rank": 9,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr7",
+        "model_name": "teuken_gen_hier_summ_summary-press-summary-v2",
+        "rank": 10,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr11",
+        "model_name": "mistral_v03_gen_hier_summary",
+        "rank": 11,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      }
+    ]
+  },
+  {
+    "case_id": "bfh_022-22",
+    "press_items": [
+      {
+        "press_id": "pr9",
+        "model_name": "reference_summary",
+        "rank": 1,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr8",
+        "model_name": "llama_3_3_70B_gen_hier_summary",
+        "rank": 2,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr7",
+        "model_name": "openai_gpt_4o_gen_hier_summary",
+        "rank": 3,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr1",
+        "model_name": "llama_3_3_70B_generated_judgement_summary",
+        "rank": 4,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr11",
+        "model_name": "openai_gpt_4o_generated_judgement_summary",
+        "rank": 5,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr5",
+        "model_name": "eurollm_gen_hier_summary",
+        "rank": 6,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr10",
+        "model_name": "mistral_v03_gen_hier_summary",
+        "rank": 7,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr3",
+        "model_name": "llama_3_8b_gen_hier_summary",
+        "rank": 8,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr6",
+        "model_name": "teuken_gen_hier_summ_summary-press-summary-v2",
+        "rank": 9,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr4",
+        "model_name": "teuken_gen_hier_summary",
+        "rank": 10,
+        "hallucination": true,
+        "incoherent": true,
+        "publishable": false
+      },
+      {
+        "press_id": "pr2",
+        "model_name": "mistral_v03_generated_judgement_summary",
+        "rank": 11,
+        "hallucination": true,
+        "incoherent": true,
+        "publishable": false
+      }
+    ]
+  },
+  {
+    "case_id": "bfh_028-23",
+    "press_items": [
+      {
+        "press_id": "pr4",
+        "model_name": "llama_3_3_70B_generated_judgement_summary",
+        "rank": 1,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr1",
+        "model_name": "reference_summary",
+        "rank": 2,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr8",
+        "model_name": "llama_3_3_70B_gen_hier_summary",
+        "rank": 3,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr2",
+        "model_name": "openai_gpt_4o_generated_judgement_summary",
+        "rank": 4,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr9",
+        "model_name": "openai_gpt_4o_gen_hier_summary",
+        "rank": 5,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr5",
+        "model_name": "llama_3_8b_gen_hier_summary",
+        "rank": 6,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr6",
+        "model_name": "mistral_v03_gen_hier_summary",
+        "rank": 7,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr10",
+        "model_name": "eurollm_gen_hier_summary",
+        "rank": 8,
+        "hallucination": true,
+        "incoherent": true,
+        "publishable": false
+      },
+      {
+        "press_id": "pr7",
+        "model_name": "mistral_v03_generated_judgement_summary",
+        "rank": 9,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr3",
+        "model_name": "teuken_gen_hier_summary",
+        "rank": 10,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr11",
+        "model_name": "teuken_gen_hier_summ_summary-press-summary-v2",
+        "rank": 11,
+        "hallucination": true,
+        "incoherent": true,
+        "publishable": false
+      }
+    ]
+  },
+  {
+    "case_id": "bgh_016-2020",
+    "press_items": [
+      {
+        "press_id": "pr6",
+        "model_name": "reference_summary",
+        "rank": 1,
+        "hallucination": true,
+        "incoherent": true,
+        "publishable": true
+      },
+      {
+        "press_id": "pr3",
+        "model_name": "llama_3_3_70B_generated_judgement_summary",
+        "rank": 2,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr1",
+        "model_name": "teuken_gen_hier_summ_summary-press-summary-v2",
+        "rank": 3,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr7",
+        "model_name": "openai_gpt_4o_gen_hier_summary",
+        "rank": 4,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr2",
+        "model_name": "mistral_v03_generated_judgement_summary",
+        "rank": 5,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr8",
+        "model_name": "openai_gpt_4o_generated_judgement_summary",
+        "rank": 6,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr11",
+        "model_name": "mistral_v03_gen_hier_summary",
+        "rank": 7,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr9",
+        "model_name": "llama_3_3_70B_gen_hier_summary",
+        "rank": 8,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr10",
+        "model_name": "llama_3_8b_gen_hier_summary",
+        "rank": 9,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr5",
+        "model_name": "eurollm_gen_hier_summary",
+        "rank": 10,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr4",
+        "model_name": "teuken_gen_hier_summary",
+        "rank": 11,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      }
+    ]
+  },
+  {
+    "case_id": "bgh_059-2023",
+    "press_items": [
+      {
+        "press_id": "pr5",
+        "model_name": "reference_summary",
+        "rank": 1,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr2",
+        "model_name": "llama_3_3_70B_gen_hier_summary",
+        "rank": 2,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr3",
+        "model_name": "openai_gpt_4o_gen_hier_summary",
+        "rank": 3,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr4",
+        "model_name": "llama_3_3_70B_generated_judgement_summary",
+        "rank": 4,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr8",
+        "model_name": "openai_gpt_4o_generated_judgement_summary",
+        "rank": 5,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr11",
+        "model_name": "eurollm_gen_hier_summary",
+        "rank": 6,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr9",
+        "model_name": "llama_3_8b_gen_hier_summary",
+        "rank": 7,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr1",
+        "model_name": "mistral_v03_gen_hier_summary",
+        "rank": 8,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr7",
+        "model_name": "mistral_v03_generated_judgement_summary",
+        "rank": 9,
+        "hallucination": true,
+        "incoherent": true,
+        "publishable": false
+      },
+      {
+        "press_id": "pr10",
+        "model_name": "teuken_gen_hier_summary",
+        "rank": 10,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr6",
+        "model_name": "teuken_gen_hier_summ_summary-press-summary-v2",
+        "rank": 11,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      }
+    ]
+  },
+  {
+    "case_id": "bsg_7 - 2023",
+    "press_items": [
+      {
+        "press_id": "pr6",
+        "model_name": "reference_summary",
+        "rank": 1,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr8",
+        "model_name": "openai_gpt_4o_gen_hier_summary",
+        "rank": 2,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr7",
+        "model_name": "openai_gpt_4o_generated_judgement_summary",
+        "rank": 3,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr4",
+        "model_name": "llama_3_8b_gen_hier_summary",
+        "rank": 4,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr10",
+        "model_name": "mistral_v03_generated_judgement_summary",
+        "rank": 5,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr1",
+        "model_name": "llama_3_3_70B_generated_judgement_summary",
+        "rank": 6,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr3",
+        "model_name": "llama_3_3_70B_gen_hier_summary",
+        "rank": 7,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr9",
+        "model_name": "eurollm_gen_hier_summary",
+        "rank": 8,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr2",
+        "model_name": "mistral_v03_gen_hier_summary",
+        "rank": 9,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr5",
+        "model_name": "teuken_gen_hier_summary",
+        "rank": 10,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr11",
+        "model_name": "teuken_gen_hier_summ_summary-press-summary-v2",
+        "rank": 11,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      }
+    ]
+  },
+  {
+    "case_id": "bsg_23 - 2022",
+    "press_items": [
+      {
+        "press_id": "pr7",
+        "model_name": "reference_summary",
+        "rank": 1,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr8",
+        "model_name": "mistral_v03_gen_hier_summary",
+        "rank": 2,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr6",
+        "model_name": "openai_gpt_4o_generated_judgement_summary",
+        "rank": 3,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr11",
+        "model_name": "mistral_v03_generated_judgement_summary",
+        "rank": 4,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr9",
+        "model_name": "llama_3_3_70B_gen_hier_summary",
+        "rank": 5,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr4",
+        "model_name": "eurollm_gen_hier_summary",
+        "rank": 6,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr5",
+        "model_name": "llama_3_3_70B_generated_judgement_summary",
+        "rank": 7,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr2",
+        "model_name": "openai_gpt_4o_gen_hier_summary",
+        "rank": 8,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr1",
+        "model_name": "llama_3_8b_gen_hier_summary",
+        "rank": 9,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr10",
+        "model_name": "teuken_gen_hier_summary",
+        "rank": 10,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr3",
+        "model_name": "teuken_gen_hier_summ_summary-press-summary-v2",
+        "rank": 11,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      }
+    ]
+  },
+  {
+    "case_id": "57-2020",
+    "press_items": [
+      {
+        "press_id": "pr7",
+        "model_name": "reference_summary",
+        "rank": 1,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr5",
+        "model_name": "mistral_v03_generated_judgement_summary",
+        "rank": 2,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr2",
+        "model_name": "llama_3_8b_gen_hier_summary",
+        "rank": 3,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr8",
+        "model_name": "openai_gpt_4o_gen_hier_summary",
+        "rank": 4,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr6",
+        "model_name": "llama_3_3_70B_gen_hier_summary",
+        "rank": 5,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr9",
+        "model_name": "openai_gpt_4o_generated_judgement_summary",
+        "rank": 6,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr10",
+        "model_name": "llama_3_3_70B_generated_judgement_summary",
+        "rank": 7,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr11",
+        "model_name": "eurollm_gen_hier_summary",
+        "rank": 8,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr1",
+        "model_name": "mistral_v03_gen_hier_summary",
+        "rank": 9,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr3",
+        "model_name": "teuken_gen_hier_summ_summary-press-summary-v2",
+        "rank": 10,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr4",
+        "model_name": "teuken_gen_hier_summary",
+        "rank": 11,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      }
+    ]
+  },
+  {
+    "case_id": "36-2020",
+    "press_items": [
+      {
+        "press_id": "pr2",
+        "model_name": "mistral_v03_generated_judgement_summary",
+        "rank": 1,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr7",
+        "model_name": "openai_gpt_4o_generated_judgement_summary",
+        "rank": 2,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr9",
+        "model_name": "eurollm_gen_hier_summary",
+        "rank": 3,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr6",
+        "model_name": "reference_summary",
+        "rank": 4,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr8",
+        "model_name": "openai_gpt_4o_gen_hier_summary",
+        "rank": 5,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr10",
+        "model_name": "llama_3_3_70B_gen_hier_summary",
+        "rank": 6,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr11",
+        "model_name": "llama_3_3_70B_generated_judgement_summary",
+        "rank": 7,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr1",
+        "model_name": "llama_3_8b_gen_hier_summary",
+        "rank": 8,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr4",
+        "model_name": "mistral_v03_gen_hier_summary",
+        "rank": 9,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr5",
+        "model_name": "teuken_gen_hier_summary",
+        "rank": 10,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr3",
+        "model_name": "teuken_gen_hier_summ_summary-press-summary-v2",
+        "rank": 11,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      }
+    ]
+  },
+  {
+    "case_id": "bverwg_2022-13",
+    "press_items": [
+      {
+        "press_id": "pr1",
+        "model_name": "reference_summary",
+        "rank": 1,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr7",
+        "model_name": "openai_gpt_4o_gen_hier_summary",
+        "rank": 2,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr8",
+        "model_name": "openai_gpt_4o_generated_judgement_summary",
+        "rank": 3,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr3",
+        "model_name": "mistral_v03_generated_judgement_summary",
+        "rank": 4,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr5",
+        "model_name": "llama_3_3_70B_generated_judgement_summary",
+        "rank": 5,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr11",
+        "model_name": "llama_3_8b_gen_hier_summary",
+        "rank": 6,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr9",
+        "model_name": "llama_3_3_70B_gen_hier_summary",
+        "rank": 7,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr10",
+        "model_name": "eurollm_gen_hier_summary",
+        "rank": 8,
+        "hallucination": false,
+        "incoherent": true,
+        "publishable": false
+      },
+      {
+        "press_id": "pr6",
+        "model_name": "teuken_gen_hier_summ_summary-press-summary-v2",
+        "rank": 9,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr4",
+        "model_name": "mistral_v03_gen_hier_summary",
+        "rank": 10,
+        "hallucination": true,
+        "incoherent": true,
+        "publishable": false
+      },
+      {
+        "press_id": "pr2",
+        "model_name": "teuken_gen_hier_summary",
+        "rank": 11,
+        "hallucination": false,
+        "incoherent": true,
+        "publishable": false
+      }
+    ]
+  },
+  {
+    "case_id": "bverwg_2022-56",
+    "press_items": [
+      {
+        "press_id": "pr6",
+        "model_name": "mistral_v03_generated_judgement_summary",
+        "rank": 1,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr11",
+        "model_name": "openai_gpt_4o_generated_judgement_summary",
+        "rank": 2,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr1",
+        "model_name": "reference_summary",
+        "rank": 3,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr4",
+        "model_name": "llama_3_3_70B_gen_hier_summary",
+        "rank": 4,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr8",
+        "model_name": "llama_3_3_70B_generated_judgement_summary",
+        "rank": 5,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": true
+      },
+      {
+        "press_id": "pr7",
+        "model_name": "mistral_v03_gen_hier_summary",
+        "rank": 6,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr9",
+        "model_name": "llama_3_8b_gen_hier_summary",
+        "rank": 7,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr3",
+        "model_name": "eurollm_gen_hier_summary",
+        "rank": 8,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr2",
+        "model_name": "openai_gpt_4o_gen_hier_summary",
+        "rank": 9,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr10",
+        "model_name": "teuken_gen_hier_summary",
+        "rank": 10,
+        "hallucination": false,
+        "incoherent": false,
+        "publishable": false
+      },
+      {
+        "press_id": "pr5",
+        "model_name": "teuken_gen_hier_summ_summary-press-summary-v2",
+        "rank": 11,
+        "hallucination": true,
+        "incoherent": false,
+        "publishable": false
+      }
+    ]
+  }
+]

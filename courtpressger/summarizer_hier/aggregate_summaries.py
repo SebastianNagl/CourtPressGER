@@ -11,7 +11,7 @@ def aggregate_summaries(args):
     origin_df = pd.read_csv(origin_csv)
 
     # Find all CSV files in summaries_path
-    csv_files = glob.glob(os.path.join(summaries_path, "*.csv"))
+    csv_files =  ["/home/heshmo/workspace/CourtPressGER/data/generation/hier/cases_prs_synth_prompts_test_sample_hier_gen_summ_teuken_hier_summ-stacked.csv"] #glob.glob(os.path.join(summaries_path, "*.csv"))
 
     # Start our merged DataFrame as the origin DataFrame
     merged_df = origin_df.copy()
@@ -21,7 +21,7 @@ def aggregate_summaries(args):
         temp_df = pd.read_csv(csv_file)
 
         # Identify all columns that end with '_summary'
-        summary_cols = [c for c in temp_df.columns if c.endswith('_generated_judgement_summary')]
+        summary_cols = [c for c in temp_df.columns if c.endswith('_gen_hier_summ_summary-stacked')]
         
         # If there's nothing to merge (no summary columns), skip
         if not summary_cols:

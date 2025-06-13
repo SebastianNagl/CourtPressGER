@@ -72,6 +72,7 @@ def main():
     hier_parser.add_argument("--num_attempts", "-n", type=int, default=None)
     hier_parser.add_argument("--word_ratio", "-w", type=float, default=None)
     hier_parser.add_argument("--column_name", "-cn", type=str, default=None)
+    hier_parser.add_argument("--dump_intermediates_path", "-d", type=str, default=None)
 
     # ---- summarize_mgpu ----
     mgpu_parser = subparsers.add_parser("summarize_mgpu", help="Multi-GPU Summarization")
@@ -88,7 +89,7 @@ def main():
     mgpu_parser.add_argument("--column_name", "-cn", type=str, default=None)
     mgpu_parser.add_argument("--tokenizer_name", "-t", default=None)
     mgpu_parser.add_argument("--gpu_count", type=int, default=None)
-
+    mgpu_parser.add_argument("--dump_intermediates_path", "-d", type=str, default=None)
     # ---- aggregate_summaries ----
     agg_parser = subparsers.add_parser("aggregate", help="Aggregate Summaries")
     agg_parser.add_argument("--origin_csv", "-oc", type=str, default=None)

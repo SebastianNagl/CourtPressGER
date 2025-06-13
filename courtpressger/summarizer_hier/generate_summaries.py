@@ -94,7 +94,6 @@ def generate_summaries(config: dict):
 
     # Instantiate the model interface
     model_interface = get_model_interface(config)
-
     # Create Generator
     generator = Generator(
         max_context_len=config["context_len"],

@@ -1,0 +1,67 @@
+{
+    "chunk": {
+      "model_type": "huggingface_local",
+      "model": "MHGanainy/teuken-hier-summ-sft",
+      "tokenizer_name": "openGPT-X/Teuken-7B-instruct-research-v0.4",
+      "input": "/home/heshmo/workspace/CourtPressGER/data/processed/cases_prs_synth_prompts.csv",
+      "output": "/home/heshmo/workspace/CourtPressGER/data/processed/summarization_hier/chunks/teuken_hier_summ_chunks_full.csv",
+      "chunk_size": 2048
+    },
+    "summarize": {
+      "model_type": "huggingface_local",
+      "model": "MHGanainy/teuken-hier-summ-sft-press-stacked",
+      "tokenizer_name": "openGPT-X/Teuken-7B-instruct-research-v0.4",
+      "input": "/home/heshmo/workspace/CourtPressGER/data/processed/summarization_hier/chunks/teuken_hier_summ_chunks.csv",
+      "output": "/home/heshmo/workspace/CourtPressGER/data/processed/summarization_hier/summaries/teuken_hier_summ_summaries_stacked.csv",
+      "chunk_size": 2048,
+      "context_len": 4096,
+      "summary_len": 900,
+      "prompts": "/home/heshmo/workspace/CourtPressGER/prompts",
+      "validate_summary": false,
+      "num_attempts": 3,
+      "word_ratio": 0.65,
+      "column_name": "teuken_hier_summ_stacked_summary"
+    },
+    "summarize_mgpu": {
+      "model_type": "huggingface_local",
+      "model": "MHGanainy/teuken-hier-summ-sft-press-stacked",
+      "tokenizer_name": "openGPT-X/Teuken-7B-instruct-research-v0.4",
+      "input": "/home/heshmo/workspace/CourtPressGER/data/processed/summarization_hier/chunks/teuken_hier_summ_chunks.csv",
+      "output": "/home/heshmo/workspace/CourtPressGER/data/processed/summarization_hier/summaries/teuken_hier_summ_summaries_stacked.csv",
+      "chunk_size": 2048,
+      "context_len": 4096,
+      "summary_len": 900,
+      "prompts": "/home/heshmo/workspace/CourtPressGER/references/prompts",
+      "validate_summary": false,
+      "num_attempts": 3,
+      "word_ratio": 0.65,
+      "column_name": "teuken_hier_summ_stacked_summary",
+      "gpu_count": 4
+    },
+    "generate": {
+      "model_type": "huggingface_local",
+      "model": "MHGanainy/teuken-hier-summ-sft-press-stacked",
+      "tokenizer_name": "openGPT-X/Teuken-7B-instruct-research-v0.4",
+      "input": "/home/heshmo/workspace/CourtPressGER/data/generation/teuken_sft_hier_summaries_stacked.csv",
+      "output": "/home/heshmo/workspace/CourtPressGER/data/generation/hier/cases_prs_synth_prompts_test_sample_hier_gen_summ_teuken_hier_summ-stacked.csv",
+      "hier_summ_column_name": "teuken_hier_summ_stacked_summary",
+      "output_column_name": "teuken_gen_hier_summ_summary-stacked",
+      "context_len": 4096,
+      "summary_len": 1024,
+      "prompt_column_name": "synthetic_prompt"
+    },
+    "generate_mgpu": {
+      "model_type": "huggingface_local",
+      "model": "MHGanainy/teuken-hier-summ-sft-press-stacked",
+      "tokenizer_name": "openGPT-X/Teuken-7B-instruct-research-v0.4",
+      "input": "/home/heshmo/workspace/CourtPressGER/data/generation/teuken_sft_hier_summaries_stacked.csv",
+      "output": "/home/heshmo/workspace/CourtPressGER/data/generation/hier/cases_prs_synth_prompts_test_sample_hier_gen_summ_teuken_hier_summ-stacked.csv",
+      "hier_summ_column_name": "teuken_hier_summ_stacked_summary",
+      "output_column_name": "teuken_gen_hier_summ_summary-stacked",
+      "context_len": 4096,
+      "summary_len": 1024,
+      "prompt_column_name": "synthetic_prompt",
+      "gpu_count": 4
+    }
+  }
+  

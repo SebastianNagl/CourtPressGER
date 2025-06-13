@@ -41,6 +41,25 @@ checkpoints/
 *.onnx
 *.bin
 *.model
+*.safetensors
+*.safetensors.index.json
+
+# Results and figures
+results/
+figures/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.pdf
+report.html
+*.html
+
+# Evaluation outputs
+evaluation_summary.json
+*_checkpoint.json
+*_results.json
 
 # IDE
 .idea/
@@ -191,4 +210,10 @@ models/teuken/
 models/eurollm/
 models/llama3-8b/
 
+# Keep configuration files
 !courtpressger/summarizer_hier/configs/**
+
+# Temporary files
+temp.py
+tmp/
+temp/

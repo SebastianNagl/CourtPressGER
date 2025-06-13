@@ -161,7 +161,7 @@ def chunk_data(config):
             all_chunk_token_counts.append(chunker.count_tokens(ch))
 
     df["chunks"] = all_chunks
-    df = df[["id", "chunks"]]
+    df = df[["id","split_name", "chunks"]]
     df.to_csv(config["output"], index=False)
     print(df)
 

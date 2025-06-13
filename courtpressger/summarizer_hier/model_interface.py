@@ -258,7 +258,8 @@ def get_model_interface(config: dict, device: str = "cuda:0") -> ModelInterface:
       }
     """
     model_type = config.get("model_type", "huggingface_local")
-
+    print(f"Model type: {model_type}")
+    print(f"Model: {config['model']}")
     if model_type == "huggingface_local":
         return HuggingFaceLocalModel(
             model_name=config["model"],

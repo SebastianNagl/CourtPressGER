@@ -23,7 +23,8 @@ class Summarizer():
         validate_summary=False,
         num_attempts=3,
         word_ratio=0.65,
-        column_name=None        
+        column_name=None,
+        dump_intermediates_path=None        
     ):
         """
         :param model_interface: An object implementing `ModelInterface` 
@@ -47,6 +48,7 @@ class Summarizer():
         print(f" num_attempts    : {num_attempts}")
         print(f" word_ratio      : {word_ratio}")
         print(f" column_name     : {column_name}")
+        print(f" dump_intermediates_path: {dump_intermediates_path}")
         print("============================================================\n")
 
         self.model_interface = model_interface
@@ -58,6 +60,12 @@ class Summarizer():
         self.validate_summary = validate_summary
         self.num_attempts = num_attempts
         self.column_name = column_name
+        self.dump_intermediates_path = dump_intermediates_path
+
+        # For recording steps per ruling
+        self.intermediates = []
+        self.step_counts = defaultdict(int)
+
 
         model_name = getattr(model_interface, "model_name", "").lower()
         self.is_teuken = "teuken" in model_name
@@ -96,6 +104,19 @@ class Summarizer():
         """
         return self.model_interface.generate_text(prompt, max_tokens, temperature)
 
+    def record_intermediate(self, ruling_id, split_name, level, prompt_text, summary):
+        """Record each intermediate prompt and summary, indexed per ruling."""
+        self.step_counts[ruling_id] += 1
+        step_index = self.step_counts[ruling_id]
+        self.intermediates.append({
+            'id': ruling_id,
+            'split_name': split_name,
+            'level': level,
+            'step': step_index,
+            'prompt': prompt_text[0]['content'],
+            'summary': summary
+        })
+
     def check_summary_validity(self, summary, token_limit):
         """Heuristic checks for an acceptable summary length and ending punctuation."""
         print("[check_summary_validity] Checking if summary is valid...")
@@ -109,7 +130,7 @@ class Summarizer():
         print("[check_summary_validity] Summary is valid.\n")
         return True
 
-    def summarize_texts(self, texts, token_limit, level):
+    def summarize_texts(self, texts, token_limit, level, ruling_id, split_name ):
         """
         Summarize the given text (plus optional context) based on a given token_limit.
         """
@@ -163,6 +184,9 @@ class Summarizer():
             response = self.obtain_response(prompt, max_tokens=token_limit, temperature=0.1)
 
         print(f"[summarize_texts] Final summary length (tokens): {self.count_tokens(response)}\n")
+        
+        # Record intermediate
+        #self.record_intermediate(ruling_id, split_name, level, prompt, response)
         return response
 
     def estimate_levels(self, ruling_chunks, summary_limit=450):
@@ -199,7 +223,7 @@ class Summarizer():
 
         return levels, summary_limits
 
-    def recursive_summary(self, summaries, level, chunks, summary_limits):
+    def recursive_summary(self, summaries, level, chunks, summary_limits, ruling_id, split_name):
         """
         Merges chunks into summaries recursively until the result is small enough
         to be summarized in one go.
@@ -274,20 +298,20 @@ class Summarizer():
                     text += f"\n\nSummary {j}:\n\n{chunks[i]}"
 
             texts = {'text': text, 'context': context}
-            summary = self.summarize_texts(texts, summary_limit, level)
+            summary = self.summarize_texts(texts, summary_limit, level, ruling_id, split_name)
             summaries_dict[level].append(summary)
             i += 1
 
         # If there's more than one chunk, we must merge them at the next level
         if len(summaries_dict[level]) > 1:
             print(f"[recursive_summary] Level {level} produced {len(summaries_dict[level])} summaries; proceeding to next level.\n")
-            return self.recursive_summary(summaries, level + 1, summaries_dict[level], summary_limits)
+            return self.recursive_summary(summaries, level + 1, summaries_dict[level], summary_limits, ruling_id, split_name)
         else:
             # final summary
             print(f"[recursive_summary] Level {level} final summary obtained.\n")
             return summaries_dict[level][0]
 
-    def summarize_ruling(self, chunks):
+    def summarize_ruling(self, chunks, ruling_id, split_name):
         """
         Summarize a single ruling's chunks hierarchically.
         """
@@ -297,7 +321,7 @@ class Summarizer():
         level = 0
 
         summaries = {'summaries_dict': defaultdict(list)}
-        final_summary = self.recursive_summary(summaries, level, chunks, summary_limits)
+        final_summary = self.recursive_summary(summaries, level, chunks, summary_limits, ruling_id, split_name)
         return final_summary
 
     def get_summaries_for_dataframe(self, df):
@@ -309,12 +333,16 @@ class Summarizer():
         final_summaries = []
         for idx, row in tqdm(df.iterrows(), total=len(df), desc="Summarizing rulings"):
             ruling_chunks = row["chunks"]
-            final_summary = self.summarize_ruling(ruling_chunks)
+            final_summary = self.summarize_ruling(ruling_chunks, row["id"], row["split_name"])
             final_summaries.append(final_summary)
 
         column_name = self.column_name
         df[column_name] = final_summaries
         print("[get_summaries_for_dataframe] Summaries generation completed.\n")
+        intermediates = pd.DataFrame(self.intermediates)
+        if self.dump_intermediates_path:
+            intermediates.to_csv(self.dump_intermediates_path, index=False)
+            print(f"[get_summaries_for_dataframe] Intermediates saved to {self.dump_intermediates_path}.\n")
         return df
 
 
@@ -337,17 +365,32 @@ def summarize_data(config):
     model_interface = get_model_interface(config)
 
     # Create Summarizer
-    summarizer = Summarizer(
-        chunk_size=config["chunk_size"],
-        max_context_len=config["context_len"],
-        max_summary_len=config["summary_len"],
-        model_interface=model_interface,
-        prompts=config["prompts"],
-        validate_summary=config.get("validate_summary", False),
-        num_attempts=config.get("num_attempts", 3),
-        word_ratio=config.get("word_ratio", 0.65),
-        column_name=config["column_name"]
-    )
+    if "dump_intermediates_path" in config:
+        summarizer = Summarizer(
+            chunk_size=config["chunk_size"],
+            max_context_len=config["context_len"],
+            max_summary_len=config["summary_len"],
+            model_interface=model_interface,
+            prompts=config["prompts"],
+            validate_summary=config.get("validate_summary", False),
+            num_attempts=config.get("num_attempts", 3),
+            word_ratio=config.get("word_ratio", 0.65),
+            column_name=config["column_name"],
+            dump_intermediates_path=config["dump_intermediates_path"],
+        )
+    else:
+        summarizer = Summarizer(
+            chunk_size=config["chunk_size"],
+            max_context_len=config["context_len"],
+            max_summary_len=config["summary_len"],
+            model_interface=model_interface,
+            prompts=config["prompts"],
+            validate_summary=config.get("validate_summary", False),
+            num_attempts=config.get("num_attempts", 3),
+            word_ratio=config.get("word_ratio", 0.65),
+            column_name=config["column_name"],
+        )
+
 
     # Summarize data
     df_summarized = summarizer.get_summaries_for_dataframe(df)

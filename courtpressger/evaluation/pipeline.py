@@ -130,8 +130,8 @@ class LLMEvaluationPipeline:
                         
                         # Hole Quelltext für sachliche Konsistenzmetriken, falls aktiviert
                         source_text = None
-                        if enable_factual_consistency and source_text_column and source_text_column in row:
-                            source_text = row[source_text_column]
+                        # if enable_factual_consistency and source_text_column and source_text_column in row:
+                        source_text = row[source_text_column]
                         
                         # ROUGE-Scores berechnen
                         rouge_result = self.scorer.score(reference, generated_press)
@@ -259,6 +259,8 @@ class LLMEvaluationPipeline:
         
         for metric in all_metrics:
             values = [v[metric] for v in valid_results.values() if metric in v]
+            # remove nan values
+            values = [v for v in values if not pd.isna(v)]  
             if values:
                 summary[f'avg_{metric}'] = sum(values) / len(values)
         

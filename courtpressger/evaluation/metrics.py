@@ -1053,105 +1053,131 @@ def compute_all_metrics(reference: str, generated: str,
     """
     metrics = {}
     
-    # Inhaltliche Überlappungsmetriken
-    metrics['keyword_overlap'] = ContentOverlapMetrics.keyword_overlap(reference, generated)
-    metrics['entity_overlap'] = ContentOverlapMetrics.entity_overlap(reference, generated)
-    metrics['length_ratio'] = ContentOverlapMetrics.length_ratio(reference, generated)
+    # # Inhaltliche Überlappungsmetriken
+    # metrics['keyword_overlap'] = ContentOverlapMetrics.keyword_overlap(reference, generated)
+    # metrics['entity_overlap'] = ContentOverlapMetrics.entity_overlap(reference, generated)
+    # metrics['length_ratio'] = ContentOverlapMetrics.length_ratio(reference, generated)
     
-    # Entity-F1-Score berechnen (falls spaCy verfügbar)
-    if SPACY_AVAILABLE:
-        try:
-            entity_f1_metrics = ContentOverlapMetrics.entity_f1(reference, generated)
-            metrics.update(entity_f1_metrics)
-        except Exception as e:
-            print(f"Fehler bei der Berechnung des Entity-F1-Scores: {str(e)}")
+    # # Entity-F1-Score berechnen (falls spaCy verfügbar)
+    # if SPACY_AVAILABLE:
+    #     try:
+    #         entity_f1_metrics = ContentOverlapMetrics.entity_f1(reference, generated)
+    #         metrics.update(entity_f1_metrics)
+    #     except Exception as e:
+    #         print(f"Fehler bei der Berechnung des Entity-F1-Scores: {str(e)}")
     
-    # BLEU-Scores berechnen (falls verfügbar)
-    if NLTK_AVAILABLE:
-        try:
-            bleu_metrics = BleuMetric.compute(reference, generated)
-            metrics.update(bleu_metrics)
-        except Exception as e:
-            print(f"Fehler bei der Berechnung der BLEU-Scores: {str(e)}")
+    # # BLEU-Scores berechnen (falls verfügbar)
+    # if NLTK_AVAILABLE:
+    #     try:
+    #         bleu_metrics = BleuMetric.compute(reference, generated)
+    #         metrics.update(bleu_metrics)
+    #     except Exception as e:
+    #         print(f"Fehler bei der Berechnung der BLEU-Scores: {str(e)}")
     
-    # METEOR-Score berechnen (falls verfügbar)
-    if NLTK_AVAILABLE:
-        try:
-            metrics['meteor'] = MeteorMetric.compute(reference, generated)
-        except Exception as e:
-            print(f"Fehler bei der Berechnung des METEOR-Scores: {str(e)}")
+    # # METEOR-Score berechnen (falls verfügbar)
+    # if NLTK_AVAILABLE:
+    #     try:
+    #         metrics['meteor'] = MeteorMetric.compute(reference, generated)
+    #     except Exception as e:
+    #         print(f"Fehler bei der Berechnung des METEOR-Scores: {str(e)}")
     
     # BERTScore berechnen (falls verfügbar und aktiviert)
     if BERT_SCORE_AVAILABLE and bert_score_model:
         try:
-            print(f"INFO: Berechne BERTScore mit lokalem Modell '{bert_score_model}' und num_layers=12 (bert-score v0.3.12)...")
-            try:
-                # BERTScore mit dem angegebenen Modell berechnen 
-                P, R, F1 = bert_score.score(
-                    [generated], [reference],
-                    lang=lang,
-                    model_type=bert_score_model,
-                    num_layers=12,
-                    device="cuda" if torch.cuda.is_available() else "cpu"
-                )
-            except Exception as e:
-                # Bei Problemen mit EuroBERT, verwenden wir ein direkt unterstütztes Modell
-                fallback_model = "bert-base-multilingual-cased"  # Dieses Modell ist in bert-score direkt unterstützt
-                print(f"WARNUNG: BERTScore mit {bert_score_model} fehlgeschlagen ({e}). Fallback zu {fallback_model}...")
-                
-                # Fallback mit Standard lang-Parameter, damit die automatischen Layer-Werte verwendet werden
-                P, R, F1 = bert_score.score(
-                    [generated], [reference],
-                    lang=lang,
-                    model_type=bert_score_model
-                )
-            
-            metrics.update({
-                'bertscore_precision': P.item(),
-                'bertscore_recall': R.item(),
-                'bertscore_f1': F1.item()
-            })
-        except Exception as e:
+            # Erster Versuch: komplettes Paar auf GPU/CPU
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            print(f"INFO: Berechne BERTScore mit Modell '{bert_score_model}' auf {device} und num_layers=12...")
+            P, R, F1 = bert_score.score(
+                [generated], [reference],
+                lang=lang,
+                model_type=bert_score_model,
+                num_layers=12,
+                device=device
+            )
+        except RuntimeError as e:
             import traceback
-            print(f"Fehler bei der Berechnung des BERTScores mit Modell {bert_score_model}:", file=sys.stderr)
-            traceback.print_exc()
+            # Prüfen, ob es ein CUDA OOM war
+            if "out of memory" in str(e):
+                print(f"WARNUNG: CUDA OOM mit {bert_score_model} (num_layers=12). Leere Cache und versuche es mit einem Sample erneut...")
+                torch.cuda.empty_cache()
+                try:
+                    # Zweiter Versuch: nur ein Sample (ist hier identisch, aber bei Batch größerer Daten sinnvoll)
+                    P, R, F1 = bert_score.score(
+                        [generated], [reference],
+                        lang=lang,
+                        model_type=bert_score_model,
+                        num_layers=12,
+                        device=device
+                    )
+                except RuntimeError as e2:
+                    if "out of memory" in str(e2):
+                        print(f"WARNUNG: OOM erneut bei Einzel-Sample. Fallback auf kleineres Modell 'bert-base-multilingual-cased' mit Standard-Layern...")
+                        torch.cuda.empty_cache()
+                        fallback_model = "bert-base-multilingual-cased"
+                        # Fallback ohne num_layers, damit bert-score automatisch Layer auswählt
+                        P, R, F1 = bert_score.score(
+                            [generated], [reference],
+                            lang=lang,
+                            model_type=fallback_model,
+                            device=device
+                        )
+                    else:
+                        # Anderer Fehler beim Einzel-Sample
+                        print("Fehler beim BERTScore-Einzel-Sample:", file=sys.stderr)
+                        traceback.print_exc()
+                        raise
+            else:
+                # Anderer Fehler beim ersten Lauf
+                print(f"Fehler bei der Berechnung des BERTScores mit Modell {bert_score_model}:", file=sys.stderr)
+                traceback.print_exc()
+                raise
+        else:
+            # Kein Fehler
+            pass
+
+        # Ergebnisse ins metrics-Dict übernehmen
+        metrics.update({
+            'bertscore_precision': P.item(),
+            'bertscore_recall':    R.item(),
+            'bertscore_f1':        F1.item()
+        })
     
-    # Semantische Ähnlichkeit (falls aktiviert)
-    if semantic_similarity_model and TRANSFORMERS_AVAILABLE:
-        try:
-            similarity_metric = SemanticSimilarityMetric(model_name=semantic_similarity_model)
-            metrics['semantic_similarity'] = similarity_metric.compute(reference, generated)
-        except Exception as e:
-            print(f"Fehler bei der Berechnung der semantischen Ähnlichkeit: {str(e)}")
+    # # Semantische Ähnlichkeit (falls aktiviert)
+    # if semantic_similarity_model and TRANSFORMERS_AVAILABLE:
+    #     try:
+    #         similarity_metric = SemanticSimilarityMetric(model_name=semantic_similarity_model)
+    #         metrics['semantic_similarity'] = similarity_metric.compute(reference, generated)
+    #     except Exception as e:
+    #         print(f"Fehler bei der Berechnung der semantischen Ähnlichkeit: {str(e)}")
     
     # Sachliche Konsistenzmetriken (QAGS und FactCC, falls aktiviert)
-    if enable_factual_consistency and source_text and TRANSFORMERS_AVAILABLE:
-        # QAGS
-        try:
-            qags_metric = QAGSMetric(lang=lang)
-            qags_results = qags_metric.compute(source_text, generated)
-            metrics.update(qags_results)
-            print(f"INFO: QAGS-Score berechnet: {qags_results.get('qags_score', 'N/A')}")
-        except Exception as e:
-            print(f"Fehler bei der Berechnung des QAGS-Scores: {str(e)}")
+    # if enable_factual_consistency and source_text and TRANSFORMERS_AVAILABLE:
+    #     # QAGS
+    #     try:
+    #         qags_metric = QAGSMetric(lang=lang)
+    #         qags_results = qags_metric.compute(source_text, generated)
+    #         metrics.update(qags_results)
+    #         print(f"INFO: QAGS-Score berechnet: {qags_results.get('qags_score', 'N/A')}")
+    #     except Exception as e:
+    #         print(f"Fehler bei der Berechnung des QAGS-Scores: {str(e)}")
         
-        # FactCC
-        try:
-            factcc_metric = FactCCMetric(lang=lang)
-            factcc_results = factcc_metric.compute(source_text, generated)
-            metrics.update(factcc_results)
-            print(f"INFO: FactCC-Score berechnet: {factcc_results.get('factcc_score', 'N/A')}")
-        except Exception as e:
-            print(f"Fehler bei der Berechnung des FactCC-Scores: {str(e)}")
+    #     # # FactCC
+        # try:
+        #     factcc_metric = FactCCMetric(lang=lang)
+        #     factcc_results = factcc_metric.compute(source_text, generated)
+        #     metrics.update(factcc_results)
+        #     print(f"INFO: FactCC-Score berechnet: {factcc_results.get('factcc_score', 'N/A')}")
+        # except Exception as e:
+        #     print(f"Fehler bei der Berechnung des FactCC-Scores: {str(e)}")
     
     # LLM as a Judge (falls aktiviert)
-    if enable_llm_as_judge and source_text:
-        try:
-            llm_judge = LLMAsJudgeMetric()
-            llm_judge_results = llm_judge.compute(source_text, generated, reference)
-            metrics.update(llm_judge_results)
-            print(f"INFO: LLM-as-Judge Score berechnet: {llm_judge_results.get('llm_judge_gesamtscore', 'N/A')}")
-        except Exception as e:
-            print(f"Fehler bei der LLM-as-Judge Bewertung: {str(e)}")
+    # if enable_llm_as_judge and source_text:
+    #     try:
+    #         llm_judge = LLMAsJudgeMetric()
+    #         llm_judge_results = llm_judge.compute(source_text, generated, reference)
+    #         metrics.update(llm_judge_results)
+    #         print(f"INFO: LLM-as-Judge Score berechnet: {llm_judge_results.get('llm_judge_gesamtscore', 'N/A')}")
+    #     except Exception as e:
+    #         print(f"Fehler bei der LLM-as-Judge Bewertung: {str(e)}")
     
     return metrics 
