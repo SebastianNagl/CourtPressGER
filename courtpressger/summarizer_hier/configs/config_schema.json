@@ -1,0 +1,151 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Hierarchical Summarization Configuration",
+    "type": "object",
+    "properties": {
+      "model": {
+        "type": "object",
+        "properties": {
+          "model_type": {
+            "type": "string",
+            "enum": ["huggingface_local", "openai", "deep_infra"]
+          },
+          "model_name": {
+            "type": "string"
+          },
+          "tokenizer_name": {
+            "type": "string"
+          },
+          "device": {
+            "type": "string",
+            "default": "cuda:0"
+          },
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2,
+            "default": 0.7
+          },
+          "top_p": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0.9
+          },
+          "repetition_penalty": {
+            "type": "number",
+            "minimum": 0,
+            "default": 1.2
+          },
+          "do_sample": {
+            "type": "boolean",
+            "default": true
+          },
+          "torch_dtype": {
+            "type": "string",
+            "enum": ["float16", "bfloat16", "float32"],
+            "default": "bfloat16"
+          }
+        },
+        "required": ["model_type", "model_name"]
+      },
+      "chunking": {
+        "type": "object",
+        "properties": {
+          "chunk_size": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 2048
+          },
+          "overlap": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0
+          }
+        }
+      },
+      "summarization": {
+        "type": "object",
+        "properties": {
+          "max_context_length": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 4096
+          },
+          "max_summary_length": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 900
+          },
+          "chunk_size": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 2048
+          },
+          "validate_summary": {
+            "type": "boolean",
+            "default": false
+          },
+          "num_attempts": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 3
+          },
+          "word_ratio": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 0.65
+          },
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2,
+            "default": 0.1
+          },
+          "prompts_dir": {
+            "type": "string",
+            "default": "prompts"
+          }
+        }
+      },
+      "processing": {
+        "type": "object",
+        "properties": {
+          "input_path": {
+            "type": "string"
+          },
+          "output_path": {
+            "type": "string"
+          },
+          "batch_size": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 10
+          },
+          "checkpoint_frequency": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 50
+          },
+          "gpu_count": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          },
+          "column_mappings": {
+            "type": "object",
+            "properties": {
+              "judgement_column": {"type": "string"},
+              "prompt_column": {"type": "string"},
+              "summary_column": {"type": "string"},
+              "chunks_column": {"type": "string"},
+              "hierarchical_summary_column": {"type": "string"},
+              "generated_summary_column": {"type": "string"}
+            }
+          }
+        },
+        "required": ["input_path", "output_path"]
+      }
+    }
+  }
