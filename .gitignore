@@ -35,12 +35,33 @@ checkpoints/
 
 # Data and model files
 *.csv
+# Exception: Allow CSV files in data/ directory for submission
+!data/**/*.csv
 *.pkl
 *.h5
 *.pt
 *.onnx
 *.bin
 *.model
+*.safetensors
+*.safetensors.index.json
+
+# Results and figures
+results/
+figures/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.pdf
+report.html
+*.html
+
+# Evaluation outputs
+evaluation_summary.json
+*_checkpoint.json
+*_results.json
 
 # IDE
 .idea/
@@ -190,3 +211,11 @@ models/eurobert/
 models/teuken/
 models/eurollm/
 models/llama3-8b/
+
+# Keep configuration files
+!courtpressger/summarizer_hier/configs/**
+
+# Temporary files
+temp.py
+tmp/
+temp/
